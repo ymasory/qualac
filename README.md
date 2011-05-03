@@ -1,2 +1,2 @@
-# Quala - A Quality Assurance Project for the Scala compiler #
+# Quala - Quality Assurance test suite for the Scala compiler #
 Nothing to see here.
