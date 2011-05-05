@@ -5,6 +5,8 @@ import java.io.{ File, StringWriter, PrintWriter }
 import scala.tools.nsc.{ Global, Settings }
 import scala.tools.nsc.reporters.{ Reporter, StoreReporter }
 
+import scala.util.Properties
+
 object Scalac {
   
   type ScalacMessage = StoreReporter#Info 
@@ -13,16 +15,11 @@ object Scalac {
   val testPrefix = curDir + "/check/"
 
   lazy val optVersion: Option[String] = {
-    val RCVersion = """version (\d+\.\d+\.\d+\.RC\d+).*""".r
-    val SimpleVersion = """version (\d+\.\d+\.\d+).*""".r
-    util.Properties.versionString match {
-      case RCVersion(version)     => Some(version)
-      case SimpleVersion(version) => Some(version)
-      case _ => {
-        Console.err println ("could not detect scala version")
-        None
-      }
-    }
+    val dev = Properties.developmentVersion
+    val rel = Properties.releaseVersion
+    if (rel.isDefined) rel
+    else if (dev.isDefined) dev
+    else None
   }
 
   def compile(fileName: String): List[ScalacMessage] = {
