@@ -15,6 +15,7 @@ class Project(info: ProjectInfo) extends DefaultProject(info) {
   val scalacheck = "org.scala-tools.testing" % "scalacheck_2.9.0.RC2" % "1.8"
   val specs2 = "org.specs2" % "specs2_2.9.0.RC2" % "1.2"
   val scalatest = "org.scalatest" %% "scalatest" % "1.4.RC3"
+  val mail = "javax.mail" % "mail" % "1.4.1"
 
   //junit
   override def testOptions = 
