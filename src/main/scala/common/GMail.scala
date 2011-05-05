@@ -1,10 +1,11 @@
 package qualac.common
 
 import java.io.File
-import javax.mail._
-import javax.mail.internet._
+import javax.mail.{Message, Session}
+import javax.mail.internet.{MimeMessage, InternetAddress}
 
 import scala.io.Source
+import scala.util.Properties
 
 object GMail {
 
@@ -13,7 +14,7 @@ object GMail {
     val from = "qualascala"
     val password = {
       val sep = System getProperty "file.separator"
-      val file = new File(System.getProperty("user.home") + sep + ".quala")
+      val file = new File(Properties.userHome + sep + ".quala")
       Source.fromFile(file).mkString.trim
     }
     val props = System.getProperties
