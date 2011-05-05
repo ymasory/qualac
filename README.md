@@ -1,4 +1,4 @@
-<img src="https://github.com/downloads/quala/quala/quala_square.png" alt="Quala logo" align="right" width="150" />
+<img src="https://github.com/downloads/quala/quala/quala_trans.png" alt="Quala logo" align="right" width="150" />
 # Qualac #
 
 > Same bugs different day.
