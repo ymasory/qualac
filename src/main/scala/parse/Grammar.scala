@@ -1,4 +1,4 @@
-package qualac.parser
+package qualac.parse
 
 object Grammar {
 
