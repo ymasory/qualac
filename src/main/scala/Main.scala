@@ -9,6 +9,6 @@ object Main {
     val subj =
       "[quala-nightly] This is a test of the qualac notification system"
     val body = "beeeeeeeeeeeeeeep"
-    GMail sendMail (to, subj, body)
+    // GMail sendMail (to, subj, body)
   }
 }
