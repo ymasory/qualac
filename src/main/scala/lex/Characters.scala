@@ -5,9 +5,7 @@ import org.scalacheck._
 import LexImplicits.bmpToCodePoint
 
 /**
- * ScalaCheck generators for tokens and their lexical constituents.
- *
- * UAR = "uniformly at random"
+ * ScalaCheck generators for characters and other lexical constituents.
  *
  * @author Yuvi Masory
  * @specSec 1.0
