@@ -33,12 +33,6 @@ object Characters {
   lazy val codeUnit: Gen[CodeUnit] = Gen choose ("U+0000", "U+FFFF")
 
   /**
-   * Generate a Unicode supplementary character, UAR.
-   * 
-   */
-   lazy val supChar: Gen[CodeUnit] = null
-
-  /**
    * Generate a literal character, UAR.
    * 
    * @spec literal characters ‘c’ refer to the ASCII fragment \u0000-\u007F.
