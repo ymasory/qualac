@@ -12,6 +12,8 @@ import LexImplicits.bmpToCodeUnit
  * @undefined How are we to encode these Unicode code points? The spec doesn't
  * specify an encoding. "UTF-16 code units" should be specified.
  * @undefined Lexical Translats are not specified. See JLS 3.2.
+ * @undefined No Unicode version is specified. Without that one cannot be sure
+ * which code units below to which classes.
  */
 object Characters {
 
@@ -102,7 +104,8 @@ object Characters {
    *
    * @spec lower case letter (Ll)
    */
-  lazy val lowercaseLetterChar: Gen[CodeUnit] = null
+  lazy val lowercaseLetterChar: Gen[CodeUnit] =
+    Gen oneOf LexUtils.UnicodeClasses.UnicodeLl
 
   /**
    * Generate a uppercase letter character, UAR.
@@ -110,28 +113,32 @@ object Characters {
    * @spec upper case letter (Lu) ... and the two characters \u0024 ‘$’ and
    * \u005F ‘_’, which both count as upper case letters
    */
-  lazy val uppercaseLetterChar: Gen[CodeUnit] = null
+  lazy val uppercaseLetterChar: Gen[CodeUnit] =
+    Gen oneOf LexUtils.UnicodeClasses.UnicodeLu
 
   /**
    * Generate a title-case letter character, UAR.
    *
    * @spec title-case letters (Lt)
    */
-  lazy val titlecaseLetterChar: Gen[CodeUnit] = null
+  lazy val titlecaseLetterChar: Gen[CodeUnit] =
+    Gen oneOf LexUtils.UnicodeClasses.UnicodeLt
 
   /**
    * Generate a "other letter" character, UAR.
    *
    * @spec other letters (Lo)
    */
-  lazy val otherLetterChar: Gen[CodeUnit] = null
+  lazy val otherLetterChar: Gen[CodeUnit] =
+    Gen oneOf LexUtils.UnicodeClasses.UnicodeLo
 
   /**
    * Generate a numeral letter character, UAR.
    *
    * @spec letter numerals(Nl)
    */
-  lazy val letterNumeralChar: Gen[CodeUnit] = null
+  lazy val letterNumeralChar: Gen[CodeUnit] =
+    Gen oneOf LexUtils.UnicodeClasses.UnicodeNl
 
   /**
    * Generate a digit character, UAR.
@@ -145,7 +152,8 @@ object Characters {
    *
    * @spec Parentheses ‘(’ | ‘)’ | ‘[’ | ‘]’ | ‘{’ | ‘}’
    */
-  lazy val parenChar: Gen[CodeUnit] = null
+  lazy val parenChar: Gen[CodeUnit] =
+    Gen oneOf List("U+0028", "U+0029", "U+007B", "U+007D", "U+005B", "U+005D")
 
   /**
    * Generate a delimiter character, UAR.
