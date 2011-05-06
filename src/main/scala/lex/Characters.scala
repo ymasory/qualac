@@ -9,6 +9,8 @@ import LexImplicits.bmpToCodePoint
  *
  * @author Yuvi Masory
  * @specSec 1.0
+ * @undefined How are we to encode these Unicode code points? The spec doesn't
+ * specify an encoding. UTF-16 should be identified.
  */
 object Characters {
 
@@ -16,21 +18,23 @@ object Characters {
    * Generate a UTF BMP character, UAR.
    *
    * @spec Scala programs are written using the Unicode Basic Multilingual
-   * Plane (BMP) character set;
+   * Plane (BMP) character set; Unicode supplementary characters are not
+   * presently supported.
+   *
+   * @undefined Just what is a "supplementary character?" This appears to be
+   * borrowed from the Java spec which defiens it as  as code points above
+   * U+FFFFUnicode. If Scala isn't supprting supplementary characters I guess
+   * that means Unicode code units in the high-surrogates range and
+   * low-surrogates range are either banned or treated as code points. Which is
+   * it?
    */
   lazy val bmpChar: Gen[CodePoint] = Gen choose ("U+0000", "U+FFFF")
 
   /**
    * Generate a Unicode supplementary character, UAR.
    * 
-   * @spec Unicode supplementary characters are not presently supported.
-   *
-   * @clarification Just what is a "supplementary character?" I'll assume
-   * it's anything in Unicode Planes 1-17 inclusive (i.e. the Universal
-   * Character Set minus the Basic Multilingual Plane).
    */
-   lazy val supChar: Gen[CodePoint] =
-     Gen choose (math.pow(2, 16).toInt, (17 * math.pow(2, 16) - 1).toInt)
+   lazy val supChar: Gen[CodePoint] = null
 
   /**
    * Generate a literal character, UAR.
@@ -47,7 +51,8 @@ object Characters {
    * Unicode character with the given hexadecimal code.
    * UnicodeEscape ::= \{\\}u{u} hexDigit hexDigit hexDigit hexDigit
    *
-   * @correction The EBNF syntax for UnicodeEscape seems wrong.
+   * @correction The EBNF syntax for UnicodeEscape is wrong. It should read
+   * \*u{u} hexDigit hexDigit hexDigit hexDigit [remove the *]
    */
   lazy val unicodeEscapeSeq: Gen[List[CodePoint]] = null
 
