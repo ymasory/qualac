@@ -7,7 +7,7 @@ object LexImplicits {
    * Convert UTF hex descriptions of a BMP character like "UTF+008F" into
    * an `CodePoint`
    */
-  implicit def bmpToCodePoint(str: String): CodePoint = {
+  implicit def bmpToCodeUnit(str: String): CodeUnit = {
     val Utf = """[uU]\+([A-F\d]{4})""".r
     str match {
       case Utf(numStr) => Integer parseInt (numStr, 16)

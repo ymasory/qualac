@@ -15,6 +15,8 @@ To see the results of our nightly tests check out the [quala-nightly](https://gr
 * UAR = "uniformly at random"
 * CA = "completely arbitrary"
 * NE = "non-exhaustive"
+* JLS = "Java language specification"
+* SLS = "Scala language specification"
 
 ## Scaladoc ##
 
