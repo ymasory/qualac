@@ -11,9 +11,9 @@ import LexImplicits.bmpToCodeUnit
  * @specSec 1.0
  * @undefined How are we to encode these Unicode code points? The spec doesn't
  * specify an encoding. "UTF-16 code units" should be specified.
- * @undefined Lexical Translats are not specified. See JLS 3.2.
+ * @undefined Lexical Translations are not specified. See JLS 3.2.
  * @undefined No Unicode version is specified. Without that one cannot be sure
- * which code units below to which classes.
+ * which code units belong to which classes.
  */
 object Characters {
 
