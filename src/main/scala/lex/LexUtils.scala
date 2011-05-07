@@ -26,10 +26,10 @@ object LexUtils {
       ints.toList
     }
 
-    lazy val UnicodeLl: List[CodeUnit] = filterClass("Ll")
-    lazy val UnicodeLu: List[CodeUnit]  = filterClass("Lu")
-    lazy val UnicodeLt: List[CodeUnit]  = filterClass("Lt")
-    lazy val UnicodeLo: List[CodeUnit]  = filterClass("Lo")
-    lazy val UnicodeNl: List[CodeUnit]  = filterClass("Nl")
+    lazy val UnicodeLl: List[CodePoint] = filterClass("Ll")
+    lazy val UnicodeLu: List[CodePoint]  = filterClass("Lu")
+    lazy val UnicodeLt: List[CodePoint]  = filterClass("Lt")
+    lazy val UnicodeLo: List[CodePoint]  = filterClass("Lo")
+    lazy val UnicodeNl: List[CodePoint]  = filterClass("Nl")
   }
 }

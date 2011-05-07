@@ -4,10 +4,10 @@ package qualac.lex
 object LexImplicits {
 
   /**
-   * Convert UTF hex descriptions of a BMP character like "UTF+008F" into
+   * Convert UTF hex descriptions of a BMP code point like "UTF+008F" into
    * an `CodePoint`
    */
-  implicit def bmpToCodeUnit(str: String): CodeUnit = {
+  implicit def bmpHexToCodePoint(str: String): CodePoint = {
     val Utf = """[uU]\+([A-F\d]{4})""".r
     str match {
       case Utf(numStr) => Integer parseInt (numStr, 16)

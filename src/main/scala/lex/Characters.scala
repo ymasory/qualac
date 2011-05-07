@@ -2,7 +2,7 @@ package qualac.lex
 
 import org.scalacheck._
 
-import LexImplicits.bmpToCodeUnit
+import LexImplicits.bmpHexToCodePoint
 
 /**
  * ScalaCheck generators for characters and other lexical constituents.
@@ -10,10 +10,12 @@ import LexImplicits.bmpToCodeUnit
  * @author Yuvi Masory
  * @specSec 1.0
  * @undefined How are we to encode these Unicode code points? The spec doesn't
- * specify an encoding. "UTF-16 code units" should be specified.
+ * specify an encoding. Scalac allows one to specify the encoding.
  * @undefined Lexical Translations are not specified. See JLS 3.2.
  * @undefined No Unicode version is specified. Without that one cannot be sure
- * which code units belong to which classes.
+ * which code units belong to which classes. This is difficult to specify
+ * with a simple answer because in practice it's contingent on the behavior of
+ * the VM (e.g., particular JVM version) hosting scalac.
  */
 object Characters {
 
@@ -26,20 +28,25 @@ object Characters {
    *
    * @undefined Just what is a "supplementary character?" This appears to be
    * borrowed from JLS which defines it as  as code points above
-   * U+FFFFUnicode. If Scala isn't supprting supplementary characters I guess
+   * U+FFFF Unicode. If Scala isn't supprting supplementary characters I guess
    * that means Unicode code units in the high-surrogates range and
-   * low-surrogates range are either banned or treated as code points. JLS
-   * says text is just UTF-16 code units, not code points, which I guess
+   * low-surrogates range are either banned or treated as code points. I guess
+   * this means that if scalac encounters code values that in the particular
+   * encoding refer to supplementary characters, the program should be
+   * rejected.
+   * JLS says text is just UTF-16 "code units", not code points, which I guess
    * means they're treated as though they were code points.
    */
-  lazy val codeUnit: Gen[CodeUnit] = Gen choose ("U+0000", "U+FFFF")
+  lazy val character: Gen[CodePoint] = null
+
+  lazy val codePoint: Gen[CodePoint] = Gen choose ("U+0000", "U+FFFF")
 
   /**
    * Generate a literal character, UAR.
    * 
    * @spec literal characters ‘c’ refer to the ASCII fragment \u0000-\u007F.
    */
-  lazy val literalChar: Gen[CodeUnit] = Gen choose ("U+0000", "U+007F")
+  lazy val literalChar: Gen[CodePoint] = Gen choose ("U+0000", "U+007F")
 
 
   /**
@@ -52,7 +59,7 @@ object Characters {
    * @correction The EBNF syntax for UnicodeEscape is wrong. It should read
    * \*u{u} hexDigit hexDigit hexDigit hexDigit [remove the *]
    */
-  lazy val unicodeEscapeSeq: Gen[List[CodeUnit]] = null
+  lazy val unicodeEscapeSeq: Gen[List[CodePoint]] = null
 
   /**
    * Generate a hex character, UAR.
@@ -60,9 +67,9 @@ object Characters {
    * @spec hexDigit ::= ‘0’ | · · · | ‘9’ | ‘A’ | · · · | ‘F’ | ‘a’ | · · · |
    * ‘f’ |
    */
-  lazy val hexDigitChar: Gen[CodeUnit] = {
-    val hexUpperLetterChar: Gen[CodeUnit] = Gen choose ("U+0041", "U+005A")
-    val hexLowerLetterChar: Gen[CodeUnit] = Gen choose ("U+0061", "U+007A")
+  lazy val hexDigitChar: Gen[CodePoint] = {
+    val hexUpperLetterChar: Gen[CodePoint] = Gen choose ("U+0041", "U+005A")
+    val hexLowerLetterChar: Gen[CodePoint] = Gen choose ("U+0061", "U+007A")
     digitChar | hexLowerLetterChar | hexUpperLetterChar
   }
 
@@ -72,7 +79,7 @@ object Characters {
    * @spec To construct tokens, characters are distinguished according to the
    * following classes
    */
-  lazy val anyChar: Gen[CodeUnit] =
+  lazy val anyChar: Gen[CodePoint] =
     whitespaceChar | letterChar | digitChar | parenChar |
     delimiterChar | operatorChar
 
@@ -82,7 +89,7 @@ object Characters {
    * @spec 1. Whitespace characters. \u0020 | \u0009 | \u000D | \u000A
    * @correction Finish sentence with period.
    */
-  lazy val whitespaceChar: Gen[CodeUnit] = Gen oneOf (
+  lazy val whitespaceChar: Gen[CodePoint] = Gen oneOf (
     List("U+0020", "U+0009", "U+000D", "U+000A")
   )
 
@@ -95,7 +102,7 @@ object Characters {
    * Unicode groups.
    * @correction Finish sentence with period.
    */
-  lazy val letterChar: Gen[CodeUnit] =
+  lazy val letterChar: Gen[CodePoint] =
     lowercaseLetterChar | uppercaseLetterChar | titlecaseLetterChar |
     otherLetterChar | letterNumeralChar
 
@@ -104,7 +111,7 @@ object Characters {
    *
    * @spec lower case letter (Ll)
    */
-  lazy val lowercaseLetterChar: Gen[CodeUnit] =
+  lazy val lowercaseLetterChar: Gen[CodePoint] =
     Gen oneOf LexUtils.UnicodeClasses.UnicodeLl
 
   /**
@@ -113,7 +120,7 @@ object Characters {
    * @spec upper case letter (Lu) ... and the two characters \u0024 ‘$’ and
    * \u005F ‘_’, which both count as upper case letters
    */
-  lazy val uppercaseLetterChar: Gen[CodeUnit] =
+  lazy val uppercaseLetterChar: Gen[CodePoint] =
     Gen oneOf LexUtils.UnicodeClasses.UnicodeLu
 
   /**
@@ -121,7 +128,7 @@ object Characters {
    *
    * @spec title-case letters (Lt)
    */
-  lazy val titlecaseLetterChar: Gen[CodeUnit] =
+  lazy val titlecaseLetterChar: Gen[CodePoint] =
     Gen oneOf LexUtils.UnicodeClasses.UnicodeLt
 
   /**
@@ -129,7 +136,7 @@ object Characters {
    *
    * @spec other letters (Lo)
    */
-  lazy val otherLetterChar: Gen[CodeUnit] =
+  lazy val otherLetterChar: Gen[CodePoint] =
     Gen oneOf LexUtils.UnicodeClasses.UnicodeLo
 
   /**
@@ -137,7 +144,7 @@ object Characters {
    *
    * @spec letter numerals(Nl)
    */
-  lazy val letterNumeralChar: Gen[CodeUnit] =
+  lazy val letterNumeralChar: Gen[CodePoint] =
     Gen oneOf LexUtils.UnicodeClasses.UnicodeNl
 
   /**
@@ -145,14 +152,14 @@ object Characters {
    * 
    * @spec Digits ‘0’ | . . . | ‘9’
    */
-  val digitChar: Gen[CodeUnit] = Gen choose ("U+0030", "U+0039")
+  val digitChar: Gen[CodePoint] = Gen choose ("U+0030", "U+0039")
 
   /**
    * Generate a paren character, UAR.
    *
    * @spec Parentheses ‘(’ | ‘)’ | ‘[’ | ‘]’ | ‘{’ | ‘}’
    */
-  lazy val parenChar: Gen[CodeUnit] =
+  lazy val parenChar: Gen[CodePoint] =
     Gen oneOf List("U+0028", "U+0029", "U+007B", "U+007D", "U+005B", "U+005D")
 
   /**
@@ -160,14 +167,14 @@ object Characters {
    * 
    * @spec Delimiter characters ‘‘’ | ‘’’ | ‘"’ | ‘.’ | ‘;’ | ‘,’
    */
-  lazy val delimiterChar: Gen[CodeUnit] = null
+  lazy val delimiterChar: Gen[CodePoint] = null
 
   /**
    * Generate a operator character, UAR.
    * 
    * @spec Operator characters. These consist of ...
    */
-  lazy val operatorChar: Gen[CodeUnit] =
+  lazy val operatorChar: Gen[CodePoint] =
     otherPrintableAsciiChar | mathematicalSymbolChar | otherSymbolChar
 
   /**
@@ -178,19 +185,19 @@ object Characters {
    * @spec These consist of all printable ASCII characters \u0020-\u007F. which
    * are in none of the sets above
    */
-  lazy val otherPrintableAsciiChar: Gen[CodeUnit] = null  
+  lazy val otherPrintableAsciiChar: Gen[CodePoint] = null  
   
   /**
    * Generate a mathematical character, UAR.
    * 
    * @spec mathematical symbols(Sm)
    */
-  lazy val mathematicalSymbolChar: Gen[CodeUnit] = null
+  lazy val mathematicalSymbolChar: Gen[CodePoint] = null
 
   /**
    * Generate a "other" symbol character, UAR.
    * 
    * @spec other symbols(So)
    */
-  lazy val otherSymbolChar: Gen[CodeUnit] = null
+  lazy val otherSymbolChar: Gen[CodePoint] = null
 }
