@@ -12,9 +12,15 @@ import qualac.QualacException
 /**
  * Some values from the program's environment.
  * 
- * The most horrible & mutable stuff goes here.
+ * The most horrible mutable/side-effecty stuff goes here.
  */
 object Env {
+
+  /** Does nothing.
+   *
+   * It's here just to encourage the program to fail fast by calling this
+   * function immediately and getting much of the i/o out of the way. */
+  def init() = {}
 
   /** Get the current time in a mutable `java.util.Date` */
   def now() = Calendar.getInstance().getTime

@@ -11,6 +11,7 @@ class FuzzRun() {
   def fuzz() = {
     shout("Fuzzing started. Down with scalac!")
     try {
+      Env.init() //fail fast
       Connection.init()
       transaction {
         QualacSchema.create
@@ -20,31 +21,32 @@ class FuzzRun() {
       }
     }
     catch {
-      case t: Throwable => {
+      case t1: Throwable => {
         try {
           transaction {
-            val failure = RunOutcome(0L,
-                                     0L,
-                                     Env.now(),
-                                     Some(t.getStackTrace.mkString("\n")),
-                                     Some(t.getMessage))
+            val failure =
+              new RunOutcome(0L, 0L, Env.now(),
+                             Some(t1.getMessage),
+                             Some(t1.getStackTrace.mkString("\n").getBytes))
             outcome.insert(failure)
           }
           shout("successfully persisted exit-causing error")
         }
         catch {
-          case t => {
+          case t2 => {
             shout(
               "could not persist exit-causing error, printing instead",
               error=true)
-            t.printStackTrace()
+            t1.printStackTrace()
+            shout("printing error in persisting error message", error=true)
+            t2.printStackTrace
             shout(
-              "done printing exit-causing error",
+              "done printing exit-causing errors",
               error=true)
           }
         }
         shout("exiting from error", error=true)
-        throw t
+        sys.exit(1)
       }
     }
     shout("No errors encountered. Done fuzzing.")
