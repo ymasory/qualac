@@ -29,7 +29,7 @@ class RunOutcome(val id: Long,
          Some(stackTrace.getBytes))
   }
 
-  // def this() = this(0L, 0L, Env.now(), None, None)
+  def this() = this(0L, 0L, Env.now(), None, None)
 }
 
 
@@ -41,7 +41,7 @@ case class RunEnvironment(val id: Long,
 
 case class Trial(val id: Long,
                  val runId: Long,
-                 val programText: String,
+                 val programText: Array[Byte],
                  val expectedResult: Int,
                  val actualResult: Int
                )

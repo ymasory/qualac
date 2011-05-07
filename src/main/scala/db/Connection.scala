@@ -10,7 +10,7 @@ import qualac.common.Env
 object Connection {
   val dbUsername = "qualac"
   val dbPassword = Env.getPassword()
-  val dbConn= "jdbc:h2:h2/qualac" 
+  val dbConn= "jdbc:h2:h2/qualac-" + System.currentTimeMillis
 
   def init() {
     Class.forName("org.h2.Driver")
