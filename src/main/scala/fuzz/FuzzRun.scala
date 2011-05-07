@@ -59,9 +59,6 @@ class FuzzRun() {
         sys.exit(1)
       }
     }
-    finally {
-      //backup db
-    }
     shout("No errors encountered. Done fuzzing.")
   }
 
@@ -76,6 +73,8 @@ class FuzzRun() {
 }
 
 object FuzzRun {
+
+  val ProgramName = "qualac"
   
   def main(args: Array[String]) {
     val fuzzRun = new FuzzRun
