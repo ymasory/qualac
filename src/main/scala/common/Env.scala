@@ -17,4 +17,3 @@ object Env {
   }
 }
 
-case class QualacException(msg: String) extends RuntimeException(msg)
