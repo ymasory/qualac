@@ -1,10 +1,8 @@
 package qualac.db
 
 import java.io.File
+import java.io.File.{ separator => / }
 import java.sql.DriverManager
-
-import org.squeryl.{ Session, SessionFactory }
-import org.squeryl.adapters.H2Adapter
 
 import qualac.common.Env
 import qualac.fuzz.FuzzRun
@@ -16,15 +14,15 @@ object Connection {
 
   val dbUsername = FuzzRun.ProgramName
   val dbPassword = Env.getPassword()
-  val dbConn= "jdbc:h2:" + DbDirName + File.separator + DbName
+  val dbConn= "jdbc:h2:" + DbDirName + / + DbName
 
   def init() {
     Class.forName("org.h2.Driver")
-    SessionFactory.concreteFactory = Some(
-      () => Session.create(
-        DriverManager.getConnection(dbConn,
-                                    dbUsername,
-                                    dbPassword),
-        new H2Adapter))
+    // SessionFactory.concreteFactory = Some(
+    //   () => Session.create(
+    //     DriverManager.getConnection(dbConn,
+    //                                 dbUsername,
+    //                                 dbPassword),
+    //     new H2Adapter))
   }  
 }

@@ -2,11 +2,8 @@ package qualac.fuzz
 
 import java.io.File
 
-import org.squeryl.PrimitiveTypeMode._
-
 import qualac.common.Env
-import qualac.db.{ Connection, QualacSchema, Run, RunOutcome }
-import QualacSchema.{ run, outcome }
+import qualac.db.Connection 
 
 class FuzzRun() {
 
@@ -19,25 +16,15 @@ class FuzzRun() {
       val h2Files = h2Dir.listFiles.toList.filter(_.getName.endsWith(".db"))
       if (h2Files.isEmpty) {
         shout("creating database")
-        transaction {
-          QualacSchema.create
-        }
+        //create database
       }
       else shout("database already exists")
-      // transaction {
-      //   run.insert(Run(0, Env.now()))
-      // }
     }
     catch {
       case t1: Throwable => {
         try {
-          transaction {
-            val failure =
-              new RunOutcome(0L, 0L, Env.now(),
-                             Some(t1.getMessage),
-                             Some(t1.getStackTrace.mkString("\n").getBytes))
-            outcome.insert(failure)
-          }
+          //persiste the error
+          t1.printStackTrace
           shout("successfully persisted exit-causing error")
         }
         catch {
