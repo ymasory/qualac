@@ -1,6 +1,7 @@
 import sbt._
 
-class Project(info: ProjectInfo) extends DefaultProject(info) {
+class Project(info: ProjectInfo) extends DefaultProject(info)
+  with AkkaProject {
 
   if (log.getLevel == Level.Info)
     shout("configuring with Scala v" + vs)
@@ -16,6 +17,11 @@ class Project(info: ProjectInfo) extends DefaultProject(info) {
   val specs2 = "org.specs2" % "specs2_2.9.0.RC2" % "1.2"
   val scalatest = "org.scalatest" %% "scalatest" % "1.4.RC3"
   val mail = "javax.mail" % "mail" % "1.4.1"
+  val squeryl = "org.squeryl" % "squeryl_2.8.1" % "0.9.4-RC6"
+  val h2 = "com.h2database" % "h2" % "1.3.154"
+  val akkaTypedActor = akkaModule("typed-actor")
+  val akkaRemote = akkaModule("remote")
+  
 
   //junit
   override def testOptions = 
