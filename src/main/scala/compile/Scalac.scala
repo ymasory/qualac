@@ -1,15 +1,15 @@
 package qualac.common
 
-import java.io.{File, StringWriter, PrintWriter}
+import java.io.{ File, StringWriter, PrintWriter }
 
-import scala.tools.nsc.{Global, Settings}
-import scala.tools.nsc.reporters.{Reporter, StoreReporter}
+import scala.tools.nsc.{ Global, Settings }
+import scala.tools.nsc.reporters.{ Reporter, StoreReporter }
 
 import scala.util.Properties
 
 import org.scalacheck._
 
-import qualac.Env.{curDir, scalaVersion}
+import qualac.common.Env.{ curDir, scalaVersion }
 
 object Scalac {
 

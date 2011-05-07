@@ -1,10 +1,8 @@
 package qualac.common
 
-import java.io.File
 import javax.mail.{Message, Session}
-import javax.mail.internet.{MimeMessage, InternetAddress}
+import javax.mail.internet.{ MimeMessage, InternetAddress }
 
-import scala.io.Source
 import scala.util.Properties
 
 object GMail {
@@ -12,11 +10,7 @@ object GMail {
   def sendMail(recipients: List[String], subject: String, body: String) {
     val host = "smtp.gmail.com"
     val from = "qualascala"
-    val password = {
-      val sep = System getProperty "file.separator"
-      val file = new File(Properties.userHome + sep + ".quala")
-      Source.fromFile(file).mkString.trim
-    }
+    val password = Env.getPassword()
     val props = System.getProperties
     props put ("mail.smtp.starttls.enable", "true")
     props put ("mail.smtp.host", host)
