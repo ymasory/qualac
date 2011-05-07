@@ -10,10 +10,10 @@ import qualac.common.Env
 object Connection {
   val dbUsername = "qualac"
   val dbPassword = Env.getPassword()
-  val dbConn= "jdbc:h2://localhost:3306/qualac"
+  val dbConn= "jdbc:h2:h2/qualac" 
 
   def init() {
-    Class.forName("com.h2database.jdbc.Driver")
+    Class.forName("org.h2.Driver")
     SessionFactory.concreteFactory = Some(
       () => Session.create(
         DriverManager.getConnection(dbConn,

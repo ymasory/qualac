@@ -6,19 +6,21 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
   if (log.getLevel == Level.Info)
     shout("configuring with Scala v" + vs)
 
-  //dependencies from built-in repos
+  //java dependencies
+  val mail = "javax.mail" % "mail" % "1.4.1"
+  val h2 = "com.h2database" % "h2" % "1.3.154"
+  val junit = "junit" % "junit" % "4.8.2"
+
+  //scala dependencies
   val scalaToolsSnapshots = (
     "Scala-Tools Maven2 Snapshots Repository" at
     "http://scala-tools.org/repo-snapshots"
   )
-  val junit = "junit" % "junit" % "4.8.2"
   val junitInterface = "com.novocode" % "junit-interface" % "0.6"
   val scalacheck = "org.scala-tools.testing" % "scalacheck_2.9.0.RC2" % "1.8"
   val specs2 = "org.specs2" % "specs2_2.9.0.RC2" % "1.2"
   val scalatest = "org.scalatest" %% "scalatest" % "1.4.RC3"
-  val mail = "javax.mail" % "mail" % "1.4.1"
-  val squeryl = "org.squeryl" % "squeryl_2.8.1" % "0.9.4-RC6"
-  val h2 = "com.h2database" % "h2" % "1.3.154"
+  val squeryl = "org.squeryl" % "squeryl_2.9.0.RC1" % "0.9.4-RC7x"
   val akkaTypedActor = akkaModule("typed-actor")
   val akkaRemote = akkaModule("remote")
   
@@ -35,6 +37,9 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
   //files to go in packaged jars
   val extraResources = "README.md" +++ "LICENSE"
   override val mainResources = super.mainResources +++ extraResources
+
+  //program entry point
+  override def mainClass: Option[String] = Some("qualac.fuzz.FuzzRun")
 
   //compiler options
   override def compileOptions = super.compileOptions ++

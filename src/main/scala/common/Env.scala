@@ -1,6 +1,7 @@
 package qualac.common
 
 import java.io.File
+import java.util.Calendar
 
 import scala.io.Source
 
@@ -8,8 +9,15 @@ import scala.util.Properties
 
 import qualac.QualacException
 
-/** Some values from the program's environment. */
+/**
+ * Some values from the program's environment.
+ * 
+ * The most horrible & mutable stuff goes here.
+ */
 object Env {
+
+  /** Get the current time in a mutable `java.util.Date` */
+  def now() = Calendar.getInstance().getTime
 
   /** Current directory the program is executing in. */
   val curDir = (new java.io.File(".")).getCanonicalPath
