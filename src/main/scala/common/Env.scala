@@ -2,6 +2,7 @@ package qualac.common
 
 import java.io.File
 import java.util.Calendar
+import java.sql.Timestamp
 
 import org.joda.time.DateTime
 
@@ -19,6 +20,9 @@ object Env {
 
   /** Get the current time in an immutable joda `DateTime`. */
   def now() = new DateTime()
+
+  /** Get the current time as a sql `Timestamp`. */
+  def nowStamp() = new Timestamp(Env.now().toDate.getTime)
 
   /** Current directory the program is executing in. */
   val curDir = (new java.io.File(".")).getCanonicalPath

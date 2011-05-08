@@ -2,7 +2,7 @@ package qualac.db
 
 import java.io.File
 import java.io.File.{ separator => / }
-import java.sql.{ DriverManager, Timestamp }
+import java.sql.{ DriverManager }
 import java.sql.Types.CLOB
 
 import qualac.common.Env
@@ -61,8 +61,9 @@ object DB {
 
   def persistExit(error: Option[Throwable]) {
     val sql = (
-      "INSERT INTO outcome(run_id, class, cause, message, stacktrace) " +
-      "VALUES (?, ?, ?, ?, ?)"
+      "INSERT INTO outcome(" +
+      "  run_id, class, cause, message, stacktrace, time_ended) " +
+      "VALUES (?, ?, ?, ?, ?, ?)"
     )
     val pstmt = con.prepareStatement(sql)
     pstmt.setLong(1, id)
@@ -89,6 +90,7 @@ object DB {
         else pstmt.setString(5, trace.mkString("\n"))
       }
     }
+    pstmt.setTimestamp(6, Env.nowStamp())
     pstmt.executeUpdate()
     pstmt.close()
   }
@@ -101,7 +103,7 @@ object DB {
   private def storeRun() = {
     val pstmt =
       con.prepareStatement("INSERT INTO run (time_started) values(?)")
-    pstmt.setTimestamp(1, new Timestamp(Env.now().toDate.getTime))
+    pstmt.setTimestamp(1, Env.nowStamp())
     pstmt.executeUpdate()
     pstmt.close()
 

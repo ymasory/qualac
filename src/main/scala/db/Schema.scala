@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS outcome (
   cause TEXT,
   message TEXT,
   stacktrace TEXT,
+  time_ended TIMESTAMP NOT NULL,
   FOREIGN KEY (run_id) REFERENCES run(id)
 )
 """
