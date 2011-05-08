@@ -11,9 +11,17 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
   val h2 = "com.h2database" % "h2" % "1.3.154"
   val junit = "junit" % "junit" % "4.8.2"
   val junitInterface = "com.novocode" % "junit-interface" % "0.6"
+  val springJdbc = "org.springframework" % "spring-jdbc" % "3.0.5.RELEASE"
 
-  //scala dependencies
+  //scalacheck is the only Scala non-test dependency
   val scalacheck = "org.scala-tools.testing" %% "scalacheck" % "1.8"
+
+  //for testing only, specs2
+  val scalaToolsSnapshots = (
+    "Scala-Tools Maven2 Snapshots Repository" at
+    "http://scala-tools.org/repo-snapshots"
+  )
+  val specs2 = "org.specs2" %% "specs2" % "1.3-SNAPSHOT" % "test"
 
   //junit
   override def testOptions = 
@@ -29,7 +37,7 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
   override val mainResources = super.mainResources +++ extraResources
 
   //program entry point
-  override def mainClass: Option[String] = Some("qualac.fuzz.FuzzRun")
+  override def mainClass: Option[String] = Some("qualac.fuzz.Main")
 
   //compiler options
   override def compileOptions = super.compileOptions ++

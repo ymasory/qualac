@@ -3,5 +3,4 @@ target/
 lib_managed/
 src_managed/
 project/boot/
-h2.lock.db
-*.h2.db
+*.db
