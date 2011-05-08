@@ -64,13 +64,14 @@ object DB {
     pstmt.executeUpdate()
     pstmt.close()
 
-    // val stmt = con.createStatement()
-    // val res = stmt.executeQuery(
-    //   "SELECT id FROM run ORDER BY id DESC LIMIT 1")
-    // val id = res.getInt("id")
-    // res.close()
-    // stmt.close()
-    0
+    val stmt = con.createStatement()
+    val res = stmt.executeQuery(
+      "SELECT id FROM run ORDER BY id DESC LIMIT 1")
+    res.next()
+    val id = res.getInt("id")
+    res.close()
+    stmt.close()
+    id
   }
 
   /** Create the db tables, if they don't exist yet. */
