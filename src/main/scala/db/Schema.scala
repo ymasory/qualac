@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS run (
 CREATE TABLE IF NOT EXISTS trial (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   run_id BIGINT NOT NULL,
+  expected TEXT NOT NULL,
   FOREIGN KEY (run_id) REFERENCES run(id)
 )
 """,
@@ -58,11 +59,3 @@ CREATE TABLE IF NOT EXISTS outcome (
 """
   )
 }
-
-case class Trial(programText: Array[Byte], expectedResult: Int,
-                 actualResult: Int)
-
-case class RunOutcome(dateFinished: DateTime,
-                      exceptionMessage: Option[String],
-                      stackTrace: Option[String])
-

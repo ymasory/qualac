@@ -8,10 +8,13 @@ class FuzzRun() {
   lazy val db = DB
 
   def fuzz() = {
-    Main.shout("Fuzzing started. Down with scalac!")
     try {
       Main.shout("initializing database: " + db)
       Main.shout("initializing environment: " + Env)
+      val thread = new FuzzThread(Env.durationSeconds)
+      Main.shout("Fuzzing started. Down with scalac!")
+      thread.start()
+      thread.join()
       DB.persistExit(None)
     }
     catch {

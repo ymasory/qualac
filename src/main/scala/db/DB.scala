@@ -51,6 +51,15 @@ object DB {
     DriverManager.getConnection(dbUrl, dbUsername, dbPassword)
   }
 
+  def persistTrial() {
+    val sql = "INSERT INTO trial(run_id, expected) VALUES(?, ?)"
+    val pstmt = con.prepareStatement(sql)
+    pstmt.setLong(1, id)
+    pstmt.setString(2, "durf")
+    pstmt.executeUpdate()
+    pstmt.close()
+  }
+
   def persistExit(error: Option[Throwable]) {
     val sql =
       "INSERT INTO outcome(run_id, message, stacktrace) VALUES (?, ?, ?)"
