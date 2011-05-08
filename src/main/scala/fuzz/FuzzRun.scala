@@ -10,8 +10,8 @@ class FuzzRun() {
     var db: DB.type = null
     try {
       Env.init() //fail fast
-      // db = DB 
-      // db.init()  //initialize DB connection
+      db = DB 
+      db.init()  //initialize DB connection
     }
     catch {
       case t1: Throwable => {

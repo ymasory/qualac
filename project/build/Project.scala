@@ -11,7 +11,7 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
   val h2 = "com.h2database" % "h2" % "1.3.154"
   val junit = "junit" % "junit" % "4.8.2"
   val junitInterface = "com.novocode" % "junit-interface" % "0.6"
-  val springJdbc = "org.springframework" % "spring-jdbc" % "3.0.5.RELEASE"
+  val jodaTime = "joda-time" % "joda-time" % "1.6.2"
 
   //scalacheck is the only Scala non-test dependency
   val scalacheck = "org.scala-tools.testing" % "scalacheck_2.9.0.RC3" % "1.8"

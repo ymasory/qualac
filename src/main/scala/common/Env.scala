@@ -3,8 +3,9 @@ package qualac.common
 import java.io.File
 import java.util.Calendar
 
-import scala.io.Source
+import org.joda.time.DateTime
 
+import scala.io.Source
 import scala.util.Properties
 
 import qualac.QualacException
@@ -22,8 +23,8 @@ object Env {
    * function immediately and getting much of the i/o out of the way. */
   def init() = {}
 
-  /** Get the current time in a mutable `java.util.Date` */
-  def now() = Calendar.getInstance().getTime
+  /** Get the current time in an immutable joda `DateTime`. */
+  def now() = new DateTime()
 
   /** Current directory the program is executing in. */
   val curDir = (new java.io.File(".")).getCanonicalPath
