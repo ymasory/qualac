@@ -14,14 +14,7 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
   val springJdbc = "org.springframework" % "spring-jdbc" % "3.0.5.RELEASE"
 
   //scalacheck is the only Scala non-test dependency
-  val scalacheck = "org.scala-tools.testing" %% "scalacheck" % "1.8"
-
-  //for testing only, specs2
-  val scalaToolsSnapshots = (
-    "Scala-Tools Maven2 Snapshots Repository" at
-    "http://scala-tools.org/repo-snapshots"
-  )
-  val specs2 = "org.specs2" %% "specs2" % "1.3-SNAPSHOT" % "test"
+  val scalacheck = "org.scala-tools.testing" % "scalacheck_2.9.0.RC3" % "1.8"
 
   //junit
   override def testOptions = 
