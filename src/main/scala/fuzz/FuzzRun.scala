@@ -13,8 +13,10 @@ class FuzzRun() {
       Main.shout("initializing environment: " + Env)
       val thread = new FuzzThread(Env.durationSeconds)
       Main.shout("Fuzzing started. Down with scalac!")
-      thread.start()
-      thread.join()
+      for (i <- 1 to Env.numThreads) {
+        thread.start()
+        thread.join()
+      }
       DB.persistExit(None)
     }
     catch {

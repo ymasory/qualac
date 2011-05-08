@@ -52,6 +52,8 @@ CREATE TABLE IF NOT EXISTS env (
 CREATE TABLE IF NOT EXISTS outcome (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   run_id BIGINT NOT NULL,
+  class TEXT,
+  cause TEXT,
   message TEXT,
   stacktrace TEXT,
   FOREIGN KEY (run_id) REFERENCES run(id)

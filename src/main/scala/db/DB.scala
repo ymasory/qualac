@@ -3,6 +3,7 @@ package qualac.db
 import java.io.File
 import java.io.File.{ separator => / }
 import java.sql.{ DriverManager, Timestamp }
+import java.sql.Types.CLOB
 
 import qualac.common.Env
 import qualac.fuzz.{ FuzzRun, Main }
@@ -16,7 +17,6 @@ object DB {
       createTables()
       val id = storeRun()
       storeRunEnvironment()
-      println("this is run: " + id)
       id
     }
     catch {
@@ -45,7 +45,6 @@ object DB {
     val dbUsername = Main.ProgramName
     val dbPassword = Env.getPassword()
     val dbUrl= "jdbc:h2:" + DbDirName + / + DbName
-    println(dbUrl)
 
     Class.forName("org.h2.Driver")
     DriverManager.getConnection(dbUrl, dbUsername, dbPassword)
@@ -61,18 +60,33 @@ object DB {
   }
 
   def persistExit(error: Option[Throwable]) {
-    val sql =
-      "INSERT INTO outcome(run_id, message, stacktrace) VALUES (?, ?, ?)"
+    val sql = (
+      "INSERT INTO outcome(run_id, class, cause, message, stacktrace) " +
+      "VALUES (?, ?, ?, ?, ?)"
+    )
     val pstmt = con.prepareStatement(sql)
     pstmt.setLong(1, id)
     error match {
       case None => {
-        pstmt.setNull(2, java.sql.Types.CLOB)
-        pstmt.setNull(3, java.sql.Types.CLOB)
+        pstmt.setNull(2, CLOB)
+        pstmt.setNull(3, CLOB)
+        pstmt.setNull(4, CLOB)
+        pstmt.setNull(5, CLOB)
       }
       case Some(t) => {
-        pstmt.setString(2, t.getMessage)
-        pstmt.setString(3, t.getStackTrace.mkString("\n"))
+        val clazz = t.getClass
+        if (clazz == null) pstmt.setNull(2, CLOB)
+        else pstmt.setString(2, clazz.toString)
+
+        val cause = t.getCause
+        if (cause == null) pstmt.setNull(3, CLOB)
+        else pstmt.setString(3, cause.toString)
+
+        pstmt.setString(4, t.getMessage)
+
+        val trace = t.getStackTrace
+        if (trace == null) pstmt.setNull(5, CLOB)
+        else pstmt.setString(5, trace.mkString("\n"))
       }
     }
     pstmt.executeUpdate()
