@@ -14,23 +14,23 @@ private[db] object Schema {
 
 """
 CREATE TABLE IF NOT EXISTS run (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
   time_started TIMESTAMP NOT NULL
 )
 """,
 
 """
 CREATE TABLE IF NOT EXISTS trial (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  run_id INT NOT NULL,
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  run_id BIGINT NOT NULL,
   FOREIGN KEY (run_id) REFERENCES run(id)
 )
 """,
 
 """
 CREATE TABLE IF NOT EXISTS env (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  run_id INT NOT NULL,
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  run_id BIGINT NOT NULL,
   scala_version TEXT NOT NULL,
   scala_version_string TEXT NOT NULL,
   scala_version_message TEXT NOT NULL,
@@ -49,8 +49,10 @@ CREATE TABLE IF NOT EXISTS env (
 
 """
 CREATE TABLE IF NOT EXISTS outcome (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  run_id INT NOT NULL,
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  run_id BIGINT NOT NULL,
+  message TEXT,
+  stacktrace TEXT,
   FOREIGN KEY (run_id) REFERENCES run(id)
 )
 """

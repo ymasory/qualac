@@ -17,12 +17,6 @@ import qualac.QualacException
  */
 object Env {
 
-  /** Does nothing.
-   *
-   * It's here just to encourage the program to fail fast by calling this
-   * function immediately and getting much of the i/o out of the way. */
-  def init() = {}
-
   /** Get the current time in an immutable joda `DateTime`. */
   def now() = new DateTime()
 

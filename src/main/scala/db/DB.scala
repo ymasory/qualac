@@ -11,18 +11,22 @@ object DB {
 
 
   val con = makeConnection()
-  createTables()
-  val id = {
-    val id = try {
+  val id: Long = {
+    try {
+      createTables()
       val id = storeRun()
-      storeRunEnvironment()
       storeRunEnvironment()
       println("this is run: " + id)
       id
     }
-    catch { case e => throw e }
-    finally { con.close() }
-    id
+    catch {
+      case t: Throwable => {
+        Main.shout("database initialization failed. exiting ...",
+                   error=true)
+        con.close()
+        sys.exit(1)
+      }
+    }
   }
   
 
@@ -47,9 +51,23 @@ object DB {
     DriverManager.getConnection(dbUrl, dbUsername, dbPassword)
   }
 
-  /** Create tables, insert run & env columns, return the id of the run. */ 
-  private def initDb() {
-    createTables(); storeRun(); storeRunEnvironment();
+  def persistExit(error: Option[Throwable]) {
+    val sql =
+      "INSERT INTO outcome(run_id, message, stacktrace) VALUES (?, ?, ?)"
+    val pstmt = con.prepareStatement(sql)
+    pstmt.setLong(1, id)
+    error match {
+      case None => {
+        pstmt.setNull(2, java.sql.Types.CLOB)
+        pstmt.setNull(3, java.sql.Types.CLOB)
+      }
+      case Some(t) => {
+        pstmt.setString(2, t.getMessage)
+        pstmt.setString(3, t.getStackTrace.mkString("\n"))
+      }
+    }
+    pstmt.executeUpdate()
+    pstmt.close()
   }
 
   /**
@@ -68,7 +86,7 @@ object DB {
     val res = stmt.executeQuery(
       "SELECT id FROM run ORDER BY id DESC LIMIT 1")
     res.next()
-    val id = res.getInt("id")
+    val id = res.getLong("id")
     res.close()
     stmt.close()
     id
