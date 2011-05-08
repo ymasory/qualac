@@ -43,7 +43,7 @@ object DB {
     val DbName = Main.ProgramName
 
     val dbUsername = Main.ProgramName
-    val dbPassword = Env.getPassword()
+    val dbPassword = ""
     val dbUrl= "jdbc:h2:" + DbDirName + / + DbName
 
     Class.forName("org.h2.Driver")
