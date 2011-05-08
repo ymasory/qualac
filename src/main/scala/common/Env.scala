@@ -47,9 +47,20 @@ object Env {
   val sourceEncoding = Properties.sourceEncoding.ensuring(_ != null)
 
   private val map = ConfParser.parse(new File("fuzzing.conf"))
-  val numThreads = map("threads")
-  val durationSeconds = map("duration_seconds")
-  val timeoutSeconds = map("timeout_seconds")
+  val numThreads = map("threads") match {
+    case Right(i) => i
+    case Left(_) => throw QualacException("threads value must be an int")
+  }
+  val durationSeconds = map("duration_seconds") match {
+    case Right(i) => i
+    case Left(_) =>
+      throw QualacException("duration_seconds value must be an int")
+  }
+  val timeoutSeconds = map("timeout_seconds") match {
+    case Right(i) => i
+    case Left(_) =>
+      throw QualacException("timeout_seconds value must be an int")
+  }
   
   /** Pull the qualac password off the hard disk. */
   def getPassword() = {
