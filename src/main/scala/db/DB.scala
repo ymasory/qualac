@@ -32,7 +32,7 @@ object DB {
   }
 
   val stmt = con.createStatement()
-  stmt.executeUpdate(Schema.runTable)
+  // stmt.executeUpdate(Schema.runTable)
 
   /** Create the tables, if the database doesn't exist. */
   def createIfNeeded() = null

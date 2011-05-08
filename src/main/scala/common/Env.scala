@@ -38,6 +38,11 @@ object Env {
       }
     }
   }
+
+  private val map = ConfParser.parse(new File("fuzzing.conf"))
+  val numThreads = map("threads")
+  val durationSeconds = map("duration_seconds")
+  val timeoutSeconds = map("timeout_seconds")
   
   /** Pull the qualac password off the hard disk. */
   def getPassword() = {
