@@ -5,20 +5,20 @@ import qualac.db.DB
 
 class FuzzRun() {
 
+  lazy val db = DB
+
   def fuzz() = {
     shout("Fuzzing started. Down with scalac!")
-    var db: DB.type = null
     try {
+      shout("initializing database: " + db)
       Env.init() //fail fast
-      db = DB 
-      db.init()  //initialize DB connection
     }
     catch {
       case t1: Throwable => {
         try {
-          //persiste the error
-          t1.printStackTrace
-          shout("successfully persisted exit-causing error")
+          t1.printStackTrace()
+          //persist the error
+          // shout("successfully persisted exit-causing error")
         }
         catch {
           case t2 => {

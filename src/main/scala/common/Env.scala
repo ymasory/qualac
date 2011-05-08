@@ -40,6 +40,18 @@ object Env {
     }
   }
 
+  val scalaVersionString = Properties.versionString.ensuring(_ != null)
+  val scalaVersionMsg = Properties.versionMsg.ensuring(_ != null)
+  val javaClasspath = Properties.javaClassPath.ensuring(_ != null)
+  val javaVendor = Properties.javaVendor.ensuring(_ != null)
+  val javaVersion = Properties.javaVersion.ensuring(_ != null)
+  val javaVmInfo = Properties.javaVmInfo.ensuring(_ != null)
+  val javaVmName = Properties.javaVmName.ensuring(_ != null)
+  val javaVmVendor = Properties.javaVmVendor.ensuring(_ != null)
+  val javaVmVersion = Properties.javaVmVersion.ensuring(_ != null)
+  val os = Properties.osName.ensuring(_ != null)
+  val sourceEncoding = Properties.sourceEncoding.ensuring(_ != null)
+
   private val map = ConfParser.parse(new File("fuzzing.conf"))
   val numThreads = map("threads")
   val durationSeconds = map("duration_seconds")
