@@ -13,6 +13,7 @@ To see the results of our nightly tests check out the [quala-nightly](https://gr
 ## Abbreviations ##
 
 * UAR = "uniformly at random"
+* NUAR = "not UAR"
 * CA = "completely arbitrary"
 * NE = "non-exhaustive"
 * JLS = "Java language specification"

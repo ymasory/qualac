@@ -1,4 +1,4 @@
-package qualac.common
+package qualac.compile
 
 import java.io.{ File, StringWriter, PrintWriter }
 
@@ -11,34 +11,49 @@ import org.scalacheck._
 
 import qualac.common.Env.{ curDir, scalaVersion }
 
-object Scalac {
+/**
+ * ScalaCheck generators for compiler instances.
+ *
+ * @author Yuvi Masory
+ */
+class Scalac() {
 
-  type ScalacMessage = StoreReporter#Info
-  
-  /** Generate a compiler, UAR */
-  lazy val compiler: Gen[Global] = null
+  lazy val tmpDir = null
 
-  /** Generate a compiler settings configuration, UAR */
-  lazy val settings: Gen[Settings] = null
+  /** Generate a compiler instance, UAR. */
+  lazy val compiler: Gen[Global] = {
+    val compiler = new Global(null, null)
+    compiler
+  }
 
+  /** Generate a compiler settings configuration, NE/CA */
+  lazy val settings: Gen[Settings] = {
+    val settings = new Settings 
+    settings.outputDirs setSingleOutput (curDir + "/target")
+    settings.classpath.tryToSet(null)
+    settings
+  }
 
-  // def compile(fileName: String): List[ScalacMessage] = {
-  //   val settings = new Settings 
-  //   settings.outputDirs setSingleOutput (curDir + "/target")
-  //   settings.classpath.tryToSet()
-  //   val reporter = new StoreReporter
-  //   val compiler = new Global(settings, reporter)
-  //   (new compiler.Run).compile(List(testPrefix + fileName))
-  //   reporter.infos.toList
-  // }
+  /** Generate a classpath list. NE */
+  lazy val classPathList: Gen[String] = minimalClassPathList
 
-  // lazy val classPathList = List(
-  //   "project/boot/scala-" + scalaVersion + "/lib/scala-compiler.jar" +
-  //   ":project/boot/scala-" + scalaVersion + "/lib/scala-library.jar")
+  /**
+   * Generate a *minimal* classpath list (just scala-library.jar and
+   * scala-compiler.jar), UAR).
+   */
+  lazy val minimalClassPathList: Gen[String] = {
+    val comp = "project/boot/scala-" + scalaVersion + "/lib/scala-compiler.jar"
+    val lib = "project/boot/scala-" + scalaVersion + "/lib/scala-library.jar"
+    val semi = ":"
+    Gen oneOf List(comp + semi + lib, lib + semi + comp)
+  }
 
-  /** Generate a *minimal* classpath list (just scala-library.jar and
-   * scala-compiler.jar), uniformly at random) */
-  lazy val minimalClassPathList: Gen[String] = null
+  /** Generate a `StoreReporter` */
+  def reporter = new StoreReporter
+
+  def compile(text: String): List[ScalacMessage] = {
+    // (new compiler.Run).compile(List(testPrefix + fileName))
+    // reporter.infos.toList
+    null
+  }
 }
-
-
