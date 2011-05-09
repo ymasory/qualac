@@ -1,6 +1,10 @@
 package qualac.lex
 
-/** Implicit conversions for the lexical fuzzer. */
+/**
+ * Implicit conversions for the lexical fuzzer.
+ *
+ * @author Yuvi Masory
+ */
 object LexImplicits {
 
   /**

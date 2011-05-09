@@ -1,5 +1,10 @@
 package qualac
 
+/**
+ * Home for typedefs.
+ *
+ * @author Yuvi Masory
+ */
 package object lex {
   
   /**
