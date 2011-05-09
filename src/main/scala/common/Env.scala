@@ -72,5 +72,46 @@ object Env {
     val file = new File(Properties.userHome + sep + ".quala")
     Source.fromFile(file).mkString.trim
   }
+
+  val UnicodeLl = UCD.UnicodeLl
+  val UnicodeLu = UCD.UnicodeLu
+  val UnicodeLt = UCD.UnicodeLt
+  val UnicodeLo = UCD.UnicodeLo
+  val UnicodeNl = UCD.UnicodeNl
+  val UnicodeCs = UCD.UnicodeCs
+  val UnicodeCn = UCD.UnicodeCn
+
 }
 
+private object UCD {
+
+  import qualac.lex.CodePoint
+
+  def filterClass(clazz: String) = {
+    val lines =
+      Source.fromInputStream(
+        getClass.getResourceAsStream("UnicodeData.txt")).getLines
+
+    val pairs: Iterator[(String, String)] = lines map { line =>
+      line.split(";").toList match {
+        case List(hex, _, clazz, _*) => (hex, clazz)
+        case _ =>
+          throw new RuntimeException("unexpected Unicode data: " + line)
+      }
+    }
+
+    val filteredPairs = pairs filter { _._2 == clazz }
+    val hexes = filteredPairs map { _._1 }
+    val ints = hexes map { Integer parseInt (_, 16) }
+    ints.toList
+  }
+
+  val UnicodeLl: List[CodePoint] = filterClass("Ll")
+  val UnicodeLu: List[CodePoint] = filterClass("Lu")
+  val UnicodeLt: List[CodePoint] = filterClass("Lt")
+  val UnicodeLo: List[CodePoint] = filterClass("Lo")
+  val UnicodeNl: List[CodePoint] = filterClass("Nl")
+  val UnicodeCs: List[CodePoint] = filterClass("Cs")
+  val UnicodeCn: List[CodePoint] = filterClass("Cn")
+
+}

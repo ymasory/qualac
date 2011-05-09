@@ -2,6 +2,7 @@ package qualac.lex
 
 import org.scalacheck._
 
+import qualac.common.Env
 import LexImplicits.bmpHexToCodePoint
 
 /**
@@ -9,37 +10,39 @@ import LexImplicits.bmpHexToCodePoint
  *
  * @author Yuvi Masory
  * @specSec 1.0
+ *
  * @undefined How are we to encode these Unicode code points? The spec doesn't
- * specify an encoding. Scalac allows one to specify the encoding.
+ * specify an encoding. Scalac allows one to specify the encoding. The spec
+ * should probably specify that it's left up to the implementation.
  * @undefined Lexical Translations are not specified. See JLS 3.2.
  * @undefined No Unicode version is specified. Without that one cannot be sure
  * which code units belong to which classes. This is difficult to specify
  * with a simple answer because in practice it's contingent on the behavior of
- * the VM (e.g., particular JVM version) hosting scalac.
+ * the VM (e.g., particular JVM version) hosting scalac. Spec should probably
+ * specify that it's left up to the implementation.
+ * @undefined What happens if a supplementary character is used?
  */
 object Characters {
 
   /**
-   * Generate a UTF-16 code unit, UAR.
+   * Generate a Unicode BMP character (not Cs or Cn), UAR.
    *
    * @spec Scala programs are written using the Unicode Basic Multilingual
-   * Plane (BMP) character set; Unicode supplementary characters are not
-   * presently supported.
-   *
-   * @undefined Just what is a "supplementary character?" This appears to be
-   * borrowed from JLS which defines it as  as code points above
-   * U+FFFF Unicode. If Scala isn't supprting supplementary characters I guess
-   * that means Unicode code units in the high-surrogates range and
-   * low-surrogates range are either banned or treated as code points. I guess
-   * this means that if scalac encounters code values that in the particular
-   * encoding refer to supplementary characters, the program should be
-   * rejected.
-   * JLS says text is just UTF-16 "code units", not code points, which I guess
-   * means they're treated as though they were code points.
+   * Plane (BMP) character set;
    */
-  lazy val character: Gen[CodePoint] = null
+  lazy val bmpChar: Gen[CodePoint] = null
 
-  lazy val codePoint: Gen[CodePoint] = Gen choose ("U+0000", "U+FFFF")
+  /**
+   * Generate a Unicode non-character (class Cs or Cn) in the BMP, UAR.
+   */
+  lazy val bmpNonChar: Gen[CodePoint] = null
+
+  /**
+   * Generate a Unicode character (not Cs or Cn) outside BMP, UAR.
+   * 
+   * @spec Unicode supplementary characters are not presently supported.
+   */
+  lazy val supplementaryChar: Gen[CodePoint] = null
 
   /**
    * Generate a literal character, UAR.
@@ -79,7 +82,7 @@ object Characters {
    * @spec To construct tokens, characters are distinguished according to the
    * following classes
    */
-  lazy val anyChar: Gen[CodePoint] =
+  lazy val validChar: Gen[CodePoint] =
     whitespaceChar | letterChar | digitChar | parenChar |
     delimiterChar | operatorChar
 
@@ -112,7 +115,7 @@ object Characters {
    * @spec lower case letter (Ll)
    */
   lazy val lowercaseLetterChar: Gen[CodePoint] =
-    Gen oneOf LexUtils.UnicodeClasses.UnicodeLl
+    Gen oneOf Env.UnicodeLl
 
   /**
    * Generate a uppercase letter character, UAR.
@@ -121,7 +124,7 @@ object Characters {
    * \u005F ‘_’, which both count as upper case letters
    */
   lazy val uppercaseLetterChar: Gen[CodePoint] =
-    Gen oneOf LexUtils.UnicodeClasses.UnicodeLu
+    Gen oneOf Env.UnicodeLu
 
   /**
    * Generate a title-case letter character, UAR.
@@ -129,7 +132,7 @@ object Characters {
    * @spec title-case letters (Lt)
    */
   lazy val titlecaseLetterChar: Gen[CodePoint] =
-    Gen oneOf LexUtils.UnicodeClasses.UnicodeLt
+    Gen oneOf Env.UnicodeLt
 
   /**
    * Generate a "other letter" character, UAR.
@@ -137,7 +140,7 @@ object Characters {
    * @spec other letters (Lo)
    */
   lazy val otherLetterChar: Gen[CodePoint] =
-    Gen oneOf LexUtils.UnicodeClasses.UnicodeLo
+    Gen oneOf Env.UnicodeLo
 
   /**
    * Generate a numeral letter character, UAR.
@@ -145,7 +148,7 @@ object Characters {
    * @spec letter numerals(Nl)
    */
   lazy val letterNumeralChar: Gen[CodePoint] =
-    Gen oneOf LexUtils.UnicodeClasses.UnicodeNl
+    Gen oneOf Env.UnicodeNl
 
   /**
    * Generate a digit character, UAR.
