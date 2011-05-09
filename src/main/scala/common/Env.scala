@@ -49,6 +49,12 @@ object Env {
   val javaVmVersion = Properties.javaVmVersion.ensuring(_ != null)
   val os = Properties.osName.ensuring(_ != null)
   val sourceEncoding = Properties.sourceEncoding.ensuring(_ != null)
+  val classPathSep = System.getProperty("path.separator").ensuring {
+    _ != null
+  }
+  val sep = System.getProperty("file.separator").ensuring {
+    _ != null
+  }
 
   private val map = ConfParser.parse(new File("fuzzing.conf"))
   val numThreads = map("threads") match {

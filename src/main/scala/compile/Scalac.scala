@@ -9,7 +9,7 @@ import scala.util.Properties
 
 import org.scalacheck._
 
-import qualac.common.Env.{ curDir, scalaVersion }
+import qualac.common.Env.{ curDir, scalaVersion, classPathSep }
 
 /**
  * ScalaCheck generators for compiler instances.
@@ -44,8 +44,7 @@ class Scalac() {
   lazy val minimalClassPathList: Gen[String] = {
     val comp = "project/boot/scala-" + scalaVersion + "/lib/scala-compiler.jar"
     val lib = "project/boot/scala-" + scalaVersion + "/lib/scala-library.jar"
-    val semi = ":"
-    Gen oneOf List(comp + semi + lib, lib + semi + comp)
+    Gen oneOf List(comp + classPathSep + lib, lib + classPathSep + comp)
   }
 
   /** Generate a `StoreReporter` */
