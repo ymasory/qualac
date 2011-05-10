@@ -9,8 +9,8 @@ class FuzzRun() {
 
   def fuzz() = {
     try {
-      Main.shout("initializing database: " + db)
       Main.shout("initializing environment: " + Env)
+      Main.shout("initializing database: " + db)
       Main.shout("Fuzzing started. Down with scalac!")
       val threads = for (i <- 1 to Env.numThreads) yield {
         val thread = new FuzzThread(Env.durationSeconds)
