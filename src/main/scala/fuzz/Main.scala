@@ -9,13 +9,18 @@ object Main {
   def confFile = _confFile
   
   def main(args: Array[String]) {
-    _confFile =
-      if (args.length > 0) {
-        val file = new File(args(0))
+    _confFile = args.toList match {
+      case List(path, _*) => {
+        val file = new File(path)
         if (file.exists) Some(file)
-        else None
+        else throw new qualac.QualacException("could not find file: " + file)
       }
-      else None
+      case Nil => None
+    }
+    _confFile match {
+      case Some(file) => shout("using configuration file " + file)
+      case None       => shout("using default configuration file")
+    }
     val fuzzRun = new FuzzRun()
     fuzzRun fuzz()
   }
