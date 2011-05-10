@@ -15,13 +15,13 @@ class FuzzRun() {
       Main.shout("initializing database: " + db)
       Main.shout("Fuzzing started. Going for " + Env.durationSeconds +
                  " seconds. Down with scalac!")
-      // val threads = for (i <- 1 to Env.numThreads) yield {
-      //   val thread = new FuzzThread(Env.durationSeconds)
-      //   thread.start()
-      //   thread
-      // }
-      // threads foreach { thread => thread.join() }
-      qualac.lex.IdentifierProperties.check
+      val threads = for (i <- 1 to Env.numThreads) yield {
+        val thread = new FuzzThread(Env.durationSeconds)
+        thread.start()
+        thread
+      }
+      threads foreach { thread => thread.join() }
+
       DB.persistExit(None)
     }
     catch {

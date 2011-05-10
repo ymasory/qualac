@@ -8,6 +8,7 @@ class FuzzThread(seconds: Int) extends Thread {
 
   override def run() {
     while(System.currentTimeMillis < endMillis) {
+      qualac.lex.IdentifierProperties.check
       DB.persistTrial()
     }
   }

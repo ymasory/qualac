@@ -9,9 +9,15 @@ object IdentifierProperties extends Properties("Identifiers") {
 
   val bmpNonChar = Characters.bmpNonChar
 
-  property("BMP non-chars cannot be an identifier") =
-    forAll(Characters.bmpChar) { c =>
-      val text = LexUtil.codeToString(c)
-      Scalac.compiles("class X")
-    }
+  property("scalac speed test") = forAll { (i: Int) => 
+    Scalac.compiles("class X")
+  }
+
+  // property("BMP non-chars cannot be an identifier") =
+  //   forAll(Characters.bmpChar) { c =>
+  //     println("chose: " + c)
+  //     val text = LexUtil.codeToString(c)
+  //     Scalac.compiles("class X")
+  //     true
+  //   }
 }

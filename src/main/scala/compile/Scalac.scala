@@ -72,6 +72,6 @@ object Scalac {
     val reporter = new StoreReporter
     val compiler = new Global(settings, reporter)
     (new compiler.Run).compile(List(file.getAbsolutePath))
-    reporter.hasErrors
+    reporter.hasErrors == false
   }
 }
