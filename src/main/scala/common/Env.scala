@@ -168,9 +168,16 @@ private object UCD {
       }
     }
 
-    SortedMap[String, List[CodePoint]]() ++ {
+    val partMap = SortedMap[String, List[CodePoint]]() ++ {
       uniMap.keys map { key => (key -> uniMap(key).toList) }
     }
+
+    val allAssigned: Set[CodePoint] =
+      uniMap.values.foldLeft(Set[CodePoint]())(_ ++ _)
+    val allUnicode: Set[CodePoint] = (0 to 1114111).toSet
+    val unassigned: List[CodePoint] =  (allUnicode -- allAssigned).toList
+
+    partMap + ("Cn" -> unassigned)
   }
 
   def assertClass(clazz: String, size: Int) {
@@ -181,6 +188,7 @@ private object UCD {
   }
 
   assertClass("Cc", 65)
+  assertClass("Cn", 865147)
   assertClass("Cf", 140)
   assertClass("Co", 137468)
   assertClass("Cs", 2048)
@@ -217,7 +225,5 @@ private object UCD {
   val UnicodeLo: List[CodePoint] = uniMap("Lo")
   val UnicodeNl: List[CodePoint] = uniMap("Nl")
   val UnicodeCs: List[CodePoint] = uniMap("Cs")
-  val UnicodeCn: List[CodePoint] = List[Int]()
-
-
+  val UnicodeCn: List[CodePoint] = uniMap("Cn")
 }
