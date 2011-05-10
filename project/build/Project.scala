@@ -9,6 +9,7 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
   //java dependencies
   val mail = "javax.mail" % "mail" % "1.4.1"
   val h2 = "com.h2database" % "h2" % "1.3.154"
+  val mysqlConnectorJava = "mysql" % "mysql-connector-java" % "5.1.16"
   val junit = "junit" % "junit" % "4.8.2"
   val junitInterface = "com.novocode" % "junit-interface" % "0.6"
   val jodaTime = "joda-time" % "joda-time" % "1.6.2"
