@@ -125,35 +125,58 @@ object Env {
 
 }
 
+import qualac.lex.CodePoint
+import scala.collection.{ mutable => m }
+
+/**
+ * Parses the unicode database (UnicodeData.txt) into a map from unicode
+ * classes to list of code points. Horrifically imperative.
+ */
 private object UCD {
 
-  import qualac.lex.CodePoint
+  private val unicodeClassMap =
+    new m.HashMap[String, m.ListBuffer[CodePoint]]()
 
-  def filterClass(clazz: String) = {
+  fillMap()
+
+  val UnicodeLl: List[CodePoint] = unicodeClassMap("Ll").toList
+  val UnicodeLu: List[CodePoint] = unicodeClassMap("Lu").toList
+  val UnicodeLt: List[CodePoint] = unicodeClassMap("Lt").toList
+  val UnicodeLo: List[CodePoint] = unicodeClassMap("Lo").toList
+  val UnicodeNl: List[CodePoint] = unicodeClassMap("Nl").toList
+  val UnicodeCs: List[CodePoint] = unicodeClassMap("Cs").toList
+  val UnicodeCn: List[CodePoint] = List[Int]()
+
+  def fillMap() {
+
     val lines =
       Source.fromInputStream(
-        getClass.getResourceAsStream("/UnicodeData-6.0.0.txt")).getLines
+        getClass.getResourceAsStream("/UnicodeData-6.0.0.txt")).getLines.toList
 
-    val pairs: Iterator[(String, String)] = lines map { line =>
+    val pairs: List[(Int, String, String)] = lines map { line =>
       line.split(";").toList match {
-        case List(hex, _, clazz, _*) => (hex, clazz)
+        case List(hex, name, clazz, _*) =>
+          (Integer.parseInt(hex, 16), name, clazz)
         case _ =>
           throw new RuntimeException("unexpected Unicode data: " + line)
       }
     }
 
-    val filteredPairs = pairs filter { _._2 == clazz }
-    val hexes = filteredPairs map { _._1 }
-    val ints = hexes map { Integer parseInt (_, 16) }
-    ints.toList
+    def addToMap(clazz: String, code: CodePoint) {
+      if (unicodeClassMap contains clazz) unicodeClassMap(clazz) += code
+      else unicodeClassMap(clazz) = m.ListBuffer[CodePoint](code)
+    }
+
+    for (i <- 0 until pairs.length) {
+      val (code, name, clazz) = pairs(i)
+      if ((name endsWith ", Last>") == false) {
+        if (name endsWith ", First>") {
+          val (code2, name2, clazz2) = pairs(i + 1)
+          assert(clazz == clazz2, clazz + " does not class match " + clazz2)
+          for (j <- code to code2) addToMap(clazz, j)
+        }
+        else addToMap(clazz, code)
+      }
+    }
   }
-
-  val UnicodeLl: List[CodePoint] = filterClass("Ll")
-  val UnicodeLu: List[CodePoint] = filterClass("Lu")
-  val UnicodeLt: List[CodePoint] = filterClass("Lt")
-  val UnicodeLo: List[CodePoint] = filterClass("Lo")
-  val UnicodeNl: List[CodePoint] = filterClass("Nl")
-  val UnicodeCs: List[CodePoint] = filterClass("Cs")
-  val UnicodeCn: List[CodePoint] = filterClass("Cn")
-
 }
