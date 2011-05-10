@@ -16,7 +16,7 @@ import qualac.common.Env.{ curDir, scalaVersion, classPathSep }
  *
  * @author Yuvi Masory
  */
-class Scalac() {
+object Scalac {
 
   lazy val tmpDir = null
 
@@ -54,5 +54,24 @@ class Scalac() {
     // (new compiler.Run).compile(List(testPrefix + fileName))
     // reporter.infos.toList
     null
+  }
+
+  def compiles(text: String): Boolean = {
+    import java.io.{ BufferedWriter, FileWriter }
+
+    val settings = new Settings
+    val file = new File("temp.scala")
+    val writer = new BufferedWriter(new FileWriter(file))
+    writer.write(text)
+    writer.close()
+    val classPathList = List(
+      "project/boot/scala-" + scalaVersion + "/lib/scala-compiler.jar" +
+      ":project/boot/scala-" + scalaVersion + "/lib/scala-library.jar")
+    settings.outputDirs setSingleOutput (curDir + "/target")
+    settings.classpath.tryToSet(classPathList)
+    val reporter = new StoreReporter
+    val compiler = new Global(settings, reporter)
+    (new compiler.Run).compile(List(file.getAbsolutePath))
+    reporter.hasErrors
   }
 }

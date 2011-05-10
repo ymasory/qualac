@@ -94,5 +94,5 @@ object UCD {
   val BmpCs = bmpMap("Cs")
   val BmpCn = bmpMap("Cn")
   val BmpSo = bmpMap("So")
-  val BmpSm = bmpMap("Cm")
+  val BmpSm = bmpMap("Sm")
 }
