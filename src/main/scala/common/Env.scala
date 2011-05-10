@@ -97,7 +97,11 @@ object Env {
   }
 
   /** fuzzing.conf property. */
-  val numThreads = getConfigInt("threads")
+  val numThreads = {
+    val num = getConfigInt("threads")
+    if (num <= 0) Runtime.getRuntime.availableProcessors
+    else num
+  }
   /** fuzzing.conf property. */
   val durationSeconds = getConfigInt("duration_seconds")
   /** fuzzing.conf property. */
