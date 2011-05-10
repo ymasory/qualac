@@ -9,8 +9,8 @@ object GMail {
 
   def sendMail(recipients: List[String], subject: String, body: String) {
     val host = "smtp.gmail.com"
-    val from = "qualascala"
-    val password = Env.getPassword()
+    val from = Env.gmailAccount
+    val password = Env.gmailPassword
     val props = System.getProperties
     props put ("mail.smtp.starttls.enable", "true")
     props put ("mail.smtp.host", host)
@@ -27,7 +27,8 @@ object GMail {
     }
     message setSubject subject
     message setText body
-    message setFrom new InternetAddress("qualascala@gmail.com", "qualabot")
+    message setFrom new InternetAddress(
+      Env.gmailAccount + "@gmail.com", "qualabot")
     val transport = session getTransport "smtp"
     transport connect (host, from, password)
     transport sendMessage (message, message.getAllRecipients())

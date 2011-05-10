@@ -7,14 +7,17 @@ import scala.io.Source
 
 object ConfParser {
 
+  def parse(file: File): Map[String, Either[String, Int]] =
+    parse(Source.fromFile(file).mkString)
+
   def parse(stream: InputStream): Map[String, Either[String, Int]] =
     parse(Source.fromInputStream(stream).mkString)
 
   private def parse(str: String): Map[String, Either[String, Int]] = {
     val lines = str.lines.toList
-    lines.map { _.split("#").head }
+    val commentlessLines = lines.map { _.split("#").head }
     val pairs: List[(String, Either[String, Int])] =
-      lines.flatMap { line =>
+      commentlessLines.flatMap { line =>
         val trimmed = line.trim
         val parts = trimmed.split("=").toList
         parts match {

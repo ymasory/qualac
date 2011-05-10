@@ -1,11 +1,22 @@
 package qualac.fuzz
 
+import java.io.File
+
 object Main {
 
-  val ProgramName = "qualac"
+  private var _confFile: Option[File] = _
+
+  def confFile = _confFile
   
   def main(args: Array[String]) {
-    val fuzzRun = new FuzzRun
+    _confFile =
+      if (args.length > 0) {
+        val file = new File(args(0))
+        if (file.exists) Some(file)
+        else None
+      }
+      else None
+    val fuzzRun = new FuzzRun()
     fuzzRun fuzz()
   }
 

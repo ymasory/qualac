@@ -1,5 +1,7 @@
 package qualac.fuzz
 
+import java.io.File
+
 import qualac.common.Env
 import qualac.db.DB
 
