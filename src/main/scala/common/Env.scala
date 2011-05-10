@@ -56,7 +56,8 @@ object Env {
     _ != null
   }
 
-  private val map = ConfParser.parse(new File("fuzzing.conf"))
+  private val map =
+    ConfParser.parse(getClass.getResourceAsStream("/fuzzing.conf"))
   val numThreads = map("threads") match {
     case Right(i) => i
     case Left(_) => throw QualacException("threads value must be an int")
@@ -96,7 +97,7 @@ private object UCD {
   def filterClass(clazz: String) = {
     val lines =
       Source.fromInputStream(
-        getClass.getResourceAsStream("UnicodeData.txt")).getLines
+        getClass.getResourceAsStream("/UnicodeData-6.0.0.txt")).getLines
 
     val pairs: Iterator[(String, String)] = lines map { line =>
       line.split(";").toList match {

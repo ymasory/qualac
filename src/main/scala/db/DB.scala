@@ -24,6 +24,7 @@ object DB {
         Main.shout("database initialization failed. exiting ...",
                    error=true)
         con.close()
+        t.printStackTrace()
         sys.exit(1)
       }
     }
