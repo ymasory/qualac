@@ -10,9 +10,9 @@ import qualac.lex.CodePoint
  * Parses the unicode database (UnicodeData.txt) into a map from unicode
  * classes to list of code points. Horrifically imperative.
  */
-private object UCD {
+object UCD {
 
-  val uniMap: Map[String, List[CodePoint]] = {
+  private val uniMap: Map[String, List[CodePoint]] = {
     val uniMap = new m.HashMap[String, m.ListBuffer[CodePoint]]()
 
     val lines =
@@ -57,18 +57,42 @@ private object UCD {
     partMap + ("Cn" -> unassigned)
   }
 
-  def assertClass(clazz: String, size: Int) {
+  private val MaxBmp = -1
+  private val NonCharClasses = Set("Cn", "Cs")
+
+  private val bmpMap = uniMap map { pair =>
+    val (k, v) = pair
+    (k -> (v filter { _ <= MaxBmp }))
+  }
+
+  private def assertClass(clazz: String, size: Int) {
     val len = uniMap(clazz).length
     assert(len == size,
            "expected " + clazz + " to have " + size +
            " code points, but it had " + len + " points")
   }
 
-  val UnicodeLl: List[CodePoint] = uniMap("Ll")
-  val UnicodeLu: List[CodePoint] = uniMap("Lu")
-  val UnicodeLt: List[CodePoint] = uniMap("Lt")
-  val UnicodeLo: List[CodePoint] = uniMap("Lo")
-  val UnicodeNl: List[CodePoint] = uniMap("Nl")
-  val UnicodeCs: List[CodePoint] = uniMap("Cs")
-  val UnicodeCn: List[CodePoint] = uniMap("Cn")
+  val BmpPoints = bmpMap.values.foldLeft(Nil: List[CodePoint]) { _ ++ _ }
+  val BmpChars = bmpMap.foldLeft(Nil: List[CodePoint]) { (acc, pair) =>
+    val (k, v) = pair
+    if (NonCharClasses contains k) acc
+    else acc ++ v
+  }
+  val BmpNonChar = (BmpPoints.toSet -- BmpChars.toSet).toList
+  val SuppChar = uniMap.foldLeft(Nil: List[CodePoint]) { (acc, pair) =>
+    val (k, v) = pair
+    if (NonCharClasses contains k) acc
+    else acc ++ v.filter(_ > MaxBmp)
+  }
+
+
+  val BmpLl = bmpMap("Ll")
+  val BmpLu = bmpMap("Lu")
+  val BmpLt = bmpMap("Lt")
+  val BmpLo = bmpMap("Lo")
+  val BmpNl = bmpMap("Nl")
+  val BmpCs = bmpMap("Cs")
+  val BmpCn = bmpMap("Cn")
+  val BmpSo = bmpMap("So")
+  val BmpSm = bmpMap("Cm")
 }

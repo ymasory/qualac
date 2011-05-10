@@ -121,21 +121,7 @@ object Env {
 
   val unicodePath = "/UnicodeData-" + Env.unicodeVersion + ".txt"
   getClass.getResourceAsStream(unicodePath).ensuring(_ != null)
-  
-  /** The Unicode class Ll, in code points. */
-  val UnicodeLl = UCD.UnicodeLl
-  /** The Unicode class Lu, in code points. */
-  val UnicodeLu = UCD.UnicodeLu
-  /** The Unicode class Lt, in code points. */
-  val UnicodeLt = UCD.UnicodeLt
-  /** The Unicode class Lo, in code points. */
-  val UnicodeLo = UCD.UnicodeLo
-  /** The Unicode class Nl, in code points. */
-  val UnicodeNl = UCD.UnicodeNl
-  /** The Unicode class Cs, in code points. */
-  val UnicodeCs = UCD.UnicodeCs
-  /** The Unicode class Cn, in code points. */
-  val UnicodeCn = UCD.UnicodeCn
 
+  UCD.toString //initialization
 }
 

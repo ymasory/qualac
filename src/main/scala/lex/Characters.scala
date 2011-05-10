@@ -2,7 +2,7 @@ package qualac.lex
 
 import org.scalacheck._
 
-import qualac.common.Env
+import qualac.common.UCD
 import LexImplicits.bmpHexToCodePoint
 
 /**
@@ -30,19 +30,19 @@ object Characters {
    * @spec Scala programs are written using the Unicode Basic Multilingual
    * Plane (BMP) character set;
    */
-  lazy val bmpChar: Gen[CodePoint] = null
+  lazy val bmpChar: Gen[CodePoint] = Gen oneOf UCD.BmpChars
 
   /**
-   * Generate a Unicode non-character (class Cs or Cn) in the BMP, UAR.
+   * Generate a Unicode non-character (class Cs or Cn) from BMP, UAR.
    */
-  lazy val bmpNonChar: Gen[CodePoint] = null
+  lazy val bmpNonChar: Gen[CodePoint] = Gen oneOf UCD.BmpNonChar
 
   /**
    * Generate a Unicode character (not Cs or Cn) outside BMP, UAR.
    * 
    * @spec Unicode supplementary characters are not presently supported.
    */
-  lazy val supplementaryChar: Gen[CodePoint] = null
+  lazy val supplementaryChar: Gen[CodePoint] = Gen oneOf UCD.SuppChar
 
   /**
    * Generate a literal character, UAR.
@@ -110,45 +110,44 @@ object Characters {
     otherLetterChar | letterNumeralChar
 
   /**
-   * Generate a lowercase letter character, UAR.
+   * Generate a lowercase letter character from BMP, UAR.
    *
    * @spec lower case letter (Ll)
    */
-  lazy val lowercaseLetterChar: Gen[CodePoint] =
-    Gen oneOf Env.UnicodeLl
+  lazy val lowercaseLetterChar: Gen[CodePoint] = Gen oneOf UCD.BmpLl
 
   /**
-   * Generate a uppercase letter character, UAR.
+   * Generate a uppercase letter character from BMP or $ or _, UAR.
    *
    * @spec upper case letter (Lu) ... and the two characters \u0024 ‘$’ and
    * \u005F ‘_’, which both count as upper case letters
    */
-  lazy val uppercaseLetterChar: Gen[CodePoint] =
-    Gen oneOf Env.UnicodeLu
+  lazy val uppercaseLetterChar: Gen[CodePoint] = {
+    val extras: List[CodePoint] = List("U+005F", "U+0024")
+    val all = UCD.BmpLl ++ extras
+    Gen oneOf all
+  }
 
   /**
-   * Generate a title-case letter character, UAR.
+   * Generate a title-case letter character from BMP, UAR.
    *
    * @spec title-case letters (Lt)
    */
-  lazy val titlecaseLetterChar: Gen[CodePoint] =
-    Gen oneOf Env.UnicodeLt
+  lazy val titlecaseLetterChar: Gen[CodePoint] = Gen oneOf UCD.BmpLt
 
   /**
-   * Generate a "other letter" character, UAR.
+   * Generate a "other letter" character from BMP, UAR.
    *
    * @spec other letters (Lo)
    */
-  lazy val otherLetterChar: Gen[CodePoint] =
-    Gen oneOf Env.UnicodeLo
+  lazy val otherLetterChar: Gen[CodePoint] = Gen oneOf UCD.BmpLo
 
   /**
-   * Generate a numeral letter character, UAR.
+   * Generate a numeral letter character from BMP, UAR.
    *
    * @spec letter numerals(Nl)
    */
-  lazy val letterNumeralChar: Gen[CodePoint] =
-    Gen oneOf Env.UnicodeNl
+  lazy val letterNumeralChar: Gen[CodePoint] = Gen oneOf UCD.BmpNl
 
   /**
    * Generate a digit character, UAR.
@@ -169,8 +168,18 @@ object Characters {
    * Generate a delimiter character, UAR.
    * 
    * @spec Delimiter characters ‘‘’ | ‘’’ | ‘"’ | ‘.’ | ‘;’ | ‘,’
+   * @correction The back tick and single quote are hard to figure out when
+   * rendered by LaTeX.
    */
-  lazy val delimiterChar: Gen[CodePoint] = null
+  lazy val delimiterChar: Gen[CodePoint] =
+    Gen oneOf List(
+      "U+0060", //grave accent
+      "U+0027", //apostrophe
+      "U+0022", //quotation mark
+      "U+002E", //full stop
+      "U+003B", //semicolon
+      "U+002C"  //comma
+    )
 
   /**
    * Generate a operator character, UAR.
@@ -188,19 +197,24 @@ object Characters {
    * @spec These consist of all printable ASCII characters \u0020-\u007F. which
    * are in none of the sets above
    */
-  lazy val otherPrintableAsciiChar: Gen[CodePoint] = null  
+  lazy val otherPrintableAsciiChar: Gen[CodePoint] = {
+    val printables: Gen[CodePoint] = Gen choose ("U+0020", "U+0080")
+    // printables | whitespaceChar | letterChar | digitChar | parenChar | 
+    // delimiterChar
+    null
+  }
   
   /**
    * Generate a mathematical character, UAR.
    * 
    * @spec mathematical symbols(Sm)
    */
-  lazy val mathematicalSymbolChar: Gen[CodePoint] = null
+  lazy val mathematicalSymbolChar: Gen[CodePoint] = Gen oneOf UCD.BmpSm
 
   /**
    * Generate a "other" symbol character, UAR.
    * 
    * @spec other symbols(So)
    */
-  lazy val otherSymbolChar: Gen[CodePoint] = null
+  lazy val otherSymbolChar: Gen[CodePoint] = Gen oneOf UCD.BmpSo
 }
