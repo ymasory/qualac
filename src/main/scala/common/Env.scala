@@ -38,40 +38,68 @@ object Env {
     }
   }
 
+  /** Scala property. */
   val scalaVersionString = Properties.versionString.ensuring(_ != null)
+  /** Scala property. */
   val scalaVersionMsg = Properties.versionMsg.ensuring(_ != null)
+  /** Scala property. */
   val javaClasspath = Properties.javaClassPath.ensuring(_ != null)
+  /** Scala property. */
   val javaVendor = Properties.javaVendor.ensuring(_ != null)
+  /** Scala property. */
   val javaVersion = Properties.javaVersion.ensuring(_ != null)
+  /** Scala property. */
   val javaVmInfo = Properties.javaVmInfo.ensuring(_ != null)
+  /** Scala property. */
   val javaVmName = Properties.javaVmName.ensuring(_ != null)
+  /** Scala property. */
   val javaVmVendor = Properties.javaVmVendor.ensuring(_ != null)
+  /** Scala property. */
   val javaVmVersion = Properties.javaVmVersion.ensuring(_ != null)
+  /** Scala property. */
   val os = Properties.osName.ensuring(_ != null)
+  /** Scala property. */
   val sourceEncoding = Properties.sourceEncoding.ensuring(_ != null)
+  /** Java property. */
   val classPathSep = System.getProperty("path.separator").ensuring {
     _ != null
   }
+  /** Java property. */
   val sep = System.getProperty("file.separator").ensuring {
     _ != null
   }
 
   private val map =
     ConfParser.parse(getClass.getResourceAsStream("/fuzzing.conf"))
-  val numThreads = map("threads") match {
-    case Right(i) => i
-    case Left(_) => throw QualacException("threads value must be an int")
+
+  /** Pull a value from the config file that's supposed to be a `String`. */
+  private def getConfigInt(key: String) = {
+    map(key) match {
+      case Right(i) => i
+      case Left(_) => throw QualacException(key + " value must be an int")
+    }
   }
-  val durationSeconds = map("duration_seconds") match {
-    case Right(i) => i
-    case Left(_) =>
-      throw QualacException("duration_seconds value must be an int")
+
+  /** Pull a value from the config file that's supposed to be an `Int`. */
+  private def getConfigString(key: String) = {
+    map(key) match {
+      case Right(_) => throw QualacException(key + " value must be an int")
+      case Left(s) => s
+    }
   }
-  val timeoutSeconds = map("timeout_seconds") match {
-    case Right(i) => i
-    case Left(_) =>
-      throw QualacException("timeout_seconds value must be an int")
-  }
+
+  /** fuzzing.conf property. */
+  val numThreads = getConfigInt("threads")
+  /** fuzzing.conf property. */
+  val durationSeconds = getConfigInt("duration_seconds")
+  /** fuzzing.conf property. */
+  val timeoutSeconds = getConfigInt("timeout_seconds")
+  /** fuzzing.conf property. */
+  val dbUsername = getConfigString("db_username")
+  /** fuzzing.conf property. */
+  val dbUrl = getConfigString("db_url")
+  /** fuzzing.conf property. */
+  val dbPassword = getConfigString("db_password")
   
   /** Pull the qualac password off the hard disk. */
   def getPassword() = {
@@ -80,12 +108,19 @@ object Env {
     Source.fromFile(file).mkString.trim
   }
 
+  /** The Unicode class Ll, in code points. */
   val UnicodeLl = UCD.UnicodeLl
+  /** The Unicode class Lu, in code points. */
   val UnicodeLu = UCD.UnicodeLu
+  /** The Unicode class Lt, in code points. */
   val UnicodeLt = UCD.UnicodeLt
+  /** The Unicode class Lo, in code points. */
   val UnicodeLo = UCD.UnicodeLo
+  /** The Unicode class Nl, in code points. */
   val UnicodeNl = UCD.UnicodeNl
+  /** The Unicode class Cs, in code points. */
   val UnicodeCs = UCD.UnicodeCs
+  /** The Unicode class Cn, in code points. */
   val UnicodeCn = UCD.UnicodeCn
 
 }

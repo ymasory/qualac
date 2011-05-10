@@ -40,15 +40,8 @@ object DB {
 
   /** Establish connection with the database, returning the `Connection`. */
   private def makeConnection() = {
-    val DbDirName = "h2"
-    val DbName = Main.ProgramName
-
-    val dbUsername = Main.ProgramName
-    val dbPassword = ""
-    val dbUrl= "jdbc:h2:" + DbDirName + / + DbName
-
     Class.forName("org.h2.Driver")
-    DriverManager.getConnection(dbUrl, dbUsername, dbPassword)
+    DriverManager.getConnection(Env.dbUrl, Env.dbUsername, Env.dbPassword)
   }
 
   def persistTrial() {

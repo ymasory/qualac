@@ -18,8 +18,12 @@ object ConfParser {
         val trimmed = line.trim
         val parts = trimmed.split("=").toList
         parts match {
-          case List(k, v, _*) => {
+          case k :: t => {
             val key: String = k.trim
+            val v = t match {
+                case v :: _ => v
+                case Nil    => ""
+            }
             val vTrim = v.trim
             val value: Either[String, Int] = try { 
               Right(vTrim.toInt)
