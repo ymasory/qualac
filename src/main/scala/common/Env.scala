@@ -134,24 +134,8 @@ import scala.collection.{ mutable => m }
  */
 private object UCD {
 
-  private val unicodeClassMap =
-    new m.HashMap[String, m.ListBuffer[CodePoint]]()
-
-  fillMap()
-
-  val UnicodeLl: List[CodePoint] = unicodeClassMap("Ll").toList
-  val UnicodeLu: List[CodePoint] = unicodeClassMap("Lu").toList
-  val UnicodeLt: List[CodePoint] = unicodeClassMap("Lt").toList
-  val UnicodeLo: List[CodePoint] = unicodeClassMap("Lo").toList
-  val UnicodeNl: List[CodePoint] = unicodeClassMap("Nl").toList
-  val UnicodeCs: List[CodePoint] = unicodeClassMap("Cs").toList
-  val UnicodeCn: List[CodePoint] = List[Int]()
-
-  for (key <- unicodeClassMap.keys) {
-    println(key + " " + unicodeClassMap(key).length)
-  }
-
-  def fillMap() {
+  val unicodeClassMap: Map[String, List[CodePoint]] = {
+    val unicodeClassMap = new m.HashMap[String, m.ListBuffer[CodePoint]]()
 
     val lines =
       Source.fromInputStream(
@@ -182,5 +166,23 @@ private object UCD {
         else addToMap(clazz, code)
       }
     }
+
+    Map[String, List[CodePoint]]() ++ {
+      unicodeClassMap.keys map { key => (key -> unicodeClassMap(key).toList) }
+    }
   }
+
+  for (key <- unicodeClassMap.keys) {
+    println(key + " " + unicodeClassMap(key).length)
+  }
+
+  val UnicodeLl: List[CodePoint] = unicodeClassMap("Ll").toList
+  val UnicodeLu: List[CodePoint] = unicodeClassMap("Lu").toList
+  val UnicodeLt: List[CodePoint] = unicodeClassMap("Lt").toList
+  val UnicodeLo: List[CodePoint] = unicodeClassMap("Lo").toList
+  val UnicodeNl: List[CodePoint] = unicodeClassMap("Nl").toList
+  val UnicodeCs: List[CodePoint] = unicodeClassMap("Cs").toList
+  val UnicodeCn: List[CodePoint] = List[Int]()
+
+
 }
