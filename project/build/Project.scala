@@ -1,7 +1,7 @@
 import sbt._
 
 class Project(info: ProjectInfo) extends DefaultProject(info)
-  with AkkaProject {
+  with ProguardProject {
 
   if (log.getLevel == Level.Info)
     shout("configuring with Scala v" + vs)
@@ -47,4 +47,13 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
   }
 
   def vs = crossScalaVersionString
+
+  //proguard
+  override def proguardOptions = List(
+    "-keepclasseswithmembers " +
+    "public class * { public static void main(java.lang.String[]); }",
+    proguardKeepAllScala
+  )
+  override def proguardInJars =
+    Path.fromFile(scalaLibraryJar) +++ super.proguardInJars
 }
