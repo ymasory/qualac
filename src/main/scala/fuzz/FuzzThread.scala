@@ -9,7 +9,7 @@ class FuzzThread(seconds: Int) extends Thread {
   override def run() {
     while(System.currentTimeMillis < endMillis) {
       // qualac.lex.IdentifierProperties.check
-      println(qualac.compile.Scalac.compiles("class X"))
+      println(qualac.compile.Scalac.compile("class X"))
       DB.persistTrial()
     }
   }

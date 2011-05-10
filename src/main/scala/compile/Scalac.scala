@@ -50,13 +50,10 @@ object Scalac {
   /** Generate a `StoreReporter` */
   def reporter = new StoreReporter
 
-  def compile(text: String): List[ScalacMessage] = {
-    // (new compiler.Run).compile(List(testPrefix + fileName))
-    // reporter.infos.toList
-    null
-  }
+  def compile(text: String) = doCompile(text, Compiler)
+  def parse(text: String) = doCompile(text, Parser)
 
-  def compiles(text: String): Boolean = {
+  private def doCompile(text: String, phase: Phase) = {
     import java.io.{ BufferedWriter, FileWriter }
 
     val settings = new Settings
@@ -72,6 +69,10 @@ object Scalac {
     val reporter = new StoreReporter
     val compiler = new Global(settings, reporter)
     (new compiler.Run).compile(List(file.getAbsolutePath))
-    reporter.hasErrors == false
+    (reporter.hasWarnings, reporter.hasErrors, reporter.infos.toList)
   }
 }
+
+sealed abstract trait Phase
+object Parser extends Phase
+object Compiler extends Phase
