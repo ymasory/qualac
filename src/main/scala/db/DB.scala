@@ -40,7 +40,16 @@ object DB {
 
   /** Establish connection with the database, returning the `Connection`. */
   private def makeConnection() = {
-    Class.forName("org.h2.Driver")
+    val url = Env.dbUrl
+    if (url contains "jdbc:h2:")
+      Class.forName("org.h2.Driver")
+    else if (url contains "jdbc:mysql:")
+      Class.forName("com.mysql.jdbc.Driver")
+    else
+      throw qualac.QualacException(
+        "I don't know what driver to load for " + url + ". You must " +
+        "modify the code to use this database.")
+                                
     DriverManager.getConnection(Env.dbUrl, Env.dbUsername, Env.dbPassword)
   }
 
