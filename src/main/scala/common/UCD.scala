@@ -17,7 +17,7 @@ private object UCD {
 
     val lines =
       Source.fromInputStream(
-        getClass.getResourceAsStream("/UnicodeData-6.0.0.txt")).getLines.toList
+        getClass.getResourceAsStream(Env.unicodePath)).getLines.toList
 
     val pairs: List[(Int, String, String)] = lines map { line =>
       line.split(";").toList match {
@@ -63,38 +63,6 @@ private object UCD {
            "expected " + clazz + " to have " + size +
            " code points, but it had " + len + " points")
   }
-
-  assertClass("Cc", 65)
-  assertClass("Cn", 865147)
-  assertClass("Cf", 140)
-  assertClass("Co", 137468)
-  assertClass("Cs", 2048)
-  assertClass("Ll", 1759)
-  assertClass("Lm", 210)
-  assertClass("Lo", 97084)
-  assertClass("Lt", 31)
-  assertClass("Lu", 1436)
-  assertClass("Mc", 287)
-  assertClass("Me", 12)
-  assertClass("Mn", 1199)
-  assertClass("Nd", 420)
-  assertClass("Nl", 224)
-  assertClass("No", 456)
-  assertClass("Pc", 10)
-  assertClass("Pd", 21)
-  assertClass("Pe", 71)
-  assertClass("Pf", 10)
-  assertClass("Pi", 12)
-  assertClass("Po", 402)
-  assertClass("Ps", 72)
-  assertClass("Sc", 47)
-  assertClass("Sk", 115)
-  assertClass("Sm", 948)
-  assertClass("So", 4398)
-  assertClass("Zl", 1)
-  assertClass("Zp", 1)
-  assertClass("Zs", 18)
-  
 
   val UnicodeLl: List[CodePoint] = uniMap("Ll")
   val UnicodeLu: List[CodePoint] = uniMap("Lu")

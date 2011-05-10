@@ -112,6 +112,15 @@ object Env {
   val gmailAccount = getConfigString("gmail_account")
   /** Password to the Gmail account used to send result messages. */
   val gmailPassword = getConfigString("gmail_password")
+
+  val unicodeVersion =
+    if (javaVersion startsWith "1.5") "4.0.0"
+    else if (javaVersion startsWith "1.6") "4.0.0"
+    else if (javaVersion startsWith "1.7") "5.1.0"
+    else throw QualacException("unkown java version " + javaVersion)
+
+  val unicodePath = "/UnicodeData-" + Env.unicodeVersion + ".txt"
+  getClass.getResourceAsStream(unicodePath).ensuring(_ != null)
   
   /** The Unicode class Ll, in code points. */
   val UnicodeLl = UCD.UnicodeLl
