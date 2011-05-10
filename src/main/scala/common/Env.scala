@@ -182,11 +182,11 @@ private object UCD {
 
   assertClass("Cc", 65)
   assertClass("Cf", 140)
-  // assertClass("Co", 6) //parsing 137468
-  // assertClass("Cs", 6) //parsing 2048
+  assertClass("Co", 137468)
+  assertClass("Cs", 2048)
   assertClass("Ll", 1759)
   assertClass("Lm", 210)
-  // assertClass("Lo", 11320) //parsing 97084
+  assertClass("Lo", 97084)
   assertClass("Lt", 31)
   assertClass("Lu", 1436)
   assertClass("Mc", 287)
