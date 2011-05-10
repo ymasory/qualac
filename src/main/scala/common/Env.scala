@@ -147,6 +147,10 @@ private object UCD {
   val UnicodeCs: List[CodePoint] = unicodeClassMap("Cs").toList
   val UnicodeCn: List[CodePoint] = List[Int]()
 
+  for (key <- unicodeClassMap.keys) {
+    println(key + " " + unicodeClassMap(key).length)
+  }
+
   def fillMap() {
 
     val lines =
