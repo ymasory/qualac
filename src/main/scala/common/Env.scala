@@ -127,6 +127,7 @@ object Env {
 
 import qualac.lex.CodePoint
 import scala.collection.{ mutable => m }
+import scala.collection.immutable.SortedMap
 
 /**
  * Parses the unicode database (UnicodeData.txt) into a map from unicode
@@ -134,8 +135,8 @@ import scala.collection.{ mutable => m }
  */
 private object UCD {
 
-  val unicodeClassMap: Map[String, List[CodePoint]] = {
-    val unicodeClassMap = new m.HashMap[String, m.ListBuffer[CodePoint]]()
+  val uniMap: Map[String, List[CodePoint]] = {
+    val uniMap = new m.HashMap[String, m.ListBuffer[CodePoint]]()
 
     val lines =
       Source.fromInputStream(
@@ -151,8 +152,8 @@ private object UCD {
     }
 
     def addToMap(clazz: String, code: CodePoint) {
-      if (unicodeClassMap contains clazz) unicodeClassMap(clazz) += code
-      else unicodeClassMap(clazz) = m.ListBuffer[CodePoint](code)
+      if (uniMap contains clazz) uniMap(clazz) += code
+      else uniMap(clazz) = m.ListBuffer[CodePoint](code)
     }
 
     for (i <- 0 until pairs.length) {
@@ -167,21 +168,55 @@ private object UCD {
       }
     }
 
-    Map[String, List[CodePoint]]() ++ {
-      unicodeClassMap.keys map { key => (key -> unicodeClassMap(key).toList) }
+    SortedMap[String, List[CodePoint]]() ++ {
+      uniMap.keys map { key => (key -> uniMap(key).toList) }
     }
   }
 
-  for (key <- unicodeClassMap.keys) {
-    println(key + " " + unicodeClassMap(key).length)
+  def assertClass(clazz: String, size: Int) {
+    val len = uniMap(clazz).length
+    assert(len == size,
+           "expected " + clazz + " to have " + size +
+           " code points, but it had " + len + " points")
   }
 
-  val UnicodeLl: List[CodePoint] = unicodeClassMap("Ll").toList
-  val UnicodeLu: List[CodePoint] = unicodeClassMap("Lu").toList
-  val UnicodeLt: List[CodePoint] = unicodeClassMap("Lt").toList
-  val UnicodeLo: List[CodePoint] = unicodeClassMap("Lo").toList
-  val UnicodeNl: List[CodePoint] = unicodeClassMap("Nl").toList
-  val UnicodeCs: List[CodePoint] = unicodeClassMap("Cs").toList
+  assertClass("Cc", 65)
+  assertClass("Cf", 140)
+  // assertClass("Co", 6) //parsing 137468
+  // assertClass("Cs", 6) //parsing 2048
+  assertClass("Ll", 1759)
+  assertClass("Lm", 210)
+  // assertClass("Lo", 11320) //parsing 97084
+  assertClass("Lt", 31)
+  assertClass("Lu", 1436)
+  assertClass("Mc", 287)
+  assertClass("Me", 12)
+  assertClass("Mn", 1199)
+  assertClass("Nd", 420)
+  assertClass("Nl", 224)
+  assertClass("No", 456)
+  assertClass("Pc", 10)
+  assertClass("Pd", 21)
+  assertClass("Pe", 71)
+  assertClass("Pf", 10)
+  assertClass("Pi", 12)
+  assertClass("Po", 402)
+  assertClass("Ps", 72)
+  assertClass("Sc", 47)
+  assertClass("Sk", 115)
+  assertClass("Sm", 948)
+  assertClass("So", 4398)
+  assertClass("Zl", 1)
+  assertClass("Zp", 1)
+  assertClass("Zs", 18)
+  
+
+  val UnicodeLl: List[CodePoint] = uniMap("Ll")
+  val UnicodeLu: List[CodePoint] = uniMap("Lu")
+  val UnicodeLt: List[CodePoint] = uniMap("Lt")
+  val UnicodeLo: List[CodePoint] = uniMap("Lo")
+  val UnicodeNl: List[CodePoint] = uniMap("Nl")
+  val UnicodeCs: List[CodePoint] = uniMap("Cs")
   val UnicodeCn: List[CodePoint] = List[Int]()
 
 
