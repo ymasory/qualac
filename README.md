@@ -7,7 +7,7 @@ Qualac is a quality assurance test suite for the Scala compiler.
 We focus on fuzzing and automatic specification-based testing.
 
 # Mailing list #
-Check out our [quala-nightly](https://groups.google.com/group/qualac/) Google group.
+Check out our [qualac](https://groups.google.com/group/qualac/) Google group.
 
 # Code comments #
 ## Abbreviations ##
