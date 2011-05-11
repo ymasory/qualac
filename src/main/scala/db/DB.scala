@@ -17,7 +17,7 @@ object DB {
       createTables()
       val id = storeRun()
       storeRunEnvironment()
-      storeJavaProps()
+      // storeJavaProps()
       id
     }
     catch {
@@ -157,6 +157,7 @@ object DB {
          |  java_vm_version, os, source_encoding)
          |VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""".stripMargin
     val pstmt = con.prepareStatement(sql)
+    pstmt.setLong(1, id)
     pstmt.setString(2, Env.scalaVersion)
     pstmt.setString(3, Env.scalaVersionString)
     pstmt.setString(4, Env.scalaVersionMsg)
@@ -169,6 +170,7 @@ object DB {
     pstmt.setString(11, Env.javaVmVersion)
     pstmt.setString(12, Env.os)
     pstmt.setString(13, Env.sourceEncoding)
+    pstmt.executeUpdate()
     pstmt.close()
   }
 
