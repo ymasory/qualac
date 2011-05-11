@@ -148,7 +148,7 @@ object DB {
 
     def storeKv(k: String, v: Long) {
       val sql =
-        "INSERT INTO runtimeprops(run_id, rkey, rvalue) VALUES(?, ?, ?)"
+        "INSERT INTO runtimeprop(run_id, rkey, rvalue) VALUES(?, ?, ?)"
       val pstmt = con.prepareStatement(sql)
       pstmt.setLong(1, id)
       pstmt.setString(2, k)
@@ -157,10 +157,12 @@ object DB {
       pstmt.close()
     }
     val run = Runtime.getRuntime
-    for ((k, v) <- List(("total_memory", run.totalMemory),
-                        ("max_memory", run.maxMemory),
-                        ("free_memory", run.freeMemory))) {
-      storeKv(k, v)
+    for ((k, v) <- List(
+      ("total_memory", run.totalMemory),
+      ("max_memory", run.maxMemory),
+      ("free_memory", run.freeMemory),
+      ("available_processors", run.availableProcessors.toLong))) {
+        storeKv(k, v)
     }
   }
 
