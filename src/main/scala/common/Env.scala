@@ -96,21 +96,23 @@ object Env {
     }
   }
 
-  /** fuzzing.conf property. */
+  /** config file property */
   val numThreads = {
     val num = getConfigInt("threads")
     if (num <= 0) Runtime.getRuntime.availableProcessors
     else num
   }
-  /** fuzzing.conf property. */
+  /** config file property */
   val durationSeconds = getConfigInt("duration_seconds")
-  /** fuzzing.conf property. */
+  /** config file property */
   val timeoutSeconds = getConfigInt("timeout_seconds")
-  /** fuzzing.conf property. */
+  /** config file property */
   val dbUsername = getConfigString("db_username")
-  /** fuzzing.conf property. */
+  /** config file property */
   val dbUrl = getConfigString("db_url")
-  /** fuzzing.conf property. */
+  /** config file property */
+  val dbDriver = getConfigString("db_driver")
+  /** config file property */
   val dbPassword = getConfigString("db_password")
   /** Gmail account name used to send result messages. */
   val gmailAccount = getConfigString("gmail_account")
