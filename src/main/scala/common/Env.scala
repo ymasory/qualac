@@ -95,6 +95,13 @@ object Env {
       case Left(s) => s
     }
   }
+  
+  /** Config file property. */
+  val outDir = {
+    val dir = getConfigString("out_dir")
+    new File(dir)
+  }.ensuring(f => f.exists && f.isDirectory,
+    "output_dir does not exist. Check your config file.")
 
   /** config file property */
   val numThreads = {
