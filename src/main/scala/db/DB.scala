@@ -46,6 +46,24 @@ object DB {
     DriverManager.getConnection(Env.dbUrl, Env.dbUsername, Env.dbPassword)
   }
 
+  def persistConfigs(map: Map[String, Either[String, Int]]) {
+    for (key <- map.keys) {
+      val value: String = map(key) match {
+        case Left(s) => s
+        case Right(i) => i.toString
+      }
+      if ((key endsWith "_password") == false) {
+        val sql = "INSERT INTO config(run_id, ukey, uvalue) VALUES(?, ?, ?)"
+        val pstmt = con.prepareStatement(sql)
+        pstmt.setLong(1, id)
+        pstmt.setString(2, key)
+        pstmt.setString(3, value)
+        pstmt.executeUpdate()
+        pstmt.close()
+      }
+    }
+  }
+
   def persistTrial() {
     val sql = "INSERT INTO trial(run_id, expected) VALUES(?, ?)"
     val pstmt = con.prepareStatement(sql)

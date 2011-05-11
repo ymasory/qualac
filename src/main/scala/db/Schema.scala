@@ -68,6 +68,15 @@ CREATE TABLE IF NOT EXISTS javaprop (
   jvalue TEXT NOT NULL,
   FOREIGN KEY (run_id) REFERENCES run(id)
 )
+""",
+"""
+CREATE TABLE IF NOT EXISTS config (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  run_id BIGINT NOT NULL,
+  ukey TEXT NOT NULL,
+  uvalue TEXT NOT NULL,
+  FOREIGN KEY (run_id) REFERENCES run(id)
+)
 """
   )
 }

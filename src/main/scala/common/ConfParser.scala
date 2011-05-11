@@ -23,18 +23,21 @@ object ConfParser {
         parts match {
           case k :: t => {
             val key: String = k.trim
-            val v = t match {
+            if (key.isEmpty) None
+            else {
+              val v = t match {
                 case v :: _ => v
                 case Nil    => ""
+              }
+              val vTrim = v.trim
+              val value: Either[String, Int] = try { 
+                Right(vTrim.toInt)
+              }
+              catch {
+                case _ => Left(vTrim)
+              }
+              Some(key -> value)
             }
-            val vTrim = v.trim
-            val value: Either[String, Int] = try { 
-              Right(vTrim.toInt)
-            }
-            catch {
-              case _ => Left(vTrim)
-            }
-            Some(key -> value)
           }
           case _ => None
         }

@@ -73,7 +73,7 @@ object Env {
   }
 
   /** Map of the parsed config file. */
-  private val map =  qualac.fuzz.Main.confFile match {
+  val configMap =  qualac.fuzz.Main.confFile match {
       case Some(file) =>
         ConfParser.parse(file)
       case None =>
@@ -82,7 +82,7 @@ object Env {
 
   /** Pull a value from the config file that's supposed to be a `String`. */
   private def getConfigInt(key: String) = {
-    map(key) match {
+    configMap(key) match {
       case Right(i) => i
       case Left(_) => throw QualacException(key + " value must be an int")
     }
@@ -90,7 +90,7 @@ object Env {
 
   /** Pull a value from the config file that's supposed to be an `Int`. */
   private def getConfigString(key: String) = {
-    map(key) match {
+    configMap(key) match {
       case Right(_) => throw QualacException(key + " value must be an int")
       case Left(s) => s
     }

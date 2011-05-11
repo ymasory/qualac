@@ -13,6 +13,7 @@ class FuzzRun() {
     try {
       Main.shout("initializing environment: " + Env)
       Main.shout("initializing database: " + db)
+      db.persistConfigs(Env.configMap)
       Main.shout("using " + Env.numThreads + " threads")
       Main.shout("Fuzzing started. Going for " + Env.durationSeconds +
                  " seconds. Down with scalac!")
