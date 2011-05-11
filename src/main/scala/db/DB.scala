@@ -17,6 +17,7 @@ object DB {
       createTables()
       val id = storeRun()
       storeRunEnvironment()
+      storeJavaProps()
       id
     }
     catch {
@@ -30,14 +31,6 @@ object DB {
     }
   }
   
-
-  /**
-   * Just to encourage early initialization of the `DB` object, whose
-   * initialization code opens the db connection and stores information
-   * about this run.
-   */
-  def init() = {}
-
   /** Establish connection with the database, returning the `Connection`. */
   private def makeConnection() = {
     val url = Env.dbUrl
@@ -105,7 +98,7 @@ object DB {
    */
   private def storeRun() = {
     val pstmt =
-      con.prepareStatement("INSERT INTO run (time_started) values(?)")
+      con.prepareStatement("INSERT INTO run (time_started) VALUES(?)")
     pstmt.setTimestamp(1, Env.nowStamp())
     pstmt.executeUpdate()
     pstmt.close()
@@ -126,6 +119,21 @@ object DB {
       val stmt = con.createStatement()
       stmt.executeUpdate(table)
       stmt.close()
+    }
+  }
+
+  private def storeJavaProps() {
+    import scala.collection.JavaConversions._
+    val set = System.getProperties.stringPropertyNames.toSet
+    for (key <- set) {
+      val value = System.getProperty(key)
+      val sql = "INSERT INTO javaprop(run_id, jkey, jvalue) VALUES(?, ?, ?)"
+      val pstmt = con.prepareStatement(sql)
+      pstmt.setLong(1, id)
+      pstmt.setString(2, key)
+      pstmt.setString(3, value)
+      pstmt.executeUpdate()
+      pstmt.close()
     }
   }
 

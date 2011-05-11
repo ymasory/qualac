@@ -59,6 +59,15 @@ CREATE TABLE IF NOT EXISTS outcome (
   time_ended TIMESTAMP NOT NULL,
   FOREIGN KEY (run_id) REFERENCES run(id)
 )
+""",
+"""
+CREATE TABLE IF NOT EXISTS javaprop (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  run_id BIGINT NOT NULL,
+  jkey TEXT NOT NULL,
+  jvalue TEXT NOT NULL,
+  FOREIGN KEY (run_id) REFERENCES run(id)
+)
 """
   )
 }
