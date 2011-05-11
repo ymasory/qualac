@@ -21,7 +21,7 @@ class FuzzThread(seconds: Int, threadNo: Int) extends Thread {
   override def run() {
     while(System.currentTimeMillis < endMillis) {
       // qualac.lex.IdentifierProperties.check
-      qualac.compile.Scalac.parse("class X", dir)
+      qualac.compile.Scalac.compile("class X", dir)
       DB.persistTrial()
     }
   }

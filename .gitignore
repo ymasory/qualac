@@ -5,4 +5,4 @@ src_managed/
 project/boot/
 /h2/*.db
 /out/thread-*
-*.class
+/out/thread-*/*.class

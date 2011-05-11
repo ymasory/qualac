@@ -68,14 +68,13 @@ object Scalac {
       case None => 
     }
     val file = new File(threadDir, "temp.scala")
-    file.deleteOnExit
     val writer = new BufferedWriter(new FileWriter(file))
     writer.write(text)
     writer.close()
     val classPathList = List(
       "project/boot/scala-" + Env.scalaVersion + "/lib/scala-compiler.jar" +
       ":project/boot/scala-" + Env.scalaVersion + "/lib/scala-library.jar")
-    settings.outputDirs setSingleOutput (Env.outDir.getPath)
+    settings.outputDirs setSingleOutput (threadDir.getPath)
     settings.classpath.tryToSet(classPathList)
     val reporter = new StoreReporter
     val compiler = new Global(settings, reporter)
