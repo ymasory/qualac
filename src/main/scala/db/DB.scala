@@ -16,8 +16,8 @@ object DB {
     try {
       createTables()
       val id = storeRun()
-      storeRunEnvironment()
-      // storeJavaProps()
+      storeRunEnvironment(id)
+      storeJavaProps(id)
       id
     }
     catch {
@@ -132,7 +132,7 @@ object DB {
     }
   }
 
-  private def storeJavaProps() {
+  private def storeJavaProps(id: Long) {
     import scala.collection.JavaConversions._
     val set = System.getProperties.stringPropertyNames.toSet
     for (key <- set) {
@@ -148,7 +148,7 @@ object DB {
   }
 
   /** Store row in env table for this fuzz run. */
-  private def storeRunEnvironment() {
+  private def storeRunEnvironment(id: Long) {
     val sql =
       """|INSERT INTO
          |  env(run_id, scala_version, scala_version_string,
