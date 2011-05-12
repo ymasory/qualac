@@ -13,6 +13,7 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
   val junit = "junit" % "junit" % "4.8.2"
   val junitInterface = "com.novocode" % "junit-interface" % "0.6"
   val jodaTime = "joda-time" % "joda-time" % "1.6.2"
+  val jsap = "com.martiansoftware" % "jsap" % "2.1"
 
   //scalacheck is the only Scala non-test dependency
   val scalacheck = "org.scala-tools.testing" % "scalacheck_2.9.0.RC3" % "1.8"
