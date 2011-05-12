@@ -126,6 +126,10 @@ object Env {
   val testPattern = getConfigString("test_pattern").r
   /** config file property */
   val recipients = getConfigString("recipients").split(",").toList
+  /** config file property */
+  val maxDiscardedTests = getConfigInt("max_discarded_tests")
+  /** config file property */
+  val minSuccessfulTests = getConfigInt("min_successful_tests")
   
 
 

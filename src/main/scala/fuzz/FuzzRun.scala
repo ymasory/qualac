@@ -20,7 +20,12 @@ class FuzzRun() {
       Main.shout("Fuzzing started. Going for " + Env.durationSeconds +
                  " seconds. Down with scalac!")
 
-      val params = Test.Params(workers = Env.numThreads)
+      val params = Test.Params(
+        minSuccessfulTests = Env.minSuccessfulTests,
+        maxDiscardedTests = Env.maxDiscardedTests,
+        workers = Env.numThreads,
+        testCallback = new QCallback
+      )
       qualac.lex.IdentifierProperties.check(params)
 
       DB.persistExit(None)
