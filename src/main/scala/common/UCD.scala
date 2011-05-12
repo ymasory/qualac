@@ -57,7 +57,7 @@ object UCD {
     partMap + ("Cn" -> unassigned)
   }
 
-  private val MaxBmp = -1
+  private val MaxBmp = 65535
   private val NonCharClasses = Set("Cn", "Cs")
 
   private val bmpMap = uniMap map { pair =>
