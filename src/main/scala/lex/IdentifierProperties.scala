@@ -7,11 +7,10 @@ import qualac.compile.Scalac
 
 object IdentifierProperties extends Properties("Identifiers") {
 
-  val bmpNonChar = Characters.bmpNonChar
-
-  property("any BMP char can be an identifier") =
-    forAll(Characters.bmpChar) { c =>
-      val text = LexUtil.codeToString(c)
+  property("any letter char can be an identifier") =
+    forAll(Characters.letterChar) { c =>
+      val char = LexUtil.codeToString(c)
+      val text = "object Foo { def " + char + " = 0 }"
       val (errors, warnings, _) =
         Scalac.compile(text, new java.io.File("out"))
       (errors == false && warnings == false)
