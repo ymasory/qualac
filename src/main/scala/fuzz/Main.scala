@@ -2,7 +2,7 @@ package qualac.fuzz
 
 import java.io.File
 
-import com.martiansoftware.jsap.{ JSAP, JSAPResult, UnflaggedOption }
+import com.martiansoftware.jsap.{ JSAP, JSAPResult, FlaggedOption }
 import com.martiansoftware.jsap.stringparsers.FileStringParser
 
 object Main {
@@ -13,12 +13,12 @@ object Main {
   lazy val jsap = {
     val jsap = new JSAP()
     val confOption =
-      new UnflaggedOption(conf)
+      new FlaggedOption(conf).setLongFlag(conf)
         .setStringParser(
           FileStringParser.getParser().setMustBeFile(true).setMustExist(true))
     jsap registerParameter confOption
     val condorOption =
-      new UnflaggedOption(condor)
+      new FlaggedOption(condor).setLongFlag(condor)
         .setStringParser(
           FileStringParser.getParser().setMustBeFile(true).setMustExist(true))
     jsap registerParameter condorOption
@@ -37,8 +37,13 @@ object Main {
         case Some(file) => shout("using configuration file: " + file)
         case none       => shout("using default configuration file")
       }
-      val fuzzRun = new FuzzRun()
-      fuzzRun fuzz()
+      _condorFile match {
+        case Some(file) => shout("condor not implemented yet :(")
+        case None => {
+          val fuzzRun = new FuzzRun()
+          fuzzRun fuzz()
+        }
+      }
     }
     else println(usage(config))
   }
