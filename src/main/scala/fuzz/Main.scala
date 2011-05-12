@@ -10,6 +10,8 @@ object Main {
   val ProgramName = "qualac"
   val (conf, condor) = ("config", "condor")
 
+  var _confFile: Option[File] = _
+
   lazy val jsap = {
     val jsap = new JSAP()
     val confOption =
@@ -25,27 +27,27 @@ object Main {
     jsap
   }
 
-  private var _confFile: Option[File] = _
-  private var _condorFile: Option[File] = _
-
   def main(args: Array[String]) {
     val config = jsap.parse(args)
     if (config.success) {
-      _condorFile = Option(config.getFile(condor))
+      val condorFile = Option(config.getFile(condor))
       _confFile = Option(config.getFile(conf))
       _confFile match {
         case Some(file) => shout("using configuration file: " + file)
         case none       => shout("using default configuration file")
       }
-      _condorFile match {
-        case Some(file) => shout("condor not implemented yet :(")
+      condorFile match {
+        case Some(file) => {
+          val condRun = new CondorRun(file)
+          condRun fuzz()
+        }
         case None => {
           val fuzzRun = new FuzzRun()
           fuzzRun fuzz()
         }
       }
     }
-    else println(usage(config))
+    else Console.err println(usage(config))
   }
 
   def usage(config: JSAPResult) = {
@@ -83,5 +85,4 @@ object Main {
   }
 
   def confFile = _confFile
-  def condorFile = _condorFile
 }
