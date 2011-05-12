@@ -124,6 +124,8 @@ object Env {
   val gmailPassword = getConfigString("gmail_password")
   /** config file property */
   val testPattern = getConfigString("test_pattern").r
+  /** config file property */
+  val recipients = getConfigString("recipients").split(",").toList
   
 
 
