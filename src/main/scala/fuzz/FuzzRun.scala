@@ -2,6 +2,8 @@ package qualac.fuzz
 
 import java.io.File
 
+import org.scalacheck._
+
 import qualac.common.Env
 import qualac.db.DB
 
@@ -18,7 +20,8 @@ class FuzzRun() {
       Main.shout("Fuzzing started. Going for " + Env.durationSeconds +
                  " seconds. Down with scalac!")
 
-      qualac.lex.IdentifierProperties.check
+      val params = Test.Params(workers = Env.numThreads)
+      qualac.lex.IdentifierProperties.check(params)
 
       DB.persistExit(None)
     }
