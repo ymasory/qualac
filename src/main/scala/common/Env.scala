@@ -18,9 +18,6 @@ import qualac.QualacException
  */
 object Env {
 
-  /** The name of this wonderful program. */
-  val ProgramName = "qualac"
-
   /** Get the current time in an immutable joda `DateTime`. */
   def now() = new DateTime()
 
@@ -96,7 +93,7 @@ object Env {
     }
   }
   
-  /** Config file property. */
+  /** Config file property */
   val outDir = {
     val dir = getConfigString("out_dir")
     new File(dir)
@@ -121,10 +118,14 @@ object Env {
   val dbDriver = getConfigString("db_driver")
   /** config file property */
   val dbPassword = getConfigString("db_password")
-  /** Gmail account name used to send result messages. */
+  /** config file property */
   val gmailAccount = getConfigString("gmail_account")
-  /** Password to the Gmail account used to send result messages. */
+  /** config file property */
   val gmailPassword = getConfigString("gmail_password")
+  /** config file property */
+  val testPattern = getConfigString("test_pattern").r
+  
+
 
   val unicodeVersion =
     if (javaVersion startsWith "1.5") "4.0.0"
