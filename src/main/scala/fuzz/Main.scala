@@ -7,7 +7,7 @@ import com.martiansoftware.jsap.stringparsers.FileStringParser
 
 object Main {
 
-  val ProgramName = "qualac"
+  val ProgramName = "Qualac"
   val (conf, condor) = ("config", "condor")
 
   var _confFile: Option[File] = _
@@ -79,7 +79,9 @@ object Main {
     val banner = (1 to 80).map(_ => "#").mkString
     val out = if (error) Console.err else Console.out
     out.println(banner)
-    val name = if (error) "QUALAC ERROR: " else "Qualac: "
+    val name =
+      if (error) (ProgramName.toUpperCase + " ERROR: ")
+      else (ProgramName.capitalize + ": ")
     out.println(name + (if (error) str.toUpperCase else str))
     out.println(banner)
   }
