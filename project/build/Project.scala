@@ -16,7 +16,7 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
   val jsap = "com.martiansoftware" % "jsap" % "2.1"
 
   //scalacheck is the only Scala non-test dependency
-  val scalacheck = "org.scala-tools.testing" % "scalacheck_2.9.0.RC3" % "1.8"
+  val scalacheck = "org.scala-tools.testing" %% "scalacheck" % "1.8"
 
   //junit
   override def testOptions = 
