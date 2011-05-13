@@ -96,3 +96,41 @@ object UCD {
   val BmpSo = bmpMap("So")
   val BmpSm = bmpMap("Sm")
 }
+
+object UCDVerifier {
+
+  case class Count(fourCout: Int, fiveDotOneCount: Int, sixCount: Int = 0)
+
+  val map = Map(
+    "Cc" -> Count(65, 65),
+    "Cn" -> Count(873883, 865147),
+    "Cf" -> Count(139, 140),
+    "Co" -> Count(137468, 137468),
+    "Cs" -> Count(2048, 2048),
+    "Ll" -> Count(1748, 1759),
+    "Lm" -> Count(187, 210),
+    "Lo" -> Count(90068, 97084),
+    "Lt" -> Count(31, 31),
+    "Lu" -> Count(1421, 1436),
+    "Mc" -> Count(236, 287),
+    "Me" -> Count(13, 12),
+    "Mn" -> Count(1032, 1199),
+    "Nd" -> Count(370, 420),
+    "Nl" -> Count(214, 224),
+    "No" -> Count(349, 456),
+    "Pc" -> Count(10, 10),
+    "Pd" -> Count(20, 21),
+    "Pe" -> Count(71, 71),
+    "Pf" -> Count(10, 10),
+    "Pi" -> Count(12, 12),
+    "Po" -> Count(315, 402),
+    "Ps" -> Count(72, 72),
+    "Sc" -> Count(41, 47),
+    "Sk" -> Count(99, 115),
+    "Sm" -> Count(945, 948),
+    "So" -> Count(3225, 4398),
+    "Zl" -> Count(1, 1),
+    "Zp" -> Count(1, 1),
+    "Zs" -> Count(18, 18)
+  )
+}
