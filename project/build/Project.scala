@@ -51,8 +51,7 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
 
   //proguard
   override def proguardOptions = List(
-    "-keepclasseswithmembers " +
-    "public class * { public static void main(java.lang.String[]); }",
+    "-dontshrink -dontoptimize -dontobfuscate -dontpreverify",
     proguardKeepAllScala
   )
   override def proguardInJars =
