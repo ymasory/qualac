@@ -56,5 +56,12 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
     proguardKeepAllScala
   )
   override def proguardInJars =
-    Path.fromFile(scalaLibraryJar) +++ super.proguardInJars
+    Path.fromFile(scalaLibraryJar) +++
+    Path.fromFile(FileUtilities.scalaCompilerJar) +++
+    super.proguardInJars
+
+  // override def runClasspath = super.runClasspath +++ buildCompilerJar
+
+  // override def filterScalaJars = false
+  // override def checkExplicitScalaDependencies = true
 }
