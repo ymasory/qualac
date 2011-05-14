@@ -1,4 +1,6 @@
-import sbt._
+import java.io.File
+
+import sbt.{ DefaultProject, Path, ProjectInfo, Level, TestFrameworks }
 
 class Project(info: ProjectInfo) extends DefaultProject(info)
   with ProguardProject {
@@ -55,13 +57,12 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
     "-ignorewarnings",
     proguardKeepAllScala
   )
+
+  val cur =  new File(".").getAbsolutePath
   override def proguardInJars =
     Path.fromFile(scalaLibraryJar) +++
-    Path.fromFile(FileUtilities.scalaCompilerJar) +++
+    Path.fromFile(
+      new File(cur, "project/boot/scala-" + vs + 
+               "/lib/scala-compiler.jar")) +++
     super.proguardInJars
-
-  // override def runClasspath = super.runClasspath +++ buildCompilerJar
-
-  // override def filterScalaJars = false
-  // override def checkExplicitScalaDependencies = true
 }
