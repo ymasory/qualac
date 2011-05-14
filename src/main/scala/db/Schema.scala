@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS env (
   java_vm_version TEXT NOT NULL,
   os TEXT NOT NULL,
   source_encoding TEXT NOT NULL,
+  etc_hostname TEXT NOT NULL,
   FOREIGN KEY (run_id) REFERENCES run(id)
 )
 """,
