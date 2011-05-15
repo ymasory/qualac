@@ -1,9 +1,10 @@
 package qualac.fuzz
 
 import java.io.File
+import java.lang.reflect.Constructor
 import java.net.URL
 
-import java.lang.reflect.Constructor
+import org.scalacheck.{ Prop, Properties }
 
 object Reflector {
 
@@ -17,6 +18,36 @@ object Reflector {
     //   val con: Constructor[PatternDetector] =
     //     clazz.getConstructor(classOf[Global])
     //     .asInstanceOf[Constructor[PatternDetector]]
+
+  def discoverProps(): List[Prop] = {
+    val clazzNames = clazzNamesForPackage("qualac")
+    for {
+      name <- clazzNames
+      // if name.contains("$$anonfun$")
+      // if name.contains("Properties")
+      clazz = Class.forName(name)
+    } {
+        try {
+          val con = clazz.newInstance()
+          // clazz.asInstanceOf[Properties]
+          println(name)
+          clazz.getField("MODULE$").get(null).asInstanceOf[Properties]
+          println(con)
+          println(clazz.getFields.toList)
+          println
+        }
+        catch {
+          case _: InstantiationException =>
+          case e =>
+        }
+      // val clazz = Class.forName(name)
+      // val cons = clazz.getConstructors.toList
+      // println(name)
+      // println(cons)
+      // println()
+    }
+    null
+  }
 
   /**
    * Find the fully qualified names of all the classes under the provied
