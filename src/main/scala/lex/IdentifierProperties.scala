@@ -12,7 +12,7 @@ object IdentifierProperties extends Properties("Identifiers") {
       val char = LexUtil.codeToString(c)
       val text = "object Foo { def " + char + " = 0 }"
       val (errors, warnings, _) =
-        Scalac.compile(text, new java.io.File("out"))
+        Scalac.compile(text)
       (errors == false && warnings == false)
     }
 }

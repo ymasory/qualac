@@ -17,10 +17,11 @@ class FuzzRun() {
       Main.shout("initializing database: " + db)
       db.persistConfigs(Env.configMap)
       Main.shout("using " + Env.numThreads + " threads")
+      val allProps = Reflector.discoverProps()
+      Main.shout("found " + allProps.length + " properties to test")
       Main.shout("Fuzzing started. Going for " + Env.durationSeconds +
                  " seconds. Down with scalac!")
 
-      val allProps = Reflector.discoverProps()
       for (prop <- allProps) {
         val params = Test.Params(
           minSuccessfulTests = Env.minSuccessfulTests,
