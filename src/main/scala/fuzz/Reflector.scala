@@ -13,40 +13,24 @@ object Reflector {
   val dot = dotChar.toString
   val slash = slashChar.toString
 
-    //   val clazz = Class.forName(name)
-    //   val constructors = clazz.getConstructors().toList
-    //   val con: Constructor[PatternDetector] =
-    //     clazz.getConstructor(classOf[Global])
-    //     .asInstanceOf[Constructor[PatternDetector]]
-
-  def discoverProps(): List[Prop] = {
+  /** Return a list of all `Prop`s reflectively discovered and constructed. */
+  def discoverProps(): List[Properties] = {
     val clazzNames = clazzNamesForPackage("qualac")
-    for {
-      name <- clazzNames
-      // if name.contains("$$anonfun$")
-      // if name.contains("Properties")
-      clazz = Class.forName(name)
-    } {
-        try {
-          val con = clazz.newInstance()
-          // clazz.asInstanceOf[Properties]
-          println(name)
-          clazz.getField("MODULE$").get(null).asInstanceOf[Properties]
-          println(con)
-          println(clazz.getFields.toList)
-          println
+    val props = clazzNames.flatMap { name =>
+      try {
+        val clazz: Class[_] = Class.forName(name)
+        if (clazz.getSuperclass.getName == "org.scalacheck.Properties") {
+          val prop =
+            clazz.getField("MODULE$").get(null).asInstanceOf[Properties]
+          Some(prop)
         }
-        catch {
-          case _: InstantiationException =>
-          case e =>
-        }
-      // val clazz = Class.forName(name)
-      // val cons = clazz.getConstructors.toList
-      // println(name)
-      // println(cons)
-      // println()
+        else None
+      }
+      catch {
+        case e => {e.printStackTrace() ; None}
+      }
     }
-    null
+    props
   }
 
   /**
@@ -60,10 +44,10 @@ object Reflector {
       case Some(url) => {
         val directory = new File(url.getFile)
         if (directory.exists()) {
-          val (filesNames, dirNames) =
+          val (fileNames, dirNames) =
             directory.list().toList.partition(_.endsWith(".class"))
 
-          val clazzNames: List[String] = filesNames map { name =>
+          val clazzNames: List[String] = fileNames map { name =>
               packageName + dot +
               name.substring(0, name.length - 6)
           }
@@ -71,7 +55,7 @@ object Reflector {
             clazzNamesForPackage(packageName + dot + d)
           }.flatten
           
-          clazzNames ++ recClazzNames
+          (clazzNames ++ recClazzNames).sorted
         }
         else Nil
       }
