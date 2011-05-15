@@ -6,6 +6,8 @@ import java.net.URL
 
 import org.scalacheck.{ Prop, Properties }
 
+import qualac.common.Env.TestPattern
+
 object Reflector {
 
   val dotChar = '.'
@@ -18,13 +20,18 @@ object Reflector {
     val clazzNames = clazzNamesForPackage("qualac")
     val props = clazzNames.flatMap { name =>
       try {
-        val clazz: Class[_] = Class.forName(name)
-        if (clazz.getSuperclass.getName == "org.scalacheck.Properties") {
-          val prop =
-            clazz.getField("MODULE$").get(null).asInstanceOf[Properties]
-          Some(prop)
+        name match {
+          case TestPattern(_) => {
+            val clazz: Class[_] = Class.forName(name)
+            if (clazz.getSuperclass.getName == "org.scalacheck.Properties") {
+              val prop =
+                clazz.getField("MODULE$").get(null).asInstanceOf[Properties]
+              Some(prop)
+            }
+            else None
+          }
+          case _ => None
         }
-        else None
       }
       catch {
         case e => {e.printStackTrace() ; None}

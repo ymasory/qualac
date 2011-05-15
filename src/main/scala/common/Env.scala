@@ -123,7 +123,7 @@ object Env {
   /** config file property */
   val gmailPassword = getConfigString("gmail_password")
   /** config file property */
-  val testPattern = getConfigString("test_pattern").r
+  val TestPattern = getConfigString("test_pattern").r
   /** config file property */
   val recipients = getConfigString("recipients").split(",").toList
   /** config file property */
