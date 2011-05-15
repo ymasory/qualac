@@ -7,52 +7,40 @@ import java.lang.reflect.Constructor
 
 object Reflector {
 
-  // def discoverPatterns(): List[Constructor[PatternDetector]] = {
-    // val classNames = discoverPackageClasses("com.github.alacs.patterns").
-    //                  filter(_ contains ".AlacsPattern").
-    //                  sorted
-    // classNames map { name =>
+  val dotChar = '.'
+  val slashChar = '/'
+  val dot = dotChar.toString
+  val slash = slashChar.toString
+
     //   val clazz = Class.forName(name)
     //   val constructors = clazz.getConstructors().toList
     //   val con: Constructor[PatternDetector] =
     //     clazz.getConstructor(classOf[Global])
     //     .asInstanceOf[Constructor[PatternDetector]]
-    //   con
-    // }
-  // }
 
-  def discoverPackageClasses(packageName: String): List[String] = {
-    val name = {
-      val name =
-        if (packageName.startsWith("/"))
-          packageName
-        else
-          "/" + packageName
-      name replace ('.', '/')
-    }
-
+  /**
+   * Find the fully qualified names of all the classes under the provied
+   * package names, where packages are considered nested.
+   */
+  def clazzNamesForPackage(packageName: String): List[String] = {
+    val name = (slash + packageName) replace (dotChar, slashChar)
     val urlOpt = Option(Reflector.getClass.getResource(name))
     urlOpt match {
       case Some(url) => {
         val directory = new File(url.getFile)
         if (directory.exists()) {
-          val files = directory.list().toList.
-                      filter(_.endsWith(".class")).
-                      filter(s => (s contains "$") == false)
-          val classes: List[String] = files flatMap { file =>
-            val className = (
-              packageName + "." +
-              file.substring(0, file.length - 6)
-            )
-            try {
-              Class.forName(className)
-              Some(className)
-            }
-            catch {
-              case _: ClassNotFoundException => None
-            }
+          val (filesNames, dirNames) =
+            directory.list().toList.partition(_.endsWith(".class"))
+
+          val clazzNames: List[String] = filesNames map { name =>
+              packageName + dot +
+              name.substring(0, name.length - 6)
           }
-          classes
+          val recClazzNames: List[String] = dirNames.map{ d =>
+            clazzNamesForPackage(packageName + dot + d)
+          }.flatten
+          
+          clazzNames ++ recClazzNames
         }
         else Nil
       }
