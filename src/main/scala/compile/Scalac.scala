@@ -54,12 +54,10 @@ object Scalac {
   /** Generate a `StoreReporter` */
   def reporter = new StoreReporter
 
-  def compile(text: String, threadDir: File) = doCompile(text, threadDir, None)
-  def parse(text: String, threadDir: File) =
-    doCompile(text, threadDir, Some("parser"))
+  def compile(text: String) = doCompile(text, None)
+  def parse(text: String) = doCompile(text, Some("parser"))
 
-  private def doCompile(text: String, threadDir: File,
-                        stopAfter: Option[String] = None) = {
+  private def doCompile(text: String, stopAfter: Option[String] = None) = {
     import java.io.{ BufferedWriter, FileWriter }
 
     val settings = new Settings
@@ -67,6 +65,9 @@ object Scalac {
       case Some(phase) => settings.stopAfter.value = List(phase)
       case None => 
     }
+    val threadDir =
+      new File(Env.outDir, "thread-" + Thread.currentThread.getId)
+    if (threadDir.exists == false) threadDir.mkdir()
     val file = new File(threadDir, "temp.scala")
     val writer = new BufferedWriter(new FileWriter(file))
     writer.write(text)
