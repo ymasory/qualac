@@ -8,6 +8,8 @@ import scala.io.Source
 import qualac.QualacException
 
 object ConfParser {
+  
+  val Delimiter = "="
 
   def parse(file: File): Map[String, Either[String, Int]] =
     parse(Source.fromFile(file).mkString)
@@ -21,14 +23,14 @@ object ConfParser {
     val pairs: List[(String, Either[String, Int])] =
       commentlessLines.flatMap { line =>
         val trimmed = line.trim
-        val parts = trimmed.split("=").toList
+        val parts = trimmed.split(Delimiter).toList
         parts match {
           case k :: t => {
             val key: String = k.trim
             if (key.isEmpty) None
             else {
               val v = t match {
-                case v :: _ => v
+                case v :: vt => t.mkString(Delimiter)
                 case Nil    => ""
               }
               val vTrim = v.trim
