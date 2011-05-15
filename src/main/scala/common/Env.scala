@@ -76,60 +76,47 @@ object Env {
       case None =>
         ConfParser.parse(getClass.getResourceAsStream("/default.conf"))
   }
-
-  /** Pull a value from the config file that's supposed to be a `String`. */
-  private def getConfigInt(key: String) = {
-    configMap(key) match {
-      case Right(i) => i
-      case Left(_) => throw QualacException(key + " value must be an int")
-    }
-  }
-
-  /** Pull a value from the config file that's supposed to be an `Int`. */
-  private def getConfigString(key: String) = {
-    configMap(key) match {
-      case Right(_) => throw QualacException(key + " value must be an int")
-      case Left(s) => s
-    }
-  }
   
   /** Config file property */
   val outDir = {
-    val dir = getConfigString("out_dir")
+    val dir = ConfParser.getConfigString("out_dir", configMap)
     new File(dir)
   }.ensuring(f => f.exists && f.isDirectory,
     "output_dir does not exist. Check your config file.")
 
   /** config file property */
   val numThreads = {
-    val num = getConfigInt("threads")
+    val num = ConfParser.getConfigInt("threads", configMap)
     if (num <= 0) Runtime.getRuntime.availableProcessors
     else num
   }
   /** config file property */
-  val durationSeconds = getConfigInt("duration_seconds")
+  val durationSeconds = ConfParser.getConfigInt("duration_seconds", configMap)
   /** config file property */
-  val timeoutSeconds = getConfigInt("timeout_seconds")
+  val timeoutSeconds = ConfParser.getConfigInt("timeout_seconds", configMap)
   /** config file property */
-  val dbUsername = getConfigString("db_username")
+  val dbUsername = ConfParser.getConfigString("db_username", configMap)
   /** config file property */
-  val dbUrl = getConfigString("db_url")
+  val dbUrl = ConfParser.getConfigString("db_url", configMap)
   /** config file property */
-  val dbDriver = getConfigString("db_driver")
+  val dbDriver = ConfParser.getConfigString("db_driver", configMap)
   /** config file property */
-  val dbPassword = getConfigString("db_password")
+  val dbPassword = ConfParser.getConfigString("db_password", configMap)
   /** config file property */
-  val gmailAccount = getConfigString("gmail_account")
+  val gmailAccount = ConfParser.getConfigString("gmail_account", configMap)
   /** config file property */
-  val gmailPassword = getConfigString("gmail_password")
+  val gmailPassword = ConfParser.getConfigString("gmail_password", configMap)
   /** config file property */
-  val TestPattern = getConfigString("test_pattern").r
+  val TestPattern = ConfParser.getConfigString("test_pattern", configMap).r
   /** config file property */
-  val recipients = getConfigString("recipients").split(",").toList
+  val recipients =
+    ConfParser.getConfigString("recipients", configMap).split(",").toList
   /** config file property */
-  val maxDiscardedTests = getConfigInt("max_discarded_tests")
+  val maxDiscardedTests =
+    ConfParser.getConfigInt("max_discarded_tests", configMap)
   /** config file property */
-  val minSuccessfulTests = getConfigInt("min_successful_tests")
+  val minSuccessfulTests =
+    ConfParser.getConfigInt("min_successful_tests", configMap)
   
 
 
@@ -141,7 +128,5 @@ object Env {
 
   val unicodePath = "/UnicodeData-" + Env.unicodeVersion + ".txt"
   getClass.getResourceAsStream(unicodePath).ensuring(_ != null)
-
-  UCD.toString //initialization
 }
 

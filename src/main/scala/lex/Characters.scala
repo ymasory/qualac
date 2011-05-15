@@ -154,7 +154,7 @@ object Characters {
    * 
    * @spec Digits ‘0’ | . . . | ‘9’
    */
-  val digitChar: Gen[CodePoint] = Gen choose ("U+0030", "U+0039")
+  lazy val digitChar: Gen[CodePoint] = Gen choose ("U+0030", "U+0039")
 
   /**
    * Generate a paren character, UAR.

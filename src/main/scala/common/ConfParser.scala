@@ -5,6 +5,8 @@ import java.io.InputStream
 
 import scala.io.Source
 
+import qualac.QualacException
+
 object ConfParser {
 
   def parse(file: File): Map[String, Either[String, Int]] =
@@ -43,5 +45,21 @@ object ConfParser {
         }
       }
     Map(pairs: _*)
+  }
+
+  /** Pull a value from the config file that's supposed to be a `String`. */
+  def getConfigInt(key: String, map: Map[String, Either[String, Int]]) = {
+    map(key) match {
+      case Right(i) => i
+      case Left(_) => throw QualacException(key + " value must be an int")
+    }
+  }
+
+  /** Pull a value from the config file that's supposed to be an `Int`. */
+  def getConfigString(key: String, map: Map[String, Either[String, Int]]) = {
+    map(key) match {
+      case Right(_) => throw QualacException(key + " value must be an int")
+      case Left(s) => s
+    }
   }
 }

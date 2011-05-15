@@ -17,7 +17,8 @@ object Reflector {
 
   /** Return a list of all `Prop`s reflectively discovered and constructed. */
   def discoverProps(): List[Properties] = {
-    val clazzNames = clazzNamesForPackage("qualac")
+    val clazzNames =
+      clazzNamesForPackage("qualac").filter(_.endsWith("Properties$"))
     val props = clazzNames.flatMap { name =>
       try {
         name match {

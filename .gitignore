@@ -7,4 +7,4 @@ project/boot/
 /out/thread-*
 *.class
 /out/*.scala
-
+/condor
