@@ -21,6 +21,7 @@ class FuzzRun() {
                  " seconds. Down with scalac!")
 
       val allProps = Reflector.discoverProps()
+      Main.shout("found " + allProps.length + " properties to test")
       for (prop <- allProps) {
         val params = Test.Params(
           minSuccessfulTests = Env.minSuccessfulTests,
