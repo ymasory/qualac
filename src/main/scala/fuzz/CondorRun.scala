@@ -8,12 +8,12 @@ class CondorRun(conf: File) {
 
   val map = ConfParser.parse(conf)
 
-  val condorSubmit: File = {
+  val condorSubmitPath: String = {
     val binDir = new File(ConfParser.getConfigString("bin_loc", map))
     assert(binDir.exists, "bin_loc " + binDir + " does not exist")
     val condorSubmit = new File(binDir, "condor_submit")
-    assert(binDir.exists, condorSubmit + " does not exist")
-    condorSubmit
+    assert(condorSubmit.exists, condorSubmit + " does not exist")
+    condorSubmit.getAbsolutePath
   }
    val jarFile: File = {
     val jarPath = ConfParser.getConfigString("jar_loc", map)
@@ -36,34 +36,68 @@ class CondorRun(conf: File) {
     for ((prop, i) <- allProps.zip(0 until allProps.length)) {
       val id = stamp + "-" + i
       val propRoot = new File(condorRoot, "condor-" + id)
-      propRoot.mkdir()
-      val writer = new PrintWriter(new File(propRoot, "condor.submit"))
-      writer.println(makeSubmitString(id))
-      writer.flush()
-      writer.close()
+      val submit = new CondorSubmission(propRoot, id)
+      val submitFilePath = submit.writeSubmitFile().getAbsolutePath
+      copy(jarFile, new File(propRoot, "qualac.jar"))
+      Runtime.getRuntime.exec(Array(condorSubmitPath, submitFilePath))
     }
   }
 
-  def makeSubmitString(id: String) = {
-    val LF = "\n"
-    val buf = new StringBuffer
-    buf append ("universe = java" + LF)
-    buf append ("executable = qualac-" + id + ".jar" + LF)
-    buf append ("jar_files = qualac-" + id + ".jar" + LF)
-    buf append ("arguments = qualac.fuzz.Main" + LF)
-    buf append ("error = qualac-" + id + ".error" + LF)
-    buf append ("output = qualac-" + id + ".output" + LF)
-    buf append ("log = qualac-" + id + ".log" + LF)
-    buf append ("queue" + LF)
+  class CondorSubmission(propRoot: File, id: String) {
+    
+    if (propRoot.exists == false) propRoot.mkdir()
 
-    for (k <- map.keys if k.startsWith("_")) {
-      val v: String = map(k) match {
-        case Left(s) => s
-        case Right(i) => i.toString
+    private val absPath = propRoot.getAbsolutePath()
+    private val prefix = "qualac-" + id
+    val universe: String = "java"
+    val executable: String =
+      new File(propRoot, prefix + ".jar").getAbsolutePath
+    val jarFiles: String = executable
+    val mainFile: String = "qualac.fuzz.Main"
+    val error: String = prefix + ".error"
+    val output: String = prefix + ".output"
+    val log: String = prefix + ".log"
+
+    val fileString = {
+      val buf = new StringBuffer
+      val LF = "\n"
+      def addLine(prop: String, value: String) {
+        buf append (prop + " = " + value + LF)
       }
-      buf append (k.substring(1) + " = " + v + LF)
+      addLine("universe", universe)
+      addLine("executable", executable)
+      addLine("jar_files", jarFiles)
+      addLine("arguments", mainFile)
+      addLine("error", error)
+      addLine("output", output)
+      addLine("log", log)
+      for (k <- map.keys if k.startsWith("_")) {
+        val v: String = map(k) match {
+          case Left(s) => s
+          case Right(i) => i.toString
+        }
+        addLine (k.substring(1), v)
+      }
+      buf append ("queue" + LF)
+      buf.toString
     }
 
-    buf.toString
+    def writeSubmitFile(): File = {
+      val file = new File(propRoot, "condor.submit")
+      val writer = new PrintWriter(file)
+      writer.println(fileString)
+      writer.flush()
+      writer.close()
+      file
+    }
+  }
+
+  def copy(from: File, to: File) {
+    import java.io.{ FileInputStream, FileOutputStream }
+    val srcChannel = new FileInputStream(from).getChannel()
+    val dstChannel = new FileOutputStream(to).getChannel()
+    dstChannel transferFrom (srcChannel, 0, srcChannel.size())
+    srcChannel.close()
+    dstChannel.close()
   }
 }
