@@ -18,7 +18,9 @@ class CondorRun(conf: File) {
    val jarFile: File = {
     val jarPath = ConfParser.getConfigString("jar_loc", map)
     val jarFile = new File(jarPath)
-    assert(jarFile.exists, jarFile + " does not exist")
+    assert(
+      jarFile.exists, jarFile + " does not exist. did you run " +
+      "sbt proguard task?")
     jarFile
   }
 
