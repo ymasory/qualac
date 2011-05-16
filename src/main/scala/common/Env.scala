@@ -24,6 +24,8 @@ object Env {
   /** Get the current time as a sql `Timestamp`. */
   def nowStamp() = new Timestamp(Env.now().toDate.getTime)
 
+  def nowMillis() = System.currentTimeMillis
+
   /** Current directory the program is executing in. */
   val curDir = (new java.io.File(".")).getCanonicalPath
 

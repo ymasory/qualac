@@ -25,7 +25,7 @@ class CondorRun(conf: File) {
   }
 
   val allProps = Reflector.discoverProps()
-  val stamp = Env.now() 
+  val stamp = Env.nowMillis() 
 
   def fuzz() = {
     Main.shout("really submit " + allProps.length + " jobs? (y/N)")
@@ -41,7 +41,11 @@ class CondorRun(conf: File) {
       val submit = new CondorSubmission(propRoot, id)
       val submitFilePath = submit.writeSubmitFile().getAbsolutePath
       copy(jarFile, new File(propRoot, "qualac.jar"))
-      Runtime.getRuntime.exec(Array(condorSubmitPath, submitFilePath))
+      val (o, e, r) = call(condorSubmitPath, submitFilePath)
+      if (r != 0)
+        Console.err.println(
+          "non-zero return (" + r + ") to condor submit\n" + e)
+        sys.exit(1)
     }
   }
 
@@ -50,10 +54,11 @@ class CondorRun(conf: File) {
     if (propRoot.exists == false) propRoot.mkdir()
 
     private val absPath = propRoot.getAbsolutePath()
-    private val prefix = "qualac-" + id
+    private val name = Main.ProgramName.toLowerCase
+    private val prefix = name + "-" + id
     val universe: String = "java"
     val executable: String =
-      new File(propRoot, prefix + ".jar").getAbsolutePath
+      new File(propRoot, name + ".jar").getAbsolutePath
     val jarFiles: String = executable
     val mainFile: String = "qualac.fuzz.Main"
     val error: String = prefix + ".error"
@@ -101,5 +106,19 @@ class CondorRun(conf: File) {
     dstChannel transferFrom (srcChannel, 0, srcChannel.size())
     srcChannel.close()
     dstChannel.close()
+  }
+
+  def call(args: String*): (String, String, Int) = {
+    import scala.io.Source
+
+    val runTime = Runtime.getRuntime
+    val process = runTime.exec(args.toArray)
+    val outSource = Source.fromInputStream(process.getInputStream)
+    val errSource = Source.fromInputStream(process.getErrorStream)
+    process.waitFor
+    val stdout = outSource.mkString
+    val stderr = errSource.mkString
+    val ret = process.exitValue
+    (stdout, stderr, ret)
   }
 }
