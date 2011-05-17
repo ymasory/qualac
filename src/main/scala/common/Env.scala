@@ -27,7 +27,7 @@ object Env {
   def nowMillis() = System.currentTimeMillis
 
   /** Current directory the program is executing in. */
-  val curDir = (new java.io.File(".")).getCanonicalPath
+  val curDir = (new File(".")).getCanonicalFile
 
   /** Running Scala version, like 2.8.0 or 2.9.0.RC3. */
   val scalaVersion: String = {
@@ -82,7 +82,7 @@ object Env {
   /** Config file property */
   val outDir = {
     val dir = ConfParser.getConfigString("out_dir", configMap)
-    new File(dir)
+    new File(dir).getCanonicalFile
   }.ensuring(f => f.exists && f.isDirectory,
     "output_dir does not exist. Check your config file.")
 

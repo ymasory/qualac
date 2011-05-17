@@ -54,17 +54,19 @@ class CondorRun(conf: File) {
     if (propRoot.exists == false) propRoot.mkdir()
 
     private val Job = "job"
-    private val absPath = propRoot.getAbsolutePath()
     private val name = Main.ProgramName.toLowerCase
+    val outDir = new File(Env.outDir, name + "-" + stamp)
+    if (outDir.mkdir() == false) sys.error("could not create " + outDir)
+    private val absPath = propRoot.getAbsolutePath()
     private val prefix = name + "-" + id
     val universe: String = "java"
     val executable: String =
       new File(propRoot, name + ".jar").getAbsolutePath
     val jarFiles: String = executable
     val mainFile: String = "qualac.fuzz.Main"
-    val error: String = new File(propRoot, Job + ".error").getAbsolutePath
-    val output: String = new File(propRoot, Job + ".output").getAbsolutePath
-    val log: String = new File(propRoot, Job + ".log").getAbsolutePath
+    val error: String = new File(outDir, Job + ".error").getAbsolutePath
+    val output: String = new File(outDir, Job + ".output").getAbsolutePath
+    val log: String = new File(outDir, Job + ".log").getAbsolutePath
 
     val fileString = {
       val buf = new StringBuffer
