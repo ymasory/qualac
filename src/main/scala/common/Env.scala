@@ -79,9 +79,10 @@ object Env {
         ConfParser.parse(getClass.getResourceAsStream("/default.conf"))
   }
   
+  val OutDirKey = "out_dir"
   /** Config file property */
   val outDir = {
-    val dir = ConfParser.getConfigString("out_dir", configMap)
+    val dir = ConfParser.getConfigString(OutDirKey, configMap)
     new File(dir).getCanonicalFile
   }.ensuring(f => f.exists && f.isDirectory,
     "output_dir does not exist. Check your config file.")
@@ -108,8 +109,10 @@ object Env {
   val gmailAccount = ConfParser.getConfigString("gmail_account", configMap)
   /** config file property */
   val gmailPassword = ConfParser.getConfigString("gmail_password", configMap)
+
+  val TestPatternKey = "test_pattern"
   /** config file property */
-  val TestPattern = ConfParser.getConfigString("test_pattern", configMap).r
+  val TestPattern = ConfParser.getConfigString(TestPatternKey, configMap).r
   /** config file property */
   val recipients =
     ConfParser.getConfigString("recipients", configMap).split(",").toList

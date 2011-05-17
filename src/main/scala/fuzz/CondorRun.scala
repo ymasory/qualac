@@ -15,7 +15,7 @@ class CondorRun(conf: File) {
     assert(condorSubmit.exists, condorSubmit + " does not exist")
     condorSubmit.getAbsolutePath
   }
-   val jarFile: File = {
+  val jarFile: File = {
     val jarPath = ConfParser.getConfigString("jar_loc", map)
     val jarFile = new File(jarPath)
     assert(
@@ -63,7 +63,10 @@ class CondorRun(conf: File) {
     val executable: String =
       new File(propRoot, name + ".jar").getAbsolutePath
     val jarFiles: String = executable
-    val mainFile: String = "qualac.fuzz.Main"
+    val customConfigFile: File = new File(propRoot, "qualac.conf")
+    writeCustomConfig(customConfigFile)
+    val mainFile: String =
+      "qualac.fuzz.Main --config " + customConfigFile.getAbsolutePath
     val error: String = new File(outDir, Job + ".error").getAbsolutePath
     val output: String = new File(outDir, Job + ".output").getAbsolutePath
     val log: String = new File(outDir, Job + ".log").getAbsolutePath
@@ -90,6 +93,27 @@ class CondorRun(conf: File) {
       }
       buf append ("queue" + LF)
       buf.toString
+    }
+
+    def writeCustomConfig(file: File) {
+      val writer = new PrintWriter(file)
+      def extract(e: Either[String, Int]) = {
+        e match {
+          case Left(s) => s
+          case Right(i) => i.toString
+        }
+      }
+      for (k <- Env.configMap.keys) {
+        def writeKv(k: String, v: String) {
+          writer.println(k + " " + ConfParser.Delimiter + " " + v)
+        }
+        k match {
+          case Env.TestPatternKey => writeKv(k, "dunno")
+          case _ => writeKv(k, extract(Env.configMap(k)))
+        }
+      }
+      writer.flush()
+      writer.close()
     }
 
     def writeSubmitFile(): File = {
