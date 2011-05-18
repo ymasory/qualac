@@ -19,7 +19,7 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
 
   //scala dependencies
   val scalacheck = "org.scala-tools.testing" %% "scalacheck" % "1.8"
-  val classutil = "org.clapper" %% "classutil" % "0.3.5"
+  val classutil = "org.clapper" %% "classutil" % "0.3.6"
 
   //junit
   override def testOptions = 
