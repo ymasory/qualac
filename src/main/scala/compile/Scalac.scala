@@ -54,6 +54,11 @@ object Scalac {
   /** Generate a `StoreReporter` */
   def reporter = new StoreReporter
 
+  def doesCompile(text: String) = {
+    val (_, errors, _) = compile(text)
+    errors == false
+  }
+
   def compile(text: String) = doCompile(text, None)
   def parse(text: String) = doCompile(text, Some("parser"))
 
