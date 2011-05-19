@@ -82,8 +82,10 @@ object Env {
   val OutDirKey = "out_dir"
   /** Config file property */
   val outDir = {
-    val dir = ConfParser.getConfigString(OutDirKey, configMap)
-    new File(dir).getCanonicalFile
+    val dirName = ConfParser.getConfigString(OutDirKey, configMap)
+    val dir = new File(dirName).getCanonicalFile
+    if (dir.exists == false) dir.mkdir()
+    dir
   }.ensuring(f => f.exists && f.isDirectory,
     "output_dir does not exist. Check your config file.")
 

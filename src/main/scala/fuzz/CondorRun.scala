@@ -15,7 +15,7 @@ class CondorRun(conf: File) {
     val binDir = new File(ConfParser.getConfigString("bin_loc", map))
     assert(binDir.exists, "bin_loc " + binDir + " does not exist")
     val condorSubmit = new File(binDir, "condor_submit")
-    assert(condorSubmit.exists, condorSubmit + " does not exist")
+    // assert(condorSubmit.exists, condorSubmit + " does not exist")
     condorSubmit.getAbsolutePath
   }
   val jarFile: File = {
