@@ -52,6 +52,15 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
 
   def vs = crossScalaVersionString
 
+  lazy val condor = task { args =>
+    val nArgs =
+      Array("--config",
+            Path.userHome + Path.sep.toString + ".qualac-condor.conf",
+            "--condor",
+            "src/main/resources/sample.condor.conf")
+    super.runAction(nArgs).dependsOn(proguard)
+  }
+
   //proguard
   override def proguardOptions = List(
     "-dontshrink -dontoptimize -dontobfuscate -dontpreverify -dontnote " +
