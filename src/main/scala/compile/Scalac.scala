@@ -54,6 +54,8 @@ object Scalac {
   /** Generate a `StoreReporter` */
   def reporter = new StoreReporter
 
+  def doesNotCompile(text: String) = (! doesCompile(text))
+
   def doesCompile(text: String) = {
     val (_, errors, _) = compile(text)
     errors == false

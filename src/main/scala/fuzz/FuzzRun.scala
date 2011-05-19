@@ -17,7 +17,7 @@ class FuzzRun() {
       Main.shout("initializing database: " + db)
       db.persistConfigs(Env.configMap)
       Main.shout("using " + Env.numThreads + " threads")
-      val allProps = Finder.discoverProps()
+      val allProps = Finder.discoverPropsMatching(Env.TestPattern)
       Main.shout("found " + allProps.length + " properties to test")
       Main.shout("Fuzzing started. Going for " + Env.durationSeconds +
                  " seconds. Down with scalac!")

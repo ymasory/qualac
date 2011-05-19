@@ -1,8 +1,11 @@
 package qualac.fuzz
 
 import java.io.{ File, PrintWriter }
+import java.util.regex.Pattern
 
 import qualac.common.{ Env, ConfParser }
+
+import org.scalacheck.Prop
 
 class CondorRun(conf: File) {
 
@@ -24,7 +27,7 @@ class CondorRun(conf: File) {
     jarFile
   }
 
-  val allProps = Reflector.discoverProps()
+  val allProps = Finder.discoverPropsMatching(Env.TestPattern)
   val stamp = Env.nowMillis() 
 
   def fuzz() = {
@@ -38,7 +41,7 @@ class CondorRun(conf: File) {
     for ((prop, i) <- allProps.zip(0 until allProps.length)) {
       val id = stamp + "-" + i
       val propRoot = new File(condorRoot, "condor-" + id)
-      val submit = new CondorSubmission(propRoot, id)
+      val submit = new CondorSubmission(prop, propRoot, id)
       val submitFilePath = submit.writeSubmitFile().getAbsolutePath
       copy(jarFile, new File(propRoot, "qualac.jar"))
       val (o, e, r) = call(condorSubmitPath, submitFilePath)
@@ -49,7 +52,7 @@ class CondorRun(conf: File) {
     }
   }
 
-  class CondorSubmission(propRoot: File, id: String) {
+  class CondorSubmission(prop: Prop, propRoot: File, id: String) {
     
     if (propRoot.exists == false) propRoot.mkdir()
 
@@ -108,7 +111,10 @@ class CondorRun(conf: File) {
           writer.println(k + " " + ConfParser.Delimiter + " " + v)
         }
         k match {
-          case Env.TestPatternKey => writeKv(k, "dunno")
+          case Env.TestPatternKey => {
+            val singlePat = Pattern.quote("(^" + prop.getClass.getName + "$)")
+            writeKv(k, singlePat)
+          }
           case _ => writeKv(k, extract(Env.configMap(k)))
         }
       }
