@@ -19,7 +19,6 @@ class FuzzRun() {
       Main.shout("using " + Env.numThreads + " threads")
       val allProps = Finder.discoverProps()
       Main.shout("found " + allProps.length + " properties to test")
-      sys.exit
       Main.shout("Fuzzing started. Going for " + Env.durationSeconds +
                  " seconds. Down with scalac!")
 
