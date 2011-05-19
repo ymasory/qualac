@@ -59,7 +59,9 @@ class CondorRun(conf: File) {
     private val Job = "job"
     private val name = Main.ProgramName.toLowerCase
     val outDir = new File(Env.outDir, name + "-" + stamp)
-    if (outDir.mkdir() == false) sys.error("could not create " + outDir)
+    if (outDir.exists == false) {
+      if (outDir.mkdir() == false) sys.error("could not create " + outDir)
+    }
     private val absPath = propRoot.getAbsolutePath()
     private val prefix = name + "-" + id
     val universe: String = "java"
