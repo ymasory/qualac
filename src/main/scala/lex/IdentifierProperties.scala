@@ -5,7 +5,12 @@ import Prop.forAll
 
 import qualac.compile.Scalac
 
-object IdentifierProperties extends Properties("Identifiers") {
+/**
+ * @author Yuvi Masory
+ * @specSec(2)
+ */
+object IdentifierProperties extends
+  Properties("2 Identifiers, Names, and Scopes") {
 
   // property("any letter char can be an identifier") =
   //   forAll(Characters.letterChar) { c =>

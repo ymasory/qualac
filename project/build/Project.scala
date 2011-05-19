@@ -52,6 +52,8 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
 
   def vs = crossScalaVersionString
 
+
+  //some custom run tasks, for my sanity
   lazy val condor = task { args =>
     val nArgs =
       Array("--config",
@@ -59,6 +61,12 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
             "--condor",
             "src/main/resources/sample.condor.conf")
     super.runAction(nArgs).dependsOn(proguard)
+  }
+  lazy val mrun = task { args =>
+    val nArgs =
+      Array("--config",
+            Path.userHome + Path.sep.toString + ".qualac-local.conf")
+    super.runAction(nArgs)
   }
 
   //proguard
