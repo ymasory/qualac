@@ -13,15 +13,15 @@ object Finder {
     new File(Env.curDir, "target/scala_" + Env.scalaVersion + "/classes/")
 
   def discoverProps() = {    
-    // val jarFinder = ClassFinder()
-    // val sbtFinder = ClassFinder(List(sbtClassDir))
-    // val classes = jarFinder.getClasses ++ sbtFinder.getClasses
-    val classes = ClassFinder(List(sbtClassDir)).getClasses
-    val clazz = classes.toList.head
+    val jarFinder = ClassFinder()
+    val sbtFinder = ClassFinder(List(sbtClassDir))
+    val classes = jarFinder.getClasses ++ sbtFinder.getClasses
     val classMap = ClassFinder classInfoMap classes
     val allProps = classMap.keys.flatMap { name: String =>
-      println(name)
-      Some(classMap(name))
+      val clazz = classMap(name)
+      val supClass = clazz.superClassName
+      if (supClass == "org.scalacheck.Properties") Some(clazz)
+      else None
     }
     val myProps = allProps.filter(_.name.startsWith("qualac.")).toList
     myProps.map { info =>
