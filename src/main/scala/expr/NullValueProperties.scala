@@ -40,6 +40,11 @@ object NullValueProperties extends Properties("6.3 The *Null* Value") {
    *  • asInstanceOf[T ] returns the “null” object itself if T conforms to
    *    scala.AnyRef, and throws a NullPointerException otherwise.
    */
+  property("`null` cannot be cast to type incompatible with `AnyRef`") =
+    forAll { i: Int =>
+      false
+    } : @epfl(4624)
+ 
   
   /**
    * @spec A reference any other member NullPointerException to be thrown.
