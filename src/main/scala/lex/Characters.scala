@@ -47,9 +47,6 @@ object Characters {
    * @spec In Scala mode, Unicode escapes are replaced by the corresponding
    * Unicode character with the given hexadecimal code.
    * UnicodeEscape ::= \{\\}u{u} hexDigit hexDigit hexDigit hexDigit
-   *
-   * @correction The EBNF syntax for UnicodeEscape is wrong. It should read
-   * \*u{u} hexDigit hexDigit hexDigit hexDigit [remove the *]
    */
   lazy val unicodeEscapeSeq: Gen[List[CodePoint]] = null
 
@@ -79,7 +76,6 @@ object Characters {
    * Generate a whitespace character, UAR.
    *
    * @spec 1. Whitespace characters. \u0020 | \u0009 | \u000D | \u000A
-   * @correction Finish sentence with period.
    */
   lazy val whitespaceChar: Gen[CodePoint] = Gen oneOf (
     List("U+0020", "U+0009", "U+000D", "U+000A")
@@ -89,10 +85,6 @@ object Characters {
    * Generate a letter, UAR.
    * 
    * @spec 2. Letters, which include ...
-   *
-   * @correction There should be spaces before the parens indicating the
-   * Unicode groups.
-   * @correction Finish sentence with period.
    */
   lazy val letterChar: Gen[CodePoint] =
     lowercaseLetterChar | uppercaseLetterChar | titlecaseLetterChar |
@@ -157,8 +149,6 @@ object Characters {
    * Generate a delimiter character, UAR.
    * 
    * @spec Delimiter characters ‘‘’ | ‘’’ | ‘"’ | ‘.’ | ‘;’ | ‘,’
-   * @correction The back tick and single quote are hard to figure out when
-   * rendered by LaTeX.
    */
   lazy val delimiterChar: Gen[CodePoint] =
     Gen oneOf List(

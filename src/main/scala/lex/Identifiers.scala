@@ -29,8 +29,6 @@ object Identifiers {
 
   /**
    * @spec Example 1.1.1 Here are examples of identifiers
-   * @correction ‘ here and in Example 1.1.2 does not look enough like `. More
-   * LaTeX hacking needed.
    */
   lazy val identifierExamples =
     List("x", "Object", "maxIndex", "p2p", "empty_?", "+", "`yield`",
