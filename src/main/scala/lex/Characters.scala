@@ -10,17 +10,6 @@ import LexImplicits.bmpHexToCodePoint
  *
  * @author Yuvi Masory
  * @specSec 1.0
- *
- * @undefined How are we to encode these Unicode code points? The spec doesn't
- * specify an encoding. Scalac allows one to specify the encoding. The spec
- * should probably specify that it's left up to the implementation.
- * @undefined Lexical Translations are not specified. See JLS 3.2.
- * @undefined No Unicode version is specified. Without that one cannot be sure
- * which code units belong to which classes. This is difficult to specify
- * with a simple answer because in practice it's contingent on the behavior of
- * the VM (e.g., particular JVM version) hosting scalac. Spec should probably
- * specify that it's left up to the implementation.
- * @undefined What happens if a supplementary character is used?
  */
 object Characters {
 
