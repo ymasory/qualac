@@ -3,6 +3,7 @@ package qualac.stdlib
 import org.scalacheck._
 import Prop.forAll
 
+import qualac.epfl
 import qualac.compile.Scalac
 
 /**
@@ -45,5 +46,5 @@ object NullValueProperties extends Properties("6.3 The *Null* Value") {
    */
   property("`null` does not implement `##`") = forAll { i: Int =>
     Scalac.doesNotCompile("object M { null.## }")
-  }
+  } : @epfl(4311)
 }
