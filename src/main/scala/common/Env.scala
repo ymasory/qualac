@@ -128,12 +128,16 @@ object Env {
 
 
   val unicodeVersion =
-    if (javaVersion startsWith "1.5") "4.0.0"
-    else if (javaVersion startsWith "1.6") "4.0.0"
-    else if (javaVersion startsWith "1.7") "5.1.0"
+    if (javaVersion startsWith "1.5") VFour
+    else if (javaVersion startsWith "1.6") VFour
+    else if (javaVersion startsWith "1.7") VFiveDotOne
     else throw QualacException("unkown java version " + javaVersion)
 
-  val unicodePath = "/UnicodeData-" + Env.unicodeVersion + ".txt"
+  val unicodePath = "/UnicodeData-" + Env.unicodeVersion.value + ".txt"
   getClass.getResourceAsStream(unicodePath).ensuring(_ != null)
 }
 
+abstract class UnicodeVersion(val value: String)
+case object VFour extends UnicodeVersion("4.0.0")
+case object VFiveDotOne extends UnicodeVersion("5.1.0")
+case object VSix extends UnicodeVersion("6.0.0")
