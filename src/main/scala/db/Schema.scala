@@ -74,8 +74,10 @@ CREATE TABLE IF NOT EXISTS javaprop (
 CREATE TABLE IF NOT EXISTS runtimeprop (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   run_id BIGINT NOT NULL,
-  rkey TEXT NOT NULL,
-  rvalue BIGINT NOT NULL,
+  total_memory BIGINT NOT NULL,
+  free_memory BIGINT NOT NULL,
+  max_memory BIGINT NOT NULL,
+  processors INT NOT NULL,
   FOREIGN KEY (run_id) REFERENCES run(id)
 )
 """,

@@ -148,24 +148,26 @@ object DB {
       pstmt.close()
     }
 
-    def storeKv(k: String, v: Long) {
-      val sql =
-        "INSERT INTO runtimeprop(run_id, rkey, rvalue) VALUES(?, ?, ?)"
-      val pstmt = con.prepareStatement(sql)
-      pstmt.setLong(1, id)
-      pstmt.setString(2, k)
-      pstmt.setLong(3, v)
-      pstmt.executeUpdate()
-      pstmt.close()
-    }
     val run = Runtime.getRuntime
-    for ((k, v) <- List(
-      ("total_memory", run.totalMemory),
-      ("max_memory", run.maxMemory),
-      ("free_memory", run.freeMemory),
-      ("available_processors", run.availableProcessors.toLong))) {
-        storeKv(k, v)
-    }
+    val totalMemory = run.totalMemory
+    val freeMemory = run.freeMemory
+    val maxMemory = run.maxMemory
+    val processors = run.availableProcessors
+    val sql =
+"""
+INSERT INTO runtimeprop(run_id, total_memory, free_memory, max_memory,
+                        processors)
+VALUES(?, ?, ?, ?, ?)
+"""
+    val pstmt = con.prepareStatement(sql)
+    pstmt.setLong(1, id)
+    pstmt.setLong(2, totalMemory)
+    pstmt.setLong(3, freeMemory)
+    pstmt.setLong(4, maxMemory)
+    pstmt.setInt(5, processors)
+    pstmt.executeUpdate()
+    pstmt.close()
+
   }
 
   /** Store row in env table for this fuzz run. */
