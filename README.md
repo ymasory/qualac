@@ -23,5 +23,3 @@ Check out our [qualac](https://groups.google.com/group/qualac/) Google group.
 
 * `@spec` - A direct quote from [the spec](http://www.scala-lang.org/node/212/pdfs).
 * `@specSec X` - Testing code for section `X` of the spec.
-* `@undefined` - The spec is not clear on this point.
-* `@correction` - A correction or suggestion for the spec.
