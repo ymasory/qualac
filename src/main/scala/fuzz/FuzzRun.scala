@@ -38,6 +38,7 @@ class FuzzRun() {
       case t1: Throwable => {
         try {
           DB.persistExit(Some(t1))
+          t1.printStackTrace()
           Main.shout("successfully persisted exit-causing error", error=true)
         }
         catch {
