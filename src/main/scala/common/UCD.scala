@@ -11,30 +11,36 @@ object UCD {
   private val path = Env.unicodePath
   private val verifier = new UCDVerifier(UCDParser.parse(path))
 
-  val BmpPoints = null
-  val BmpChars = null
-  val BmpNonChar = null
-  val SuppChar = null
+  val BmpPoints = verifier.allBmpPoints()
+  val BmpChars = verifier.allBmpChars()
+  val BmpNonChar = verifier.allBmpNonChars()
+  val SuppChar = verifier.allSuppChars()
 
-  val BmpLl = verifier.verifiedClass("Ll")
-  val BmpLu = verifier.verifiedClass("Lu")
-  val BmpLt = verifier.verifiedClass("Lt")
-  val BmpLo = verifier.verifiedClass("Lo")
-  val BmpNl = verifier.verifiedClass("Nl")
-  val BmpCs = verifier.verifiedClass("Cs")
-  val BmpCn = verifier.verifiedClass("Cn")
-  val BmpSo = verifier.verifiedClass("So")
-  val BmpSm = verifier.verifiedClass("Sm")
+  val BmpLl = verifier.verifiedBmpClass("Ll")
+  val BmpLu = verifier.verifiedBmpClass("Lu")
+  val BmpLt = verifier.verifiedBmpClass("Lt")
+  val BmpLo = verifier.verifiedBmpClass("Lo")
+  val BmpNl = verifier.verifiedBmpClass("Nl")
+  val BmpCs = verifier.verifiedBmpClass("Cs")
+  val BmpCn = verifier.verifiedBmpClass("Cn")
+  val BmpSo = verifier.verifiedBmpClass("So")
+  val BmpSm = verifier.verifiedBmpClass("Sm")
 }
 
 private[common] class UCDVerifier(uMap: Map[String, List[CodePoint]]) {
 
-  private case class Count(fourCount: Int, fiveDotOneCount: Int, sixCount: Int)
-
   private val MaxBmp = 65535
   private val NonCharClasses = Set("Cn", "Cs")
 
-  def verifiedClass(clazz: String): List[CodePoint] = {
+  for (clazz <- uMap.keys) {
+    verifyClass(clazz)
+  }
+  assert(allBmpPoints.length == MaxBmp + 1)
+  assert(allBmpChars.length + allBmpNonChars.length == allBmpPoints.length)
+  assert(allBmpChars.toSet.&(allBmpNonChars.toSet).size == 0)
+
+  private case class Count(fourCount: Int, fiveDotOneCount: Int, sixCount: Int)
+  private def verifyClass(clazz: String) = {
     val points = uMap(clazz)
     val expectedTotal = Env.unicodeVersion match {
       case VFour       => vMap(clazz).fourCount
@@ -45,13 +51,34 @@ private[common] class UCDVerifier(uMap: Map[String, List[CodePoint]]) {
     assert(expectedTotal == actualTotal,
            "expected " + clazz + " to have " + expectedTotal +
            " code points, but it had " + actualTotal + " points")
-    points
   }
 
-  def verifiedBmpClass(clazz: String): List[CodePoint] =
-    verifiedClass(clazz).filter(_ <= MaxBmp)
+  def verifiedBmpClass(clazz: String) = uMap(clazz).filter(_ <= MaxBmp)
+  def verifiedSuppClass(clazz: String) = uMap(clazz).filter(_ > MaxBmp)
 
-  private val vMap = Map(
+  def allBmpPoints(): List[CodePoint] = Range(0, MaxBmp + 1).toList
+
+  def allSuppChars(): List[CodePoint] = {
+    uMap.keys.foldLeft(Nil: List[CodePoint]) { (acc, key) =>
+      if (NonCharClasses contains key) acc
+      else acc ++ verifiedSuppClass(key)
+    }
+  }
+
+  def allBmpChars(): List[CodePoint] = {
+    uMap.keys.foldLeft(Nil: List[CodePoint]) { (acc, key) =>
+      if (NonCharClasses contains key) acc
+      else acc ++ verifiedBmpClass(key)
+    }
+  }
+  def allBmpNonChars(): List[CodePoint] = {
+    uMap.keys.foldLeft(Nil: List[CodePoint]) { (acc, key) =>
+      if (NonCharClasses contains key) acc ++ verifiedBmpClass(key)
+      else acc
+    }
+  }
+
+  lazy private val vMap = Map(
     "Cc" -> Count(65, 65, 65),
     "Cn" -> Count(878149, 873883, 865147),
     "Cf" -> Count(137, 139, 140),
