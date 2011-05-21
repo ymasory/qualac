@@ -3,7 +3,7 @@ package qualac.lex
 import org.scalacheck._
 
 import qualac.common.UCD
-import LexImplicits.bmpHexToCodePoint
+import LexImplicits.toQString
 
 /**
  * ScalaCheck generators for characters and other lexical constituents.
@@ -38,7 +38,8 @@ object Characters {
    * 
    * @spec literal characters ‘c’ refer to the ASCII fragment \u0000-\u007F.
    */
-  lazy val literalChar: Gen[CodePoint] = Gen choose ("U+0000", "U+007F")
+  lazy val literalChar: Gen[CodePoint] =
+    Gen choose ("U+0000".deUni, "U+007F".deUni)
 
 
   /**
@@ -57,8 +58,8 @@ object Characters {
    * ‘f’ |
    */
   lazy val hexDigitChar: Gen[CodePoint] = {
-    val hexUpperLetterChar: Gen[CodePoint] = Gen choose ("U+0041", "U+005A")
-    val hexLowerLetterChar: Gen[CodePoint] = Gen choose ("U+0061", "U+007A")
+    val hexUpperLetterChar = Gen choose ("U+0041".deUni, "U+005A".deUni)
+    val hexLowerLetterChar = Gen choose ("U+0061".deUni, "U+007A".deUni)
     digitChar | hexLowerLetterChar | hexUpperLetterChar
   }
 
@@ -78,7 +79,7 @@ object Characters {
    * @spec 1. Whitespace characters. \u0020 | \u0009 | \u000D | \u000A
    */
   lazy val whitespaceChar: Gen[CodePoint] = Gen oneOf (
-    List("U+0020", "U+0009", "U+000D", "U+000A")
+    List("U+0020".deUni, "U+0009".deUni, "U+000D".deUni, "U+000A".deUni)
   )
 
   /**
@@ -104,7 +105,7 @@ object Characters {
    * \u005F ‘_’, which both count as upper case letters
    */
   lazy val uppercaseLetterChar: Gen[CodePoint] = {
-    val extras: List[CodePoint] = List("U+005F", "U+0024")
+    val extras: List[CodePoint] = List("U+005F".deUni, "U+0024".deUni)
     val all = UCD.BmpLl ++ extras
     Gen oneOf all
   }
@@ -135,7 +136,8 @@ object Characters {
    * 
    * @spec Digits ‘0’ | . . . | ‘9’
    */
-  lazy val digitChar: Gen[CodePoint] = Gen choose ("U+0030", "U+0039")
+  lazy val digitChar: Gen[CodePoint] =
+    Gen choose ("U+0030".deUni, "U+0039".deUni)
 
   /**
    * Generate a paren character, UAR.
@@ -143,7 +145,8 @@ object Characters {
    * @spec Parentheses ‘(’ | ‘)’ | ‘[’ | ‘]’ | ‘{’ | ‘}’
    */
   lazy val parenChar: Gen[CodePoint] =
-    Gen oneOf List("U+0028", "U+0029", "U+007B", "U+007D", "U+005B", "U+005D")
+    Gen oneOf List("U+0028".deUni, "U+0029".deUni, "U+007B".deUni,
+                   "U+007D".deUni, "U+005B".deUni, "U+005D".deUni)
 
   /**
    * Generate a delimiter character, UAR.
@@ -152,12 +155,12 @@ object Characters {
    */
   lazy val delimiterChar: Gen[CodePoint] =
     Gen oneOf List(
-      "U+0060", //grave accent
-      "U+0027", //apostrophe
-      "U+0022", //quotation mark
-      "U+002E", //full stop
-      "U+003B", //semicolon
-      "U+002C"  //comma
+      "U+0060".deUni, //grave accent
+      "U+0027".deUni, //apostrophe
+      "U+0022".deUni, //quotation mark
+      "U+002E".deUni, //full stop
+      "U+003B".deUni, //semicolon
+      "U+002C".deUni  //comma
     )
 
   /**
@@ -177,7 +180,8 @@ object Characters {
    * are in none of the sets above
    */
   lazy val otherPrintableAsciiChar: Gen[CodePoint] = {
-    val printables: Gen[CodePoint] = Gen choose ("U+0020", "U+0080")
+    val printables: Gen[CodePoint] =
+      Gen choose ("U+0020".deUni, "U+0080".deUni)
     // printables | whitespaceChar | letterChar | digitChar | parenChar | 
     // delimiterChar
     null

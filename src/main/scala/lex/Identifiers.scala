@@ -1,6 +1,6 @@
 package qualac.lex
 
-import LexImplicits.richify
+import LexImplicits.toQString
 
 /**
  * ScalaCheck generators for identifiers.
