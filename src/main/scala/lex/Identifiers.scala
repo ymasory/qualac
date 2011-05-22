@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) Yuvi Masory, 2011
+ *
+ * Available under the Qualac License, see /LICENSE.
+ */ 
 package qualac.lex
 
 import LexImplicits.toQString
@@ -5,7 +10,6 @@ import LexImplicits.toQString
 /**
  * ScalaCheck generators for identifiers.
  *
- * @author Yuvi Masory
  * @specSec 1.1
  */
 object Identifiers {

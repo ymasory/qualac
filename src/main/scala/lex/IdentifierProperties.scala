@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) Yuvi Masory, 2011
+ *
+ * Available under the Qualac License, see /LICENSE.
+ */ 
 package qualac.lex
 
 import org.scalacheck._
@@ -6,7 +11,6 @@ import Prop.forAll
 import qualac.compile.Scalac
 
 /**
- * @author Yuvi Masory
  * @specSec(2)
  */
 object IdentifierProperties extends

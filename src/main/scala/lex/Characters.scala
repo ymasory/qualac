@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) Yuvi Masory, 2011
+ *
+ * Available under the Qualac License, see /LICENSE.
+ */ 
 package qualac.lex
 
 import org.scalacheck._
@@ -8,7 +13,6 @@ import LexImplicits.toQString
 /**
  * ScalaCheck generators for characters and other lexical constituents.
  *
- * @author Yuvi Masory
  * @specSec 1.0
  */
 object Characters {

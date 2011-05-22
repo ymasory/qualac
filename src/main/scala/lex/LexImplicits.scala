@@ -1,9 +1,13 @@
+/**
+ * Copyright (c) Yuvi Masory, 2011
+ *
+ * Available under the Qualac License, see /LICENSE.
+ */ 
 package qualac.lex
 
 /**
  * Implicit conversions for the lexical fuzzer.
  *
- * @author Yuvi Masory
  */
 object LexImplicits {
 

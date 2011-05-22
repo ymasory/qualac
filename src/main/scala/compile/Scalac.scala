@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) Yuvi Masory, 2011
+ *
+ * Available under the Qualac License, see /LICENSE.
+ */ 
 package qualac.compile
 
 import java.io.{ File, StringWriter, PrintWriter }
@@ -13,8 +18,6 @@ import qualac.common.Env
 
 /**
  * ScalaCheck generators for compiler instances.
- *
- * @author Yuvi Masory
  */
 object Scalac {
 

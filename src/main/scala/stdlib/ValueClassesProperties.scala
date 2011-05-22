@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) Yuvi Masory, 2011
+ *
+ * Available under the Qualac License, see /LICENSE.
+ */ 
 package qualac.stdlib
 
 import org.scalacheck._
@@ -6,11 +11,6 @@ import Prop.forAll
 import qualac.epfl
 import qualac.compile.Scalac
 
-
-/**
- * @author Yuvi Masory
- * @specSec(12.2)
- */
 object ValueClasses extends Properties("12.2 Value Classes") {
 
   property("`Unit` does not implement `asInstanceOf`") = forAll { i: Int =>
