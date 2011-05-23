@@ -109,20 +109,19 @@ object Env {
   /** config file property */
   val dbUrl = ConfParser.getConfigString("db_url", configMap)
   /** config file property */
-  val dbDriver = ConfParser.getConfigString("db_driver", configMap)
-  /** config file property */
   val dbPassword = ConfParser.getConfigString("db_password", configMap)
   /** config file property */
-  val gmailAccount = ConfParser.getConfigString("gmail_account", configMap)
+  // val gmailAccount = ConfParser.getConfigString("gmail_account", configMap)
   /** config file property */
-  val gmailPassword = ConfParser.getConfigString("gmail_password", configMap)
+  // val gmailPassword =
+  //   ConfParser.getConfigString("gmail_password", configMap)
 
   val TestPatternKey = "test_pattern"
   /** config file property */
   val TestPattern = ConfParser.getConfigString(TestPatternKey, configMap).r
   /** config file property */
-  val recipients =
-    ConfParser.getConfigString("recipients", configMap).split(",").toList
+  // val recipients =
+  //   ConfParser.getConfigString("recipients", configMap).split(",").toList
   /** config file property */
   val maxDiscardedTests =
     ConfParser.getConfigInt("max_discarded_tests", configMap)

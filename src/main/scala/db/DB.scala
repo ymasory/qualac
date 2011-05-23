@@ -42,7 +42,7 @@ object DB {
   /** Establish connection with the database, returning the `Connection`. */
   private def makeConnection() = {
     val url = Env.dbUrl
-    Class.forName(Env.dbDriver)
+    Class.forName("com.mysql.jdbc.Driver")
     DriverManager.getConnection(Env.dbUrl, Env.dbUsername, Env.dbPassword)
   }
 
