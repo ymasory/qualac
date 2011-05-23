@@ -14,7 +14,7 @@ import qualac.compile.Scalac
 /**
  * @specSec(6.3)
  */
-object NullValueProperties extends Properties("6.3 The *Null* Value") {
+object NullValueProperties {
 
   /**
    * @spec The null value is of type scala.Null
@@ -44,16 +44,4 @@ object NullValueProperties extends Properties("6.3 The *Null* Value") {
    *  • asInstanceOf[T ] returns the “null” object itself if T conforms to
    *    scala.AnyRef, and throws a NullPointerException otherwise.
    */
-  property("`null` cannot be cast to type incompatible with `AnyRef`") =
-    forAll { i: Int =>
-      false
-    } : @epfl(4624)
- 
-  
-  /**
-   * @spec A reference any other member NullPointerException to be thrown.
-   */
-  property("`null` does not implement `##`") = forAll { i: Int =>
-    Scalac.doesNotCompile("object M { null.## }")
-  } : @epfl(4311)
 }

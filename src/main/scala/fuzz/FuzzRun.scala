@@ -9,6 +9,7 @@ import java.io.File
 
 import org.scalacheck._
 
+import qualac.QCompiles
 import qualac.common.Env
 import qualac.db.DB
 
@@ -22,7 +23,8 @@ class FuzzRun() {
       Main.shout("initializing database: " + db)
       db.persistConfigs(Env.configMap)
       Main.shout("using " + Env.numThreads + " threads")
-      val allProps = Finder.discoverPropsMatching(Env.TestPattern)
+      val allProps =
+        Finder.discoverPropsMatching(Env.TestPattern, "qualac.QCompiles")
       Main.shout("found " + allProps.length + " properties to test")
       Main.shout("Fuzzing started. Going for " + Env.durationSeconds +
                  " seconds. Down with scalac!")
