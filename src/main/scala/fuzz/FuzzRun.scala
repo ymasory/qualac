@@ -4,7 +4,7 @@ import java.io.File
 
 import org.scalacheck._
 
-import qualac.QProp
+import qualac.QCompiles
 import qualac.common.Env
 import qualac.db.DB
 
@@ -19,7 +19,7 @@ class FuzzRun() {
       db.persistConfigs(Env.configMap)
       Main.shout("using " + Env.numThreads + " threads")
       val allProps =
-        Finder.discoverPropsMatching(Env.TestPattern, "qualac.QProp")
+        Finder.discoverPropsMatching(Env.TestPattern, "qualac.QCompiles")
       Main.shout("found " + allProps.length + " properties to test")
       Main.shout("Fuzzing started. Going for " + Env.durationSeconds +
                  " seconds. Down with scalac!")
