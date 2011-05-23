@@ -77,12 +77,7 @@ object Env {
   }
 
   /** Map of the parsed config file. */
-  val configMap =  qualac.fuzz.Main.confFile match {
-      case Some(file) =>
-        ConfParser.parse(file)
-      case None =>
-        ConfParser.parse(getClass.getResourceAsStream("/default.conf"))
-  }
+  val configMap = ConfParser.parse(qualac.fuzz.Main.confFile)
   
   val OutDirKey = "out_dir"
   /** Config file property */

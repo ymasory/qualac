@@ -15,12 +15,12 @@ object Main {
   val ProgramName = "Qualac"
   val (conf, condor) = ("config", "condor")
 
-  var _confFile: Option[File] = _
+  var _confFile: File = _
 
   lazy val jsap = {
     val jsap = new JSAP()
     val confOption =
-      new FlaggedOption(conf).setLongFlag(conf)
+      new FlaggedOption(conf).setLongFlag(conf).setRequired(true)
         .setStringParser(
           FileStringParser.getParser().setMustBeFile(true).setMustExist(true))
     jsap registerParameter confOption
@@ -36,11 +36,8 @@ object Main {
     val config = jsap.parse(args)
     if (config.success) {
       val condorFile = Option(config.getFile(condor))
-      _confFile = Option(config.getFile(conf))
-      _confFile match {
-        case Some(file) => shout("using configuration file: " + file)
-        case none       => shout("using default configuration file")
-      }
+      _confFile = config.getFile(conf)
+      shout("using configuration file: " + _confFile)
       condorFile match {
         case Some(file) => {
           val condRun = new CondorRun(file)
