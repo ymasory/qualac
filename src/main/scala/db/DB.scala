@@ -143,7 +143,7 @@ object DB {
 
     val stmt = con.createStatement()
     val res = stmt.executeQuery(
-      "SELECT id FROM run ORDER BY id DESC LIMIT 1")
+      "SELECT MAX(id) FROM run")
     res.next()
     val id = res.getLong("id")
     res.close()
