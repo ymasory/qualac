@@ -13,6 +13,7 @@ import java.sql.Types.CLOB
 import scala.io.Source
 
 import qualac.common.Env
+import qualac.compile.ScalacMessage
 import qualac.fuzz.{ FuzzRun, Main }
 
 object DB {
@@ -63,13 +64,33 @@ object DB {
     }
   }
 
-  def persistTrial() {
-    val sql = "INSERT INTO trial(run_id, expected) VALUES(?, ?)"
-    val pstmt = con.prepareStatement(sql)
-    pstmt.setLong(1, id)
-    pstmt.setString(2, "durf")
-    pstmt.executeUpdate()
-    pstmt.close()
+  def bool2Enum(b: Boolean) = if(b) "yes" else "no"
+
+  def persistPreTrial(progText: String, shouldCompile: Boolean):
+    (Boolean, Boolean, List[ScalacMessage]) => Unit = {
+      
+      def doPreTrial() = {
+        val sql =
+          """|INSERT INTO trial(run_id, program_text, errors_expected,
+             |                  warnings_expected)
+             |VALUES(?, ?, ?, ?)""".stripMargin
+
+        val pstmt = con.prepareStatement(sql)
+        pstmt.setLong(1, id)
+        pstmt.setString(2, progText)
+        pstmt.setString(3, bool2Enum(shouldCompile)) 
+        pstmt.setString(4, "no")
+        pstmt.executeUpdate()
+        pstmt.close()
+      }
+      doPreTrial()
+
+      (hasWarnings: Boolean, hasErrors: Boolean,
+       infos: List[ScalacMessage]) => {
+        // val pstmt = con.prepareStatement(sql)
+        // pstmt.executeUpdate()
+        // pstmt.close()
+      }
   }
 
   def persistExit(error: Option[Throwable]) {
