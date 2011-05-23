@@ -7,10 +7,11 @@ package qualac.db
 
 import java.io.File
 import java.io.File.{ separator => / }
-import java.sql.{ DriverManager }
+import java.sql.{ DriverManager, Statement }
 import java.sql.Types.CLOB
 
 import scala.io.Source
+import scala.tools.nsc.reporters.{ Reporter, StoreReporter }
 
 import qualac.common.Env
 import qualac.compile.ScalacMessage
@@ -23,9 +24,9 @@ object DB {
   val id: Long = {
     try {
       createTables()
-      val id = storeRun()
-      storeRunEnvironment(id)
-      storeJavaProps(id)
+      val id = persistRun()
+      persistRunEnvironment(id)
+      persistJavaProps(id)
       id
     }
     catch {
@@ -64,32 +65,73 @@ object DB {
     }
   }
 
-  def bool2Enum(b: Boolean) = if(b) "yes" else "no"
+  private def bool2EnumString(b: Boolean) = if(b) "yes" else "no"
+  private def severity2EnumString(s: Reporter#Severity) = {
+    s.id match {
+      case 2 => "error"
+      case 1 => "warning"
+      case 0 => "info"
+      case i => sys.error("unkown severity: " + i)
+    }
+  }
 
   def persistPreTrial(progText: String, shouldCompile: Boolean):
     (Boolean, Boolean, List[ScalacMessage]) => Unit = {
       
-      def doPreTrial() = {
+      def doPreTrial(): Long = {
         val sql =
           """|INSERT INTO trial(run_id, program_text, errors_expected,
              |                  warnings_expected)
              |VALUES(?, ?, ?, ?)""".stripMargin
 
-        val pstmt = con.prepareStatement(sql)
+        val pstmt = con.prepareStatement(sql,
+                                         Statement.RETURN_GENERATED_KEYS)
         pstmt.setLong(1, id)
         pstmt.setString(2, progText)
-        pstmt.setString(3, bool2Enum(shouldCompile)) 
+        pstmt.setString(3, bool2EnumString(shouldCompile)) 
         pstmt.setString(4, "no")
         pstmt.executeUpdate()
+
+        val rs = pstmt.getGeneratedKeys()
+        val trialId = if (rs.next()) rs.getLong(1)
+                      else sys.error("could not get generated key")
+
         pstmt.close()
+        trialId
       }
-      doPreTrial()
+      val trialId = doPreTrial()
+      println("DOING PRETRIAL")
 
       (hasWarnings: Boolean, hasErrors: Boolean,
        infos: List[ScalacMessage]) => {
-        // val pstmt = con.prepareStatement(sql)
-        // pstmt.executeUpdate()
-        // pstmt.close()
+         def persistSummary() {
+           println("PERSISTING SUMMARY")
+           val sql =
+             "INSERT INTO compile(trial_id, warnings, errors) VALUES(?, ?, ?)"
+           val pstmt = con.prepareStatement(sql)
+           pstmt.setLong(1, trialId)
+           pstmt.setString(2, bool2EnumString(hasWarnings))
+           pstmt.setString(3, bool2EnumString(hasErrors))
+           pstmt.executeUpdate()
+           pstmt.close()
+         }
+         def persistInfo(info: ScalacMessage) {
+           val sql = (
+             "INSERT INTO compilemessage(trial_id, severity, message) " +
+             "VALUES(?, ?, ?)"
+           )
+           val pstmt = con.prepareStatement(sql)
+           pstmt.setLong(1, trialId)
+           pstmt.setString(2, severity2EnumString(info.severity))
+           pstmt.setString(3, info.msg)
+           pstmt.executeUpdate()
+           pstmt.close()
+         }
+
+         persistSummary()
+         for (info <- infos) {
+           persistInfo(info)
+         }
       }
   }
 
@@ -134,19 +176,16 @@ object DB {
    * generates. Must be called AFTER `createTables()` and BEFORE storing
    * anything else in the db.
    */
-  private def storeRun() = {
-    val pstmt =
-      con.prepareStatement("INSERT INTO run (time_started) VALUES(?)")
-    pstmt.setTimestamp(1, Env.nowStamp())
-    pstmt.executeUpdate()
-    pstmt.close()
-
-    val stmt = con.createStatement()
-    val res = stmt.executeQuery(
-      "SELECT MAX(id) FROM run")
-    res.next()
-    val id = res.getLong("id")
-    res.close()
+  private def persistRun() = {
+    val stmt =
+      con.prepareStatement("INSERT INTO run (time_started) VALUES(?)",
+                           Statement.RETURN_GENERATED_KEYS)
+    stmt.setTimestamp(1, Env.nowStamp())
+    stmt.executeUpdate()
+    val rs = stmt.getGeneratedKeys()
+    val id = if (rs.next()) rs.getLong(1)
+             else sys.error("could not get generated key")
+    rs.close()
     stmt.close()
     id
   }
@@ -160,7 +199,7 @@ object DB {
     }
   }
 
-  private def storeJavaProps(id: Long) {
+  private def persistJavaProps(id: Long) {
     import scala.collection.JavaConversions._
     val set = System.getProperties.stringPropertyNames.toSet
     for (key <- set) {
@@ -197,7 +236,7 @@ VALUES(?, ?, ?, ?, ?)
   }
 
   /** Store row in env table for this fuzz run. */
-  private def storeRunEnvironment(id: Long) {
+  private def persistRunEnvironment(id: Long) {
     val etcHostname = {
       val file = new File("/etc/hostname")
       if (file.exists) Source.fromFile(file).mkString.trim

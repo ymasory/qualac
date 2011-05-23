@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS run (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   time_started TIMESTAMP NOT NULL
 )
+ENGINE=InnoDB
 """,
 //information on a particular program that the fuzzer generated and compiled
 """
@@ -30,20 +31,32 @@ CREATE TABLE IF NOT EXISTS trial (
   run_id BIGINT NOT NULL,
   program_text TEXT NOT NULL,
   errors_expected ENUM('yes', 'no') NOT NULL,
-  warnings_expected ENUM('yes', 'no'),
+  warnings_expected ENUM('yes', 'no') NOT NULL,
   FOREIGN KEY (run_id) REFERENCES run(id)
 )
+ENGINE=InnoDB
+""",
+//whether a trial's compilation was successful or not
+"""
+CREATE TABLE IF NOT EXISTS compile (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  trial_id BIGINT NOT NULL,
+  success ENUM('yes', 'no') NOT NULL,
+  FOREIGN KEY (trial_id) REFERENCES trial(id)
+)
+ENGINE=InnoDB
 """,
 //the scalac output from the compilation of a particular program the fuzzer
 //generated
 """
-CREATE TABLE IF NOT EXISTS trialmessage (
+CREATE TABLE IF NOT EXISTS compilemessage (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   trial_id BIGINT NOT NULL,
   severity ENUM('info', 'warning', 'error') NOT NULL,
   message TEXT NOT NULL,
   FOREIGN KEY (trial_id) REFERENCES trial(id)
 )
+ENGINE=InnoDB
 """,
 //some environment values, mostly from scala.util.Properties
 
@@ -66,6 +79,7 @@ CREATE TABLE IF NOT EXISTS env (
   etc_hostname TEXT NOT NULL,
   FOREIGN KEY (run_id) REFERENCES run(id)
 )
+ENGINE=InnoDB
 """,
 //the outcome of the entire run of the fuzzing program
 
@@ -80,6 +94,7 @@ CREATE TABLE IF NOT EXISTS outcome (
   time_ended TIMESTAMP NOT NULL,
   FOREIGN KEY (run_id) REFERENCES run(id)
 )
+ENGINE=InnoDB
 """,
 //key-values from java.lang.System.getProperties 
 """
@@ -90,6 +105,7 @@ CREATE TABLE IF NOT EXISTS javaprop (
   jvalue TEXT NOT NULL,
   FOREIGN KEY (run_id) REFERENCES run(id)
 )
+ENGINE=InnoDB
 """,
 //some values from java.lang.Runtime
 """
@@ -102,6 +118,7 @@ CREATE TABLE IF NOT EXISTS runtimeprop (
   processors INT NOT NULL,
   FOREIGN KEY (run_id) REFERENCES run(id)
 )
+ENGINE=InnoDB
 """,
 //key-values from the user config file used by the fuzzing program
 """
@@ -112,6 +129,7 @@ CREATE TABLE IF NOT EXISTS config (
   uvalue TEXT NOT NULL,
   FOREIGN KEY (run_id) REFERENCES run(id)
 )
+ENGINE=InnoDB
 """
   )
 }
