@@ -55,6 +55,9 @@ CREATE TABLE IF NOT EXISTS compilemessage (
   trial_id BIGINT NOT NULL,
   severity ENUM('info', 'warning', 'error') NOT NULL,
   message TEXT NOT NULL,
+  line INT NOT NULL,
+  col INT NOT NULL,
+  point INT NOT NULL,
   FOREIGN KEY (trial_id) REFERENCES trial(id)
 )
 ENGINE=InnoDB

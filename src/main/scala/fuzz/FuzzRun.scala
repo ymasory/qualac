@@ -34,8 +34,8 @@ class FuzzRun() {
           minSuccessfulTests = Env.minSuccessfulTests,
           maxDiscardedTests = Env.maxDiscardedTests,
           // workers = Env.numThreads,
-          workers = 1,
-          testCallback = new QCallback
+          workers = 1
+          // testCallback = new QCallback
         )
         prop.check(params)
       }

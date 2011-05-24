@@ -115,13 +115,18 @@ object DB {
          }
          def persistInfo(info: ScalacMessage) {
            val sql = (
-             "INSERT INTO compilemessage(trial_id, severity, message) " +
-             "VALUES(?, ?, ?)"
+"""
+INSERT INTO compilemessage(trial_id, severity, message, line, col, point)
+VALUES(?, ?, ?, ?, ?, ?)
+"""
            )
            val pstmt = con.prepareStatement(sql)
            pstmt.setLong(1, trialId)
            pstmt.setString(2, severity2EnumString(info.severity))
            pstmt.setString(3, info.msg)
+           pstmt.setInt(4, info.pos.line)
+           pstmt.setInt(5, info.pos.column)
+           pstmt.setInt(6, info.pos.point)
            pstmt.executeUpdate()
            pstmt.close()
          }
