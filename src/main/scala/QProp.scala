@@ -13,7 +13,6 @@ private [qualac] abstract class QMaybeCompiles extends Properties("") {
     val name = getClass.getName
     val deObjName = if (name endsWith "$") name.substring(0, name.length - 1)
                     else name
-    // deObjName.split("\\.").last
     deObjName
   }
 

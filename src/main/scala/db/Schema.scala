@@ -41,7 +41,8 @@ ENGINE=InnoDB
 CREATE TABLE IF NOT EXISTS compile (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   trial_id BIGINT NOT NULL,
-  success ENUM('yes', 'no') NOT NULL,
+  warnings ENUM('yes', 'no') NOT NULL,
+  errors ENUM('yes', 'no') NOT NULL,
   FOREIGN KEY (trial_id) REFERENCES trial(id)
 )
 ENGINE=InnoDB

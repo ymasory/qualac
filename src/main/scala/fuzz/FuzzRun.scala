@@ -24,7 +24,7 @@ class FuzzRun() {
       db.persistConfigs(Env.configMap)
       Main.shout("using " + Env.numThreads + " threads")
       val allProps =
-        Finder.discoverPropsMatching(Env.TestPattern, "qualac.QCompiles")
+        Finder.discoverPropsMatching(Env.TestPattern, "qualac.QMaybeCompiles")
       Main.shout("found " + allProps.length + " properties to test")
       Main.shout("Fuzzing started. Going for " + Env.durationSeconds +
                  " seconds. Down with scalac!")
@@ -33,7 +33,8 @@ class FuzzRun() {
         val params = Test.Params(
           minSuccessfulTests = Env.minSuccessfulTests,
           maxDiscardedTests = Env.maxDiscardedTests,
-          workers = Env.numThreads,
+          // workers = Env.numThreads,
+          workers = 1,
           testCallback = new QCallback
         )
         prop.check(params)

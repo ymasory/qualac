@@ -88,7 +88,7 @@ object DB {
                                          Statement.RETURN_GENERATED_KEYS)
         pstmt.setLong(1, id)
         pstmt.setString(2, progText)
-        pstmt.setString(3, bool2EnumString(shouldCompile)) 
+        pstmt.setString(3, bool2EnumString(shouldCompile == false)) 
         pstmt.setString(4, "no")
         pstmt.executeUpdate()
 
@@ -100,12 +100,10 @@ object DB {
         trialId
       }
       val trialId = doPreTrial()
-      println("DOING PRETRIAL")
 
       (hasWarnings: Boolean, hasErrors: Boolean,
        infos: List[ScalacMessage]) => {
          def persistSummary() {
-           println("PERSISTING SUMMARY")
            val sql =
              "INSERT INTO compile(trial_id, warnings, errors) VALUES(?, ?, ?)"
            val pstmt = con.prepareStatement(sql)
