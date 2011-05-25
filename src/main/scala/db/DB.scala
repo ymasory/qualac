@@ -247,13 +247,14 @@ VALUES(?, ?, ?, ?, ?)
       if (file.exists) Source.fromFile(file).mkString.trim
       else "*unkown*"
     }
+    val hostname = java.net.InetAddress.getLocalHost().getHostName()
     val sql =
       """|INSERT INTO
          |  env(run_id, scala_version, scala_version_string,
          |  scala_version_message, java_classpath, java_vendor,
          |  java_version, java_vm_info, java_vm_name, java_vm_vendor,
-         |  java_vm_version, os, source_encoding, etc_hostname)
-         |VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""".stripMargin
+         |  java_vm_version, os, source_encoding, etc_hostname, hostname)
+         |VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""".stripMargin
     val pstmt = con.prepareStatement(sql)
     pstmt.setLong(1, id)
     pstmt.setString(2, Env.scalaVersion)
@@ -269,6 +270,7 @@ VALUES(?, ?, ?, ?, ?)
     pstmt.setString(12, Env.os)
     pstmt.setString(13, Env.sourceEncoding)
     pstmt.setString(14, etcHostname)
+    pstmt.setString(15, hostname)
     pstmt.executeUpdate()
     pstmt.close()
   }
