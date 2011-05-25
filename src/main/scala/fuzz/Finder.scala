@@ -21,14 +21,20 @@ object Finder {
     new File(Env.curDir, "target/scala_" + Env.scalaVersion + "/classes/")
   val libDir =
     new File(Env.curDir, "lib_managed/scala_" + Env.scalaVersion + "/compile/")
-  val path = sbtClassDir :: libDir.listFiles().toList
 
   def discoverPropsMatching(Re: Regex,
                             ancestor: String ="org.scalacheck.Properties" ):
   List[Properties] = {
     val jarFinder = ClassFinder()
-    val sbtFinder = ClassFinder(path)
-    val classes = jarFinder.getClasses ++ sbtFinder.getClasses
+    val sbtClasses = {
+      if (sbtClassDir.exists && libDir.exists) {
+        val path = sbtClassDir :: libDir.listFiles().toList
+        val sbtFinder = ClassFinder(path)
+        sbtFinder.getClasses
+      }
+      else Nil
+    }
+    val classes = jarFinder.getClasses ++ sbtClasses
     val classMap = ClassFinder classInfoMap classes
     val allProps =
       ClassFinder.concreteSubclasses(ancestor, classMap)
