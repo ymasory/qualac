@@ -6,5 +6,5 @@ project/boot/
 /h2/*.db
 /out/thread-*
 *.class
-/out/*.scala
 /condor
+/out
