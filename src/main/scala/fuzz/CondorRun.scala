@@ -50,10 +50,11 @@ class CondorRun(conf: File) {
       val submitFilePath = submit.writeSubmitFile().getAbsolutePath
       copy(jarFile, new File(propRoot, "qualac.jar"))
       val (o, e, r) = call(condorSubmitPath, submitFilePath)
-      if (r != 0)
+      if (r != 0) {
         Console.err.println(
           "non-zero return (" + r + ") to condor submit\n" + e)
         sys.exit(1)
+      }
     }
   }
 
