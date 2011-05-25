@@ -75,14 +75,14 @@ object DB {
     }
   }
 
-  def persistPreTrial(progText: String, shouldCompile: Boolean):
+  def persistPrecompile(progText: String, shouldCompile: Boolean):
     (Boolean, Boolean, List[ScalacMessage]) => Unit = {
       
-      def doPreTrial(): Long = {
+      def insertPrecompile(): Long = {
         val sql =
-          """|INSERT INTO trial(run_id, program_text, errors_expected,
-             |                  warnings_expected)
-             |VALUES(?, ?, ?, ?)""".stripMargin
+          """|INSERT INTO precompile(run_id, program_text, errors_expected,
+             |                       warnings_expected, time_started)
+             |VALUES(?, ?, ?, ?, ?)""".stripMargin
 
         val pstmt = con.prepareStatement(sql,
                                          Statement.RETURN_GENERATED_KEYS)
@@ -90,6 +90,7 @@ object DB {
         pstmt.setString(2, progText)
         pstmt.setString(3, bool2EnumString(shouldCompile == false)) 
         pstmt.setString(4, "no")
+        pstmt.setTimestamp(5, Env.nowStamp())
         pstmt.executeUpdate()
 
         val rs = pstmt.getGeneratedKeys()
@@ -99,24 +100,25 @@ object DB {
         pstmt.close()
         trialId
       }
-      val trialId = doPreTrial()
+      val trialId = insertPrecompile()
 
       (hasWarnings: Boolean, hasErrors: Boolean,
        infos: List[ScalacMessage]) => {
          def persistSummary() {
            val sql =
-             "INSERT INTO compile(trial_id, warnings, errors) VALUES(?, ?, ?)"
+             "INSERT INTO postcompile(precomp_id, warnings, errors, time_ended) VALUES(?, ?, ?, ?)"
            val pstmt = con.prepareStatement(sql)
            pstmt.setLong(1, trialId)
            pstmt.setString(2, bool2EnumString(hasWarnings))
            pstmt.setString(3, bool2EnumString(hasErrors))
+           pstmt.setTimestamp(4, Env.nowStamp)
            pstmt.executeUpdate()
            pstmt.close()
          }
          def persistInfo(info: ScalacMessage) {
            val sql = (
 """
-INSERT INTO compilemessage(trial_id, severity, message, line, col, point)
+INSERT INTO compilemessage(precomp_id, severity, message, line, col, point)
 VALUES(?, ?, ?, ?, ?, ?)
 """
            )

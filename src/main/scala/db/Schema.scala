@@ -26,24 +26,26 @@ ENGINE=InnoDB
 """,
 //information on a particular program that the fuzzer generated and compiled
 """
-CREATE TABLE IF NOT EXISTS trial (
+CREATE TABLE IF NOT EXISTS precompile (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   run_id BIGINT NOT NULL,
   program_text TEXT NOT NULL,
   errors_expected ENUM('yes', 'no') NOT NULL,
   warnings_expected ENUM('yes', 'no') NOT NULL,
+  time_started TIMESTAMP NOT NULL,
   FOREIGN KEY (run_id) REFERENCES run(id)
 )
 ENGINE=InnoDB
 """,
 //whether a trial's compilation was successful or not
 """
-CREATE TABLE IF NOT EXISTS compile (
+CREATE TABLE IF NOT EXISTS postcompile (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  trial_id BIGINT NOT NULL,
+  precomp_id BIGINT NOT NULL,
   warnings ENUM('yes', 'no') NOT NULL,
   errors ENUM('yes', 'no') NOT NULL,
-  FOREIGN KEY (trial_id) REFERENCES trial(id)
+  time_ended TIMESTAMP NOT NULL,
+  FOREIGN KEY (precomp_id) REFERENCES precompile(id)
 )
 ENGINE=InnoDB
 """,
@@ -52,13 +54,13 @@ ENGINE=InnoDB
 """
 CREATE TABLE IF NOT EXISTS compilemessage (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  trial_id BIGINT NOT NULL,
+  precomp_id BIGINT NOT NULL,
   severity ENUM('info', 'warning', 'error') NOT NULL,
   message TEXT NOT NULL,
   line INT NOT NULL,
   col INT NOT NULL,
   point INT NOT NULL,
-  FOREIGN KEY (trial_id) REFERENCES trial(id)
+  FOREIGN KEY (precomp_id) REFERENCES precompile(id)
 )
 ENGINE=InnoDB
 """,

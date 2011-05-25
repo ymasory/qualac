@@ -18,11 +18,11 @@ private [qualac] abstract class QMaybeCompiles extends Properties("") {
 
   property(desc) = Prop.forAll(textGen) { progText =>
     //pre-compile db access
-    val postTrialFun = DB.persistPreTrial(progText, shouldCompile)
+    val postcompileFun = DB.persistPrecompile(progText, shouldCompile)
     //compilation
     val (hasWarnings, hasErrors, infos) = Scalac.compile(progText)
     //post-compile db access
-    postTrialFun(hasWarnings, hasErrors, infos)
+    postcompileFun(hasWarnings, hasErrors, infos)
 
     if (shouldCompile) hasWarnings == false && hasErrors == false
     else hasErrors
