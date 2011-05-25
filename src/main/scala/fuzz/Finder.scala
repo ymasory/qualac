@@ -33,7 +33,13 @@ object Finder {
     val allProps =
       ClassFinder.concreteSubclasses(ancestor, classMap)
     val myProps = allProps.filter(_.name.startsWith("qualac.")).toList
-    myProps.map { info =>
+    val matchingProps = myProps flatMap { info: ClassInfo =>
+      info.name match {
+        case Re(n) => Some(info)
+        case _     => None
+      }
+    }
+    matchingProps.map { info =>
       val name = info.name
       val clazz = Class.forName(name)
       clazz.getField("MODULE$").get(null).asInstanceOf[Properties]
