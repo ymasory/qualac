@@ -32,8 +32,10 @@ class CondorRun(conf: File) {
     jarFile
   }
 
-  // val allProps: List[Prop] = List.fill(5) {
-  //   Finder.discoverPropsMatching(Env.TestPattern).head
+  //just for debugging condor
+  // val allProps: List[Prop] = {
+  //   val firstProp = Finder.discoverPropsMatching(Env.TestPattern).head
+  //   List.fill(1000)(firstProp)
   // }
   val allProps = Finder.discoverPropsMatching(Env.TestPattern)
   val stamp = Env.nowMillis() 
@@ -48,20 +50,26 @@ class CondorRun(conf: File) {
     if (condorRoot.exists == false) condorRoot.mkdirs()
     for ((prop, i) <- allProps.zip(0 until allProps.length)) {
       val id = stamp + "-" + i
-      val propRoot = new File(condorRoot, "condor-" + id)
-      val submit = new CondorSubmission(prop, propRoot, id)
+      def makeRootFor(num: Int) = new File(condorRoot, "condor-" + num)
+      val propRoot = makeRootFor(i)
+      val zeroPropRoot = makeRootFor(0)
+      val submit = new CondorSubmission(prop, zeroPropRoot, propRoot, id)
       val submitFilePath = submit.writeSubmitFile().getAbsolutePath
-      copy(jarFile, new File(propRoot, "qualac.jar"))
+      if (i == 0) copy(jarFile, new File(propRoot, "qualac.jar"))
       val (o, e, r) = call(condorSubmitPath, submitFilePath)
       if (r != 0) {
         Console.err.println(
           "non-zero return (" + r + ") to condor submit\n" + e)
         sys.exit(1)
       }
+      else {
+        println("submitted #" + i)
+      }
     }
   }
 
-  class CondorSubmission(prop: Prop, propRoot: File, id: String) {
+  class CondorSubmission(prop: Prop, zeroPropRoot: File, propRoot: File,
+                         id: String) {
     
     if (propRoot.exists == false) propRoot.mkdirs()
 
@@ -69,13 +77,14 @@ class CondorRun(conf: File) {
     private val name = Main.ProgramName.toLowerCase
     val outDir = new File(Env.outDir, name + "-" + stamp)
     if (outDir.exists == false) {
-      if (outDir.mkdirs() == false) sys.error("could not create " + outDir)
+      if (outDir.mkdirs() == false)
+        sys.error("could not create " + outDir)
     }
     private val absPath = propRoot.getAbsolutePath()
     private val prefix = name + "-" + id
     val universe: String = "java"
     val executable: String =
-      new File(propRoot, name + ".jar").getAbsolutePath
+      new File(zeroPropRoot, name + ".jar").getAbsolutePath
     val jarFiles: String = executable
     val customConfigFile: File = new File(propRoot, "qualac.conf")
     writeCustomConfig(customConfigFile)

@@ -14,6 +14,7 @@ import org.joda.time.DateTime
 import scala.io.Source
 import scala.util.Properties
 
+import qualac.fuzz.Main
 import qualac.QualacException
 
 /**
@@ -83,7 +84,10 @@ object Env {
   /** Config file property */
   val outDir = {
     val dirName = ConfParser.getConfigString(OutDirKey, configMap)
-    val dir = new File(dirName).getCanonicalFile
+    val dir = {
+      val name = Main.ProgramName.toLowerCase + "-" + nowMillis()
+      new File(dirName, name).getCanonicalFile
+    }
     if (dir.exists == false) dir.mkdirs()
     dir
   }.ensuring(f => f.exists && f.isDirectory,
