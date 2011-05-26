@@ -158,7 +158,7 @@ VALUES(?, ?, ?, ?, ?, ?)
       case Some(t) => {
         val clazz = t.getClass
         if (clazz == null) pstmt.setNull(2, CLOB)
-        else pstmt.setString(2, clazz.toString)
+        else pstmt.setString(2, clazz.getName)
 
         val cause = t.getCause
         if (cause == null) pstmt.setNull(3, CLOB)
