@@ -45,7 +45,7 @@ class CondorRun(conf: File) {
       case _ => { Main.shout("okay, aborting"); sys.exit }
     }
     val condorRoot = new File("condor")
-    if (condorRoot.exists == false) condorRoot.mkdir()
+    if (condorRoot.exists == false) condorRoot.mkdirs()
     for ((prop, i) <- allProps.zip(0 until allProps.length)) {
       val id = stamp + "-" + i
       val propRoot = new File(condorRoot, "condor-" + id)
@@ -63,13 +63,13 @@ class CondorRun(conf: File) {
 
   class CondorSubmission(prop: Prop, propRoot: File, id: String) {
     
-    if (propRoot.exists == false) propRoot.mkdir()
+    if (propRoot.exists == false) propRoot.mkdirs()
 
     private val Job = "job"
     private val name = Main.ProgramName.toLowerCase
     val outDir = new File(Env.outDir, name + "-" + stamp)
     if (outDir.exists == false) {
-      if (outDir.mkdir() == false) sys.error("could not create " + outDir)
+      if (outDir.mkdirs() == false) sys.error("could not create " + outDir)
     }
     private val absPath = propRoot.getAbsolutePath()
     private val prefix = name + "-" + id

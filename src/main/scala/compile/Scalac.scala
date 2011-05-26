@@ -77,7 +77,7 @@ object Scalac {
     }
     val threadDir =
       new File(Env.outDir, "thread-" + Thread.currentThread.getId)
-    if (threadDir.exists == false) threadDir.mkdir()
+    if (threadDir.exists == false) threadDir.mkdirs()
     val file = new File(threadDir, "temp.scala")
     val writer = new BufferedWriter(new FileWriter(file))
     writer.write(text)
