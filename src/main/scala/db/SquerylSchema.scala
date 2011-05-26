@@ -23,6 +23,22 @@ object SquerylSchema extends org.squeryl.Schema {
   val config = table[ConfigTable]
 }
 
+object YesNo extends Enumeration {
+  type YesNo = Value
+  val Yes = Value(1, "yes")
+  val No = Value(2, "no")
+}
+
+object Severity extends Enumeration {
+  type Severity = Value
+  val Info = Value(1, "info")
+  val Warning = Value(2, "warning")
+  val Error = Value(3, "error")
+}
+
+import YesNo.YesNo
+import Severity.Severity
+
 class RunTable(val id: Long,
                @Column("time_started")
                val timeStarted: Timestamp)
@@ -32,18 +48,25 @@ class PreCompileTable(val id: Long,
                       val runId: Long,
                       @Column("program_text")
                       val programText: String,
+                      @Column("errors_expected")
+                      val errorsExpected: YesNo,
+                      @Column("warningsExpected")
+                      val warningsExpected: YesNo,
                       @Column("time_started")
                       val timeStarted: Timestamp)
 
 class PostCompileTable(val id: Long,
                        @Column("precomp_id")
                        val precompId: Long,
+                       val warnings: YesNo,
+                       val errors: YesNo,
                        @Column("time_ended")
                        val timeEnded: Timestamp)
 
 class CompileMessageTable(val id: Long,
                           @Column("precomp_id")
                           val precompId: Long,
+                          val severity: Severity,
                           val message: String,
                           val line: Int,
                           val col: Int,
