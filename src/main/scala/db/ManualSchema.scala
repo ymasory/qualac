@@ -5,10 +5,8 @@
  */ 
 package qualac.db
 
-import org.joda.time.DateTime
-
 /** Stores sql create statements for the db tables. */
-private[db] object Schema {
+private[db] object ManualSchema {
 
   /**
    * Sql create statements for the db tables.

@@ -197,7 +197,7 @@ VALUES(?, ?, ?, ?, ?, ?)
 
   /** Create the db tables, if they don't exist yet. */
   private def createTables() {
-    for (table <- Schema.tables) {
+    for (table <- ManualSchema.tables) {
       val stmt = con.createStatement()
       stmt.executeUpdate(table)
       stmt.close()

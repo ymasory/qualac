@@ -9,6 +9,7 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
     shout("configuring with Scala v" + vs)
 
   //java dependencies
+  val squeryl = "org.squeryl" %% "squeryl" % "0.9.4-RC7"
   val mail = "javax.mail" % "mail" % "1.4.1"
   val mysqlConnectorJava = "mysql" % "mysql-connector-java" % "5.1.16"
   val junit = "junit" % "junit" % "4.8.2"
