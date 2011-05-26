@@ -35,7 +35,7 @@ class CondorRun(conf: File) {
   // val allProps: List[Prop] = List.fill(5) {
   //   Finder.discoverPropsMatching(Env.TestPattern).head
   // }
-  val allprops = Finder.discoverPropsMatching(Env.TestPattern)
+  val allProps = Finder.discoverPropsMatching(Env.TestPattern)
   val stamp = Env.nowMillis() 
 
   def fuzz() = {
