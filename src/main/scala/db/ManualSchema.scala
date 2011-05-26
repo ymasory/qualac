@@ -14,11 +14,19 @@ private[db] object ManualSchema {
    * All are CREATE IF NOT EXISTS.
    */
   val tables = List (
+//a batch run of condor jobs
+"""
+CREATE TABLE IF NOT EXISTS condor_run (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  time_started TIMESTAMP NOT NULL
+)
+ENGINE=InnoDB
+""",
 //information on the entire run of the fuzzing program
 """
 CREATE TABLE IF NOT EXISTS run (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  time_started TIMESTAMP NOT NULL
+  time_started TIMESTAMP NOT NULL,
 )
 ENGINE=InnoDB
 """,

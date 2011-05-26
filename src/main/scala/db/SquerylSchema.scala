@@ -12,6 +12,7 @@ import org.squeryl.annotations.Column
 
 object SquerylSchema extends org.squeryl.Schema {
 
+  val condorRun = table[CondorRunTable]("condor_run")
   val run = table[RunTable]
   val preCompile = table[PreCompileTable]("precompile")
   val postCompile = table[PostCompileTable]("postcompile")
@@ -24,12 +25,14 @@ object SquerylSchema extends org.squeryl.Schema {
 }
 
 object YesNo extends Enumeration {
+
   type YesNo = Value
   val Yes = Value(1, "yes")
   val No = Value(2, "no")
 }
 
 object Severity extends Enumeration {
+
   type Severity = Value
   val Info = Value(1, "info")
   val Warning = Value(2, "warning")
@@ -38,6 +41,10 @@ object Severity extends Enumeration {
 
 import YesNo.YesNo
 import Severity.Severity
+
+class CondorRunTable(val id: Long,
+                   @Column("time_started")
+                   val timeStarted: Timestamp)
 
 class RunTable(val id: Long,
                @Column("time_started")
@@ -106,11 +113,11 @@ class OutcomeTable(val id: Long,
                    @Column("run_id")
                    val runId: Long,
                    @Column("class")
-                   val clazz: String,
-                   val cause: String,
-                   val message: String,
+                   val clazz: Option[String],
+                   val cause: Option[String],
+                   val message: Option[String],
                    @Column("stacktrace")
-                   val stackTrace: String,
+                   val stackTrace: Option[String],
                    @Column("time_ended")
                    val timeEnded: Timestamp)
 
