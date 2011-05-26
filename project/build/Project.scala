@@ -68,6 +68,13 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
             Path.userHome + Path.sep.toString + ".qualac-local.conf")
     super.runAction(nArgs)
   }
+  lazy val report = task { args =>
+    val nArgs =
+      Array("--report",
+            "--config",
+            Path.userHome + Path.sep.toString + ".qualac-local.conf")
+    super.runAction(nArgs)
+  }
 
   //proguard
   override def proguardOptions = List(

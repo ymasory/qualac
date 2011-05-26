@@ -12,13 +12,10 @@ import scala.util.Properties
 
 object GMail {
 
-  val gmailAccount = ""
-  val gmailPassword = ""
-
-  def sendMail(recipients: List[String], subject: String, body: String) {
+  def sendMail(recipients: List[String], subject: String, body: String,
+               fromAccount: String, fromName: String, password: String) {
     val host = "smtp.gmail.com"
-    val from = gmailAccount
-    val password = gmailPassword
+    val from = fromAccount
     val props = System.getProperties
     props put ("mail.smtp.starttls.enable", "true")
     props put ("mail.smtp.host", host)
@@ -36,7 +33,7 @@ object GMail {
     message setSubject subject
     message setText body
     message setFrom new InternetAddress(
-      gmailAccount + "@gmail.com", "qualabot")
+      fromAccount + "@gmail.com", fromName)
     val transport = session getTransport "smtp"
     transport connect (host, from, password)
     transport sendMessage (message, message.getAllRecipients())

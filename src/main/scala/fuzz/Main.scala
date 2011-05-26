@@ -7,13 +7,15 @@ package qualac.fuzz
 
 import java.io.File
 
-import com.martiansoftware.jsap.{ JSAP, JSAPResult, FlaggedOption }
+import com.martiansoftware.jsap.{ JSAP, JSAPResult, FlaggedOption, Switch }
 import com.martiansoftware.jsap.stringparsers.FileStringParser
+
+import qualac.db.CondorReporter
 
 object Main {
 
   val ProgramName = "Qualac"
-  val (conf, condor) = ("config", "condor")
+  val (conf, condor, report) = ("config", "condor", "report")
 
   var _confFile: File = _
 
@@ -29,23 +31,31 @@ object Main {
         .setStringParser(
           FileStringParser.getParser().setMustBeFile(true).setMustExist(true))
     jsap registerParameter condorOption
+    val reportOption = new Switch(report).setLongFlag(report)
+    jsap registerParameter reportOption
     jsap
   }
 
   def main(args: Array[String]) {
     val config = jsap.parse(args)
     if (config.success) {
-      val condorFile = Option(config.getFile(condor))
       _confFile = config.getFile(conf)
-      shout("using configuration file: " + _confFile)
-      condorFile match {
-        case Some(file) => {
-          val condRun = new CondorRun(file)
-          condRun fuzz()
-        }
-        case None => {
-          val fuzzRun = new FuzzRun()
-          fuzzRun fuzz()
+      if (config.getBoolean(report)) {
+        shout("generating and mailing report")
+        CondorReporter.mailReport()
+      }
+      else {
+        val condorFile = Option(config.getFile(condor))
+        shout("using configuration file: " + _confFile)
+        condorFile match {
+          case Some(file) => {
+            val condRun = new CondorRun(file)
+            condRun fuzz()
+          }
+          case None => {
+            val fuzzRun = new FuzzRun()
+            fuzzRun fuzz()
+          }
         }
       }
     }
@@ -68,6 +78,7 @@ object Main {
     builder append ("Options:" + LF)
     builder append ("  --conf   /path/to/file.conf" + LF)
     builder append ("  --condor /path/to/file.condor" + LF)
+    builder append ("  --report" + LF)
     builder append LF
     builder append ("Examples:" + LF)
     builder append ("  run" + LF)
