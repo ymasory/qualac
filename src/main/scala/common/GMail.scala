@@ -12,8 +12,11 @@ import scala.util.Properties
 
 object GMail {
 
+  val encoding = "UTF-8"
+
   def sendMail(recipients: List[String], subject: String, body: String,
-               fromAccount: String, fromName: String, password: String) {
+               fromAccount: String, fromName: String, password: String,
+               mimeType: String = "text/plain") {
     val host = "smtp.gmail.com"
     val from = fromAccount
     val props = System.getProperties
@@ -30,8 +33,8 @@ object GMail {
     addresses foreach { a =>
       message addRecipient (Message.RecipientType.TO, a)
     }
-    message setSubject subject
-    message setText body
+    message setSubject (subject, encoding)
+    message setContent (body, mimeType + "; charset=" + encoding)
     message setFrom new InternetAddress(
       fromAccount + "@gmail.com", fromName)
     val transport = session getTransport "smtp"
