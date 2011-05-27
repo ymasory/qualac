@@ -31,20 +31,27 @@ object CondorReporter {
   val name = ConfParser.getConfigString("gmail_name", Env.configMap)
 
   def mailReport() = {
-    val (subject, report) = generateReport()
+    val lastId = lastCondorRunId()
+    val (subject, report) = 
+      if (lastId < 0) ("error generating report",
+                       lastId + " is not a valid id")
+      else new Report(lastId).generateReport()
     GMail.sendMail(recipients, subject, report, account, name, password)
   }
 
+  def lastCondorRunId(): Long = {
+    transaction {
+      from(SquerylSchema.condorRun) ( r =>
+        compute(nvl(max(r.id), -1))
+      )
+    }
+  }
+}
+
+class Report(condorId: Long) {
   import SquerylSchema._
 
   def generateReport() = {
-    numPreCompiles()
     ("subject", "report")
-  }
-
-  def numPreCompiles() = {
-    from(preCompile) ( s =>
-      select(s)
-    )
   }
 }
