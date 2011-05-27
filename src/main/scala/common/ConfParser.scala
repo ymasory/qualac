@@ -54,7 +54,7 @@ object ConfParser {
     Map(pairs: _*)
   }
 
-  /** Pull a value from the config file that's supposed to be a `String`. */
+  /** Pull a value from the config file that's supposed to be an `Int`. */
   def getConfigInt(key: String, map: Map[String, Either[String, Int]]) = {
     map(key) match {
       case Right(i) => i

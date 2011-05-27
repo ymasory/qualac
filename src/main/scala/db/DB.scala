@@ -8,7 +8,7 @@ package qualac.db
 import java.io.File
 import java.io.File.{ separator => / }
 import java.sql.{ DriverManager, Statement }
-import java.sql.Types.CLOB
+import java.sql.Types.{ BIGINT, CLOB }
 
 import scala.io.Source
 import scala.tools.nsc.reporters.{ Reporter, StoreReporter }
@@ -183,9 +183,14 @@ VALUES(?, ?, ?, ?, ?, ?)
    */
   private def persistRun() = {
     val stmt =
-      con.prepareStatement("INSERT INTO run (time_started) VALUES(?)",
-                           Statement.RETURN_GENERATED_KEYS)
+      con.prepareStatement(
+        "INSERT INTO run (time_started, condor_run_id) VALUES(?, ?)",
+        Statement.RETURN_GENERATED_KEYS)
     stmt.setTimestamp(1, Env.nowStamp())
+    Env.condorRunId match {
+      case Some(id) => stmt.setLong(2, id)
+      case None     => stmt.setNull(2, BIGINT)
+    }
     stmt.executeUpdate()
     val rs = stmt.getGeneratedKeys()
     val id = if (rs.next()) rs.getLong(1)
@@ -193,6 +198,20 @@ VALUES(?, ?, ?, ?, ?, ?)
     rs.close()
     stmt.close()
     id
+  }
+
+  def persistCondorRun() = {
+    val sql = "INSERT INTO condor_run (time_started, run_id) VALUES(?, ?)"
+    val stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
+    stmt.setTimestamp(1, Env.nowStamp())
+    stmt.setLong(2, id)
+    stmt.executeUpdate()
+    val rs = stmt.getGeneratedKeys()
+    val condorId = if (rs.next()) rs.getLong(1)
+                   else sys.error("could not get generated key")
+    rs.close()
+    stmt.close()
+    condorId
   }
 
   /** Create the db tables, if they don't exist yet. */

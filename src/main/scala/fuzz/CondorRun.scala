@@ -8,9 +8,10 @@ package qualac.fuzz
 import java.io.{ File, PrintWriter }
 import java.util.regex.Pattern
 
-import qualac.common.{ Env, ConfParser }
-
 import org.scalacheck.Prop
+
+import qualac.common.{ Env, ConfParser }
+import qualac.db.DB
 
 class CondorRun(conf: File) {
 
@@ -43,33 +44,38 @@ class CondorRun(conf: File) {
   def fuzz() = {
     Main.shout("really submit " + allProps.length + " jobs? (y/N)")
     readLine() match {
-      case "y" | "Y" =>
-      case _ => { Main.shout("okay, aborting"); sys.exit }
+      case "y" | "Y" => condorRun()
+      case _ => Main.shout("okay, aborting")
     }
-    val condorRoot = new File("condor")
-    if (condorRoot.exists == false) condorRoot.mkdirs()
-    for ((prop, i) <- allProps.zip(0 until allProps.length)) {
-      val id = stamp + "-" + i
-      def makeRootFor(num: Int) = new File(condorRoot, "condor-" + num)
-      val propRoot = makeRootFor(i)
-      val zeroPropRoot = makeRootFor(0)
-      val submit = new CondorSubmission(prop, zeroPropRoot, propRoot, id)
-      val submitFilePath = submit.writeSubmitFile().getAbsolutePath
-      if (i == 0) copy(jarFile, new File(propRoot, "qualac.jar"))
-      val (o, e, r) = call(condorSubmitPath, submitFilePath)
-      if (r != 0) {
-        Console.err.println(
-          "non-zero return (" + r + ") to condor submit\n" + e)
-        sys.exit(1)
+  }
+
+  def condorRun() {
+    try {
+      val runId = DB.persistCondorRun()
+      val condorRoot = new File("condor")
+      if (condorRoot.exists == false) condorRoot.mkdirs()
+      for ((prop, i) <- allProps.zip(0 until allProps.length)) {
+        val id = stamp + "-" + i
+        def makeRootFor(num: Int) = new File(condorRoot, "condor-" + num)
+        val propRoot = makeRootFor(i)
+        val zeroPropRoot = makeRootFor(0)
+        val submit =
+          new CondorSubmission(prop, zeroPropRoot, propRoot, id, runId)
+        val submitFilePath = submit.writeSubmitFile().getAbsolutePath
+        if (i == 0) copy(jarFile, new File(propRoot, "qualac.jar"))
+        val (o, e, r) = call(condorSubmitPath, submitFilePath)
+        if (r != 0)
+          sys.error("non-zero return (" + r + ") to condor submit\n" + e)
+        else println("submitted #" + i)
       }
-      else {
-        println("submitted #" + i)
-      }
+    }
+    finally {
+      DB.persistExit(None)
     }
   }
 
   class CondorSubmission(prop: Prop, zeroPropRoot: File, propRoot: File,
-                         id: String) {
+                         id: String, runId: Long) {
     
     if (propRoot.exists == false) propRoot.mkdirs()
 
@@ -126,10 +132,10 @@ class CondorRun(conf: File) {
           case Right(i) => i.toString
         }
       }
+      def writeKv(k: String, v: String) {
+        writer.println(k + " " + ConfParser.Delimiter + " " + v)
+      }
       for (k <- Env.configMap.keys) {
-        def writeKv(k: String, v: String) {
-          writer.println(k + " " + ConfParser.Delimiter + " " + v)
-        }
         k match {
           case Env.TestPatternKey => {
             val singlePat = "^(" + Pattern.quote(prop.getClass.getName) + ")$"
@@ -138,6 +144,8 @@ class CondorRun(conf: File) {
           case _ => writeKv(k, extract(Env.configMap(k)))
         }
       }
+      writeKv("condor_id", runId.toString)
+      
       writer.flush()
       writer.close()
     }

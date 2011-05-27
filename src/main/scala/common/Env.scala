@@ -128,6 +128,15 @@ object Env {
   val minSuccessfulTests =
     ConfParser.getConfigInt("min_successful_tests", configMap)
   
+  /** whether this run was generated Condor mode */
+  val condorRunId = {
+    try {
+      Some(ConfParser.getConfigInt("condor_id", configMap))
+    }
+    catch {
+      case _ => None
+    }
+  }
 
 
   val unicodeVersion =
