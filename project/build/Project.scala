@@ -72,7 +72,7 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
     val nArgs =
       Array("--report",
             "--config",
-            Path.userHome + Path.sep.toString + ".qualac-local.conf")
+            Path.userHome + Path.sep.toString + ".qualac-condor.conf")
     super.runAction(nArgs)
   }
 

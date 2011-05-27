@@ -5,8 +5,11 @@
  */ 
 package qualac.db
 
+import java.sql.DriverManager
+
 import org.squeryl.{ Session, SessionFactory }
 import org.squeryl.adapters.MySQLAdapter
+import org.squeryl.PrimitiveTypeMode._
 
 import qualac.common.{ ConfParser, Env, GMail }
 
@@ -16,7 +19,7 @@ object CondorReporter {
   SessionFactory.concreteFactory = Some(
     () => Session.create(
     DriverManager.getConnection(Env.dbUrl,
-                                Env.dbUser,
+                                Env.dbUsername,
                                 Env.dbPassword),
     new MySQLAdapter))
 
@@ -28,19 +31,18 @@ object CondorReporter {
   val name = ConfParser.getConfigString("gmail_name", Env.configMap)
 
   def mailReport() = {
-    val (subject, report) = generateReport()
     GMail.sendMail(recipients, subject, report, account, name, password)
   }
 
   import SquerylSchema._
 
   def generateReport() = {
-    numPreCompilations()
+    numPreCompiles()
     ("subject", "report")
   }
 
-  def numPreCompilations() = {
-    from(preCompliations) ( s =>
+  def numPreCompiles() = {
+    from(preCompile) ( s =>
       select(s)
     )
   }
