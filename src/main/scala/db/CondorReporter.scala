@@ -76,12 +76,12 @@ class Report(condorId: Long) {
   </head>
   <body>
     <h1>Qualac Report for Condor Run #{condorId}</h1>
-    <h2>Properties failed</h2>
+    <h2 style="color:red">Properties failed</h2>
     <h2>Systems information</h2>
       {makeTimeParagraph()}
       {makePerformanceParagraph()}
       {makeExitsParagraph()}
-    <h2>Properties passed</h2>
+    <h2 style="color:green">Properties passed</h2>
   </body>
 </html>
     }
