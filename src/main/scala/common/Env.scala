@@ -88,10 +88,12 @@ object Env {
       val name = Main.ProgramName.toLowerCase + "-" + nowMillis()
       new File(dirName, name).getCanonicalFile
     }
-    if (dir.exists == false) dir.mkdirs()
+    if (dir.exists == false) {
+      if (dir.mkdirs() == false)
+        sys.error("could not create output directory: " + dir)
+    }
     dir
-  }.ensuring(f => f.exists && f.isDirectory,
-    "output_dir does not exist. Check your config file.")
+  }
 
   /** config file property */
   val numThreads = {
