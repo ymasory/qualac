@@ -106,7 +106,10 @@ object DB {
        infos: List[ScalacMessage]) => {
          def persistSummary() {
            val sql =
-             "INSERT INTO postcompile(precomp_id, warnings, errors, time_ended) VALUES(?, ?, ?, ?)"
+"""
+INSERT INTO postcompile(precomp_id, warnings, errors, time_ended)
+VALUES(?, ?, ?, ?)
+"""
            val pstmt = con.prepareStatement(sql)
            pstmt.setLong(1, trialId)
            pstmt.setString(2, bool2EnumString(hasWarnings))

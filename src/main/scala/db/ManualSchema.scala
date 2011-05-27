@@ -149,4 +149,10 @@ CREATE TABLE IF NOT EXISTS config (
 ENGINE=InnoDB
 """
   )
+
+  val postUpdates = List (
+"""
+ALTER TABLE condor_run ADD CONSTRAINT FOREIGN KEY (run_id) REFERENCES run(id)
+"""
+  )
 }
