@@ -119,7 +119,8 @@ class OutcomeTable(val id: Long,
                    @Column("stacktrace")
                    val stackTrace: Option[String],
                    @Column("time_ended")
-                   val timeEnded: Timestamp)
+                   val timeEnded: Timestamp,
+                   val problem: YesNo)
 
 class JavaPropTable(val id: Long,
                     @Column("run_id")

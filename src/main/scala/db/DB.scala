@@ -143,8 +143,8 @@ VALUES(?, ?, ?, ?, ?, ?)
   def persistExit(error: Option[Throwable]) {
     val sql = (
       "INSERT INTO outcome(" +
-      "  run_id, class, cause, message, stacktrace, time_ended) " +
-      "VALUES (?, ?, ?, ?, ?, ?)"
+      "  run_id, class, cause, message, stacktrace, time_ended, problem) " +
+      "VALUES (?, ?, ?, ?, ?, ?, ?)"
     )
     val pstmt = con.prepareStatement(sql)
     pstmt.setLong(1, id)
@@ -154,6 +154,7 @@ VALUES(?, ?, ?, ?, ?, ?)
         pstmt.setNull(3, CLOB)
         pstmt.setNull(4, CLOB)
         pstmt.setNull(5, CLOB)
+        pstmt.setString(7, "no")
       }
       case Some(t) => {
         val clazz = t.getClass
@@ -169,6 +170,7 @@ VALUES(?, ?, ?, ?, ?, ?)
         val trace = t.getStackTrace
         if (trace == null) pstmt.setNull(5, CLOB)
         else pstmt.setString(5, trace.mkString("\n"))
+        pstmt.setString(7, "yes")
       }
     }
     pstmt.setTimestamp(6, Env.nowStamp())

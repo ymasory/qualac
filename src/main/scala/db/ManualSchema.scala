@@ -108,6 +108,7 @@ CREATE TABLE IF NOT EXISTS outcome (
   message TEXT,
   stacktrace TEXT,
   time_ended TIMESTAMP NOT NULL,
+  problem ENUM('yes', 'no') NOT NULL,
   FOREIGN KEY (run_id) REFERENCES run(id)
 )
 ENGINE=InnoDB
