@@ -34,11 +34,11 @@ class CondorRun(conf: File) {
   }
 
   //just for debugging condor
-  // val allProps: List[Prop] = {
-  //   val firstProp = Finder.discoverPropsMatching(Env.TestPattern).head
-  //   List.fill(1000)(firstProp)
-  // }
-  val allProps = Finder.discoverPropsMatching(Env.TestPattern)
+  val allProps: List[Prop] = {
+    val firstProp = Finder.discoverPropsMatching(Env.TestPattern).head
+    List.fill(5)(firstProp)
+  }
+  // val allProps = Finder.discoverPropsMatching(Env.TestPattern)
   val stamp = Env.nowMillis() 
 
   def fuzz() = {
@@ -56,7 +56,8 @@ class CondorRun(conf: File) {
       if (condorRoot.exists == false) condorRoot.mkdirs()
       for ((prop, i) <- allProps.zip(0 until allProps.length)) {
         val id = stamp + "-" + i
-        def makeRootFor(num: Int) = new File(condorRoot, "condor-" + num)
+        def makeRootFor(num: Int) =
+          new File(condorRoot, "condor-" + stamp + "-" + num)
         val propRoot = makeRootFor(i)
         val zeroPropRoot = makeRootFor(0)
         val submit =
