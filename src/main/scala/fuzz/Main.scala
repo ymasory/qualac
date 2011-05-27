@@ -17,7 +17,7 @@ object Main {
   val ProgramName = "Qualac"
   val (conf, condor, report) = ("config", "condor", "report")
 
-  var _confFile: File = _
+  private var _confFile: File = _
 
   lazy val jsap = {
     val jsap = new JSAP()

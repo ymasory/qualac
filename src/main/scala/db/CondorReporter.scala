@@ -31,6 +31,7 @@ object CondorReporter {
   val name = ConfParser.getConfigString("gmail_name", Env.configMap)
 
   def mailReport() = {
+    val (subject, report) = generateReport()
     GMail.sendMail(recipients, subject, report, account, name, password)
   }
 
