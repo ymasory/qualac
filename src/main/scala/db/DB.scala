@@ -226,6 +226,11 @@ VALUES(?, ?, ?, ?, ?, ?)
       stmt.executeUpdate(table)
       stmt.close()
     }
+    for (update <- ManualSchema.postUpdates) {
+      val stmt = con.createStatement()
+      stmt.executeUpdate(update)
+      stmt.close()
+    }
   }
 
   private def persistJavaProps(id: Long) {
