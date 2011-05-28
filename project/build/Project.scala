@@ -68,8 +68,12 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
     super.runAction(nArgs)
   }
   lazy val report = task { args =>
+    if (args.length == 0) {
+      Console.err.println("need report number")
+      System.exit(1)
+    }
     val nArgs =
-      Array("--report", "1",
+      Array("--report", args(0),
             "--config",
             Path.userHome + Path.sep.toString + ".qualac.conf")
     super.runAction(nArgs)
