@@ -32,13 +32,16 @@ class CondorRun(conf: File) {
       "sbt proguard task?")
     jarFile
   }
+  val logDir: File = {
+    val logPath = ConfParser.getConfigString("log_dir", map)
+    new File(logPath)
+  }
+  val numCycles = ConfParser.getConfigInt("num_cycles", map)
 
-  //just for debugging condor
-  // val allProps: List[Prop] = {
-  //   val firstProp = Finder.discoverPropsMatching(Env.TestPattern).head
-  //   List.fill(5)(firstProp)
-  // }
-  val allProps = Finder.discoverPropsMatching(Env.TestPattern)
+  val allProps = {
+    val props = Finder.loadProperties()
+    Stream.continually(props).take(numCycles).flatten.toList
+  }
   val stamp = Env.nowMillis() 
 
   def fuzz() = {
@@ -97,9 +100,9 @@ class CondorRun(conf: File) {
     writeCustomConfig(customConfigFile)
     val mainFile: String =
       "qualac.fuzz.Main --config " + customConfigFile.getAbsolutePath
-    val error: String = new File(outDir, Job + ".error").getAbsolutePath
-    val output: String = new File(outDir, Job + ".output").getAbsolutePath
-    val log: String = new File(outDir, Job + ".log").getAbsolutePath
+    val error: String = new File(logDir, Job + "-" + stamp + ".error").getAbsolutePath
+    val output: String = new File(logDir, Job + "-" + stamp + ".output").getAbsolutePath
+    val log: String = new File(logDir, Job + "-" + stamp + ".log").getAbsolutePath
 
     val fileString = {
       val buf = new StringBuffer
@@ -138,9 +141,9 @@ class CondorRun(conf: File) {
       }
       for (k <- Env.configMap.keys) {
         k match {
-          case Env.TestPatternKey => {
-            val singlePat = "^(" + Pattern.quote(prop.getClass.getName) + ")$"
-            writeKv(k, singlePat)
+          case Env.PatternClassesKey => {
+            val singleProp = prop.getClass.getName
+            writeKv(k, singleProp)
           }
           case _ => writeKv(k, extract(Env.configMap(k)))
         }
