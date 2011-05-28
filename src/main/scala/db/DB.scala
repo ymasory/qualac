@@ -7,7 +7,7 @@ package qualac.db
 
 import java.io.File
 import java.io.File.{ separator => / }
-import java.sql.{ Connection, DriverManager, Statement }
+import java.sql.{ Connection, DriverManager, Statement, Timestamp }
 import java.sql.Types.{ BIGINT, CLOB }
 
 import scala.io.Source
@@ -17,7 +17,7 @@ import qualac.common.Env
 import qualac.compile.ScalacMessage
 import qualac.fuzz.{ FuzzRun, Main }
 
-object Connector {
+private[db] object Connector {
 
   /** Establish connection with the database, returning the `Connection`. */
   def makeConnection() = {
@@ -58,6 +58,22 @@ object CondorDB {
     rs.close()
     stmt.close()
     condorId
+  }
+
+  def persistSubmission(runId: Long, time: Timestamp, jobNum: Int,
+                        propName: String) {
+    val sql =
+"""
+INSERT INTO condor_submission(condor_run_id, time_started, job_num, prop_name)
+VALUES(?, ?, ?, ?)
+"""
+    val stmt = con.prepareStatement(sql)
+    stmt.setLong(1, runId)
+    stmt.setTimestamp(2, time)
+    stmt.setInt(3, jobNum)
+    stmt.setString(4, propName)                          
+    stmt.executeUpdate()
+    stmt.close()                          
   }
 }
 
