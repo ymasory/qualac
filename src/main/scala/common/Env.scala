@@ -111,25 +111,20 @@ object Env {
   val dbUrl = ConfParser.getConfigString("db_url", configMap)
   /** config file property */
   val dbPassword = ConfParser.getConfigString("db_password", configMap)
-  /** config file property */
-  // val gmailAccount = ConfParser.getConfigString("gmail_account", configMap)
-  /** config file property */
-  // val gmailPassword =
-  //   ConfParser.getConfigString("gmail_password", configMap)
 
-  val TestPatternKey = "test_pattern"
-  /** config file property */
-  val TestPattern = ConfParser.getConfigString(TestPatternKey, configMap).r
-  /** config file property */
-  // val recipients =
-  //   ConfParser.getConfigString("recipients", configMap).split(",").toList
   /** config file property */
   val maxDiscardedTests =
     ConfParser.getConfigInt("max_discarded_tests", configMap)
   /** config file property */
   val minSuccessfulTests =
     ConfParser.getConfigInt("min_successful_tests", configMap)
-  
+  val PatternClassesKey = "pattern_classes"
+  val patternClasses: List[String] = {
+    val classes = ConfParser.getConfigString(PatternClassesKey, configMap)
+    classes.split("\\.").toList.map(_.trim)
+  }
+
+
   /** whether this run was generated Condor mode */
   val condorRunId = {
     try {

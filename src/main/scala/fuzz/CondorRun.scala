@@ -38,7 +38,7 @@ class CondorRun(conf: File) {
   //   val firstProp = Finder.discoverPropsMatching(Env.TestPattern).head
   //   List.fill(5)(firstProp)
   // }
-  val allProps = Finder.discoverPropsMatching(Env.TestPattern)
+  val allProps = Finder.loadProperties()
   val stamp = Env.nowMillis() 
 
   def fuzz() = {
@@ -138,9 +138,9 @@ class CondorRun(conf: File) {
       }
       for (k <- Env.configMap.keys) {
         k match {
-          case Env.TestPatternKey => {
-            val singlePat = "^(" + Pattern.quote(prop.getClass.getName) + ")$"
-            writeKv(k, singlePat)
+          case Env.PatternClassesKey => {
+            // val singlePat = "^(" + Pattern.quote(prop.getClass.getName) + ")$"
+            // writeKv(k, singlePat)
           }
           case _ => writeKv(k, extract(Env.configMap(k)))
         }
