@@ -61,7 +61,7 @@ ENGINE=InnoDB
 //the scalac output from the compilation of a particular program the fuzzer
 //generated
 """
-CREATE TABLE IF NOT EXISTS compilemessage (
+CREATE TABLE IF NOT EXISTS compile_message (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   precomp_id BIGINT NOT NULL,
   severity ENUM('info', 'warning', 'error') NOT NULL,
@@ -115,7 +115,7 @@ ENGINE=InnoDB
 """,
 //key-values from java.lang.System.getProperties 
 """
-CREATE TABLE IF NOT EXISTS javaprop (
+CREATE TABLE IF NOT EXISTS java_prop (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   run_id BIGINT NOT NULL,
   jkey TEXT NOT NULL,
@@ -126,7 +126,7 @@ ENGINE=InnoDB
 """,
 //some values from java.lang.Runtime
 """
-CREATE TABLE IF NOT EXISTS runtimeprop (
+CREATE TABLE IF NOT EXISTS runtime_prop (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   run_id BIGINT NOT NULL,
   total_memory BIGINT NOT NULL,

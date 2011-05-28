@@ -121,7 +121,7 @@ VALUES(?, ?, ?, ?)
          def persistInfo(info: ScalacMessage) {
            val sql = (
 """
-INSERT INTO compilemessage(precomp_id, severity, message, line, col, point)
+INSERT INTO compile_message(precomp_id, severity, message, line, col, point)
 VALUES(?, ?, ?, ?, ?, ?)
 """
            )
@@ -238,7 +238,7 @@ VALUES(?, ?, ?, ?, ?, ?)
     val set = System.getProperties.stringPropertyNames.toSet
     for (key <- set) {
       val value = System.getProperty(key)
-      val sql = "INSERT INTO javaprop(run_id, jkey, jvalue) VALUES(?, ?, ?)"
+      val sql = "INSERT INTO java_prop(run_id, jkey, jvalue) VALUES(?, ?, ?)"
       val pstmt = con.prepareStatement(sql)
       pstmt.setLong(1, id)
       pstmt.setString(2, key)
@@ -254,7 +254,7 @@ VALUES(?, ?, ?, ?, ?, ?)
     val processors = run.availableProcessors
     val sql =
 """
-INSERT INTO runtimeprop(run_id, total_memory, free_memory, max_memory,
+INSERT INTO runtime_prop(run_id, total_memory, free_memory, max_memory,
                         processors)
 VALUES(?, ?, ?, ?, ?)
 """

@@ -16,11 +16,11 @@ object SquerylSchema extends org.squeryl.Schema {
   val run = table[RunTable]
   val preCompile = table[PreCompileTable]("precompile")
   val postCompile = table[PostCompileTable]("postcompile")
-  val compileMessage = table[CompileMessageTable]("compilemessage")
+  val compileMessage = table[CompileMessageTable]("compile_message")
   val env = table[EnvTable]
   val outcome = table[OutcomeTable]
-  val javaProp = table[JavaPropTable]("javaprop")
-  val runtimeProp = table[RuntimePropTable]("runtimeprop")
+  val javaProp = table[JavaPropTable]("java_prop")
+  val runtimeProp = table[RuntimePropTable]("runtime_prop")
   val config = table[ConfigTable]
 }
 
