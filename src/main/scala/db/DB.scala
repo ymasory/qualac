@@ -7,7 +7,7 @@ package qualac.db
 
 import java.io.File
 import java.io.File.{ separator => / }
-import java.sql.{ DriverManager, Statement }
+import java.sql.{ Connection, DriverManager, Statement }
 import java.sql.Types.{ BIGINT, CLOB }
 
 import scala.io.Source
@@ -17,13 +17,57 @@ import qualac.common.Env
 import qualac.compile.ScalacMessage
 import qualac.fuzz.{ FuzzRun, Main }
 
+object Connector {
+
+  /** Establish connection with the database, returning the `Connection`. */
+  def makeConnection() = {
+    val url = Env.dbUrl
+    Class.forName("com.mysql.jdbc.Driver")
+    DriverManager.getConnection(Env.dbUrl, Env.dbUsername, Env.dbPassword)
+  }
+
+  /** Create the db tables, if they don't exist yet. */
+  def createTables(con: Connection) {
+    for (table <- ManualSchema.tables) {
+      val stmt = con.createStatement()
+      stmt.executeUpdate(table)
+      stmt.close()
+    }
+    for (update <- ManualSchema.postUpdates) {
+      val stmt = con.createStatement()
+      stmt.executeUpdate(update)
+      stmt.close()
+    }
+  }
+}
+
+object CondorDB {
+
+  val con = Connector.makeConnection()
+  Connector.createTables(con)
+
+  def persistCondorRun(totalJobs: Int) = {
+    val sql = "INSERT INTO condor_run (time_started, total_jobs) VALUES(?, ?)"
+    val stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
+    stmt.setTimestamp(1, Env.nowStamp())
+    stmt.setInt(2, totalJobs)
+    stmt.executeUpdate()
+    val rs = stmt.getGeneratedKeys()
+    val condorId = if (rs.next()) rs.getLong(1)
+                   else sys.error("could not get generated key")
+    rs.close()
+    stmt.close()
+    condorId
+  }
+}
+
 object DB {
 
+  val con = Connector.makeConnection()
+  Connector.createTables(con)
 
-  val con = makeConnection()
   val id: Long = {
     try {
-      createTables()
       val id = persistRun()
       persistRunEnvironment(id)
       persistJavaProps(id)
@@ -40,13 +84,6 @@ object DB {
     }
   }
   
-  /** Establish connection with the database, returning the `Connection`. */
-  private def makeConnection() = {
-    val url = Env.dbUrl
-    Class.forName("com.mysql.jdbc.Driver")
-    DriverManager.getConnection(Env.dbUrl, Env.dbUsername, Env.dbPassword)
-  }
-
   def persistConfigs(map: Map[String, Either[String, Int]]) {
     for (key <- map.keys) {
       val value: String = map(key) match {
@@ -203,34 +240,6 @@ VALUES(?, ?, ?, ?, ?, ?)
     rs.close()
     stmt.close()
     id
-  }
-
-  def persistCondorRun() = {
-    val sql = "INSERT INTO condor_run (time_started, run_id) VALUES(?, ?)"
-    val stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
-    stmt.setTimestamp(1, Env.nowStamp())
-    stmt.setLong(2, id)
-    stmt.executeUpdate()
-    val rs = stmt.getGeneratedKeys()
-    val condorId = if (rs.next()) rs.getLong(1)
-                   else sys.error("could not get generated key")
-    rs.close()
-    stmt.close()
-    condorId
-  }
-
-  /** Create the db tables, if they don't exist yet. */
-  private def createTables() {
-    for (table <- ManualSchema.tables) {
-      val stmt = con.createStatement()
-      stmt.executeUpdate(table)
-      stmt.close()
-    }
-    for (update <- ManualSchema.postUpdates) {
-      val stmt = con.createStatement()
-      stmt.executeUpdate(update)
-      stmt.close()
-    }
   }
 
   private def persistJavaProps(id: Long) {

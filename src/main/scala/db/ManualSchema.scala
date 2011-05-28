@@ -19,6 +19,7 @@ private[db] object ManualSchema {
 CREATE TABLE IF NOT EXISTS condor_run (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   time_started TIMESTAMP NOT NULL,
+  total_jobs INT NOT NULL
 )
 ENGINE=InnoDB
 """,
@@ -28,6 +29,8 @@ CREATE TABLE IF NOT EXISTS condor_submission (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   condor_run_id BIGINT,
   time_started TIMESTAMP NOT NULL,
+  job_num INT NOT NULL,
+  prop_name TEXT NOT NULL,
   FOREIGN KEY (condor_run_id) REFERENCES condor_run(id)
 )
 ENGINE=InnoDB

@@ -11,7 +11,7 @@ import java.util.regex.Pattern
 import org.scalacheck.Prop
 
 import qualac.common.{ Env, ConfParser }
-import qualac.db.DB
+import qualac.db.CondorDB
 
 class CondorRun(conf: File) {
 
@@ -42,6 +42,7 @@ class CondorRun(conf: File) {
     val props = Finder.loadProperties()
     Stream.continually(props).take(numCycles).flatten.toList
   }
+  val numProps = allProps.length
   val stamp = Env.nowMillis() 
 
   def fuzz() = {
@@ -54,7 +55,8 @@ class CondorRun(conf: File) {
 
   def condorRun() {
     try {
-      val runId = DB.persistCondorRun()
+      val runId = CondorDB.persistCondorRun(numProps)
+      Main.shout("this is condor run " + runId)
       val condorRoot = new File("condor")
       if (condorRoot.exists == false) condorRoot.mkdirs()
       for ((prop, i) <- allProps.zip(0 until allProps.length)) {
@@ -70,11 +72,10 @@ class CondorRun(conf: File) {
         val (o, e, r) = call(condorSubmitPath, submitFilePath)
         if (r != 0)
           sys.error("non-zero return (" + r + ") to condor submit\n" + e)
-        else println("submitted #" + i)
+        else {
+          println("submitted job " + (i.toInt + 1) + "/" + numProps)
+        }
       }
-    }
-    finally {
-      DB.persistExit(None)
     }
   }
 
