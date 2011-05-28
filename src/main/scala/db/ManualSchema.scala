@@ -19,7 +19,16 @@ private[db] object ManualSchema {
 CREATE TABLE IF NOT EXISTS condor_run (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   time_started TIMESTAMP NOT NULL,
-  run_id BIGINT NOT NULL
+)
+ENGINE=InnoDB
+""",
+//the act of running condor_submit
+"""
+CREATE TABLE IF NOT EXISTS condor_submission (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  condor_run_id BIGINT,
+  time_started TIMESTAMP NOT NULL,
+  FOREIGN KEY (condor_run_id) REFERENCES condor_run(id)
 )
 ENGINE=InnoDB
 """,
@@ -150,9 +159,5 @@ ENGINE=InnoDB
 """
   )
 
-  val postUpdates = List (
-"""
-ALTER TABLE condor_run ADD CONSTRAINT FOREIGN KEY (run_id) REFERENCES run(id)
-"""
-  )
+  val postUpdates = Nil
 }
