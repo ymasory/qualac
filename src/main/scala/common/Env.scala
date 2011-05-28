@@ -79,7 +79,7 @@ object Env {
 
   /** Map of the parsed config file. */
   val configMap = ConfParser.parse(qualac.fuzz.Main.confFile)
-  
+
   val OutDirKey = "output_root"
   /** Config file property */
   val outDir = {

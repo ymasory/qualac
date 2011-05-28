@@ -69,9 +69,9 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
   }
   lazy val report = task { args =>
     val nArgs =
-      Array("--report",
+      Array("--report", "1",
             "--config",
-            Path.userHome + Path.sep.toString + ".qualac-condor.conf")
+            Path.userHome + Path.sep.toString + ".qualac.conf")
     super.runAction(nArgs)
   }
 

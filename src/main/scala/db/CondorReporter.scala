@@ -29,19 +29,14 @@ object CondorReporter {
                                 Env.dbPassword),
     new MySQLAdapter))
 
-
   val password = ConfParser.getConfigString("gmail_password", Env.configMap)
   val recipients =
     ConfParser.getConfigString("recipients", Env.configMap).split(",").toList
   val account = ConfParser.getConfigString("gmail_account", Env.configMap)
   val name = ConfParser.getConfigString("gmail_name", Env.configMap)
 
-  def mailReport() = {
-    val lastId = lastCondorRunId()
-    val (subject, report) = 
-      if (lastId < 0) ("error generating report",
-                       lastId + " is not a valid id")
-      else new Report(lastId).generateReport()
+  def mailReport(id: Long) = {
+    val (subject, report) = new Report(id).generateReport()
     println("subject: " + subject)
     println("body: " + report)
     // GMail.sendMail(recipients, subject, report, account, name, password,

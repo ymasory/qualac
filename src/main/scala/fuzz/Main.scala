@@ -8,7 +8,8 @@ package qualac.fuzz
 import java.io.File
 
 import com.martiansoftware.jsap.{ JSAP, JSAPResult, FlaggedOption, Switch }
-import com.martiansoftware.jsap.stringparsers.FileStringParser
+import com.martiansoftware.jsap.stringparsers.{ FileStringParser,
+                                                LongStringParser }
 
 import qualac.db.CondorReporter
 
@@ -31,7 +32,9 @@ object Main {
         .setStringParser(
           FileStringParser.getParser().setMustBeFile(true).setMustExist(true))
     jsap registerParameter condorOption
-    val reportOption = new Switch(report).setLongFlag(report)
+    val reportOption =
+      new FlaggedOption(report).setLongFlag(report)
+        .setStringParser(LongStringParser.getParser())
     jsap registerParameter reportOption
     jsap
   }
@@ -40,9 +43,10 @@ object Main {
     val config = jsap.parse(args)
     if (config.success) {
       _confFile = config.getFile(conf)
-      if (config.getBoolean(report)) {
+      val condorId = config.getLong(report, -1)
+      if (condorId >= 0) {
         shout("generating and mailing report")
-        CondorReporter.mailReport()
+        CondorReporter.mailReport(condorId)
       }
       else {
         val condorFile = Option(config.getFile(condor))
