@@ -56,9 +56,9 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
   lazy val condor = task { args =>
     val nArgs =
       Array("--config",
-            Path.userHome + Path.sep.toString + ".qualac-condor.conf",
+            Path.userHome + Path.sep.toString + ".qualac.conf",
             "--condor",
-            "src/main/resources/sample.condor.conf")
+            Path.userHome + Path.sep.toString + ".qualac-condor.conf")
     super.runAction(nArgs).dependsOn(proguard)
   }
   lazy val mrun = task { args =>
