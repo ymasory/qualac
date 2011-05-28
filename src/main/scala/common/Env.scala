@@ -121,7 +121,7 @@ object Env {
   val PatternClassesKey = "pattern_classes"
   val patternClasses: List[String] = {
     val classes = ConfParser.getConfigString(PatternClassesKey, configMap)
-    classes.split("\\.").toList.map(_.trim)
+    classes.split(",").toList.map(_.trim)
   }
 
 

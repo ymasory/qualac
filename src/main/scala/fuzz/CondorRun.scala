@@ -33,11 +33,6 @@ class CondorRun(conf: File) {
     jarFile
   }
 
-  //just for debugging condor
-  // val allProps: List[Prop] = {
-  //   val firstProp = Finder.discoverPropsMatching(Env.TestPattern).head
-  //   List.fill(5)(firstProp)
-  // }
   val allProps = Finder.loadProperties()
   val stamp = Env.nowMillis() 
 
