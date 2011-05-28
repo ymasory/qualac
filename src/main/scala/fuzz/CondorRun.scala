@@ -36,8 +36,12 @@ class CondorRun(conf: File) {
     val logPath = ConfParser.getConfigString("log_dir", map)
     new File(logPath)
   }
+  val numCycles = ConfParser.getConfigInt("num_cycles", map)
 
-  val allProps = Finder.loadProperties()
+  val allProps = {
+    val props = Finder.loadProperties()
+    Stream.continually(props).take(numCycles).flatten.toList
+  }
   val stamp = Env.nowMillis() 
 
   def fuzz() = {
