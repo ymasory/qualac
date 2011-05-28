@@ -5,7 +5,7 @@
  */ 
 package qualac.db
 
-import java.sql.DriverManager
+import java.sql.{ DriverManager, Timestamp }
 
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
@@ -84,8 +84,16 @@ class Report(condorId: Long) {
     header + xml.toString
   }
 
+  private def dateRepr(d: DateTime) = {
+    val dayFmt = DateTimeFormat.forPattern("MMMM dd, YYYY")
+    val timeFmt = DateTimeFormat.forPattern("hh:mma")
+    dayFmt.print(d) + " at " + timeFmt.print(d)
+  }
+
   private def makeTimeParagraph() = {
-    <p></p>
+    <p>
+    This run began on {dateRepr(q.timeStarted)}.
+    </p>
   }
 
   private def makePerformanceParagraph() = {
@@ -140,6 +148,18 @@ class Querier(condorId: Long) {
     //   }.toList
     // lst.groupBy(identity).mapValues(_.size)
     scala.collection.immutable.HashMap.empty
+  }
+
+  def timeStarted(): DateTime = {
+    /* SELECT time_started FROM condor_run WHERE id = condorId; */
+    val stamp: Timestamp =
+      transaction {
+        from(condorRun)( r =>
+          where(r.id === condorId)
+          select(r.timeStarted)
+        ).single
+      }
+    new DateTime(stamp.getTime)
   }
 
   def numCrashes(): Long = 0L

@@ -13,7 +13,7 @@ import org.squeryl.annotations.Column
 object SquerylSchema extends org.squeryl.Schema {
 
   val condorRun = table[CondorRunTable]("condor_run")
-  val run = table[RunTable]
+  // val run = table[RunTable]
   val preCompile = table[PreCompileTable]("precompile")
   val postCompile = table[PostCompileTable]("postcompile")
   val compileMessage = table[CompileMessageTable]("compile_message")
@@ -22,6 +22,7 @@ object SquerylSchema extends org.squeryl.Schema {
   val javaProp = table[JavaPropTable]("java_prop")
   val runtimeProp = table[RuntimePropTable]("runtime_prop")
   val config = table[ConfigTable]
+  val submission = table[CondorSubmission]
 }
 
 object YesNo extends Enumeration {
@@ -43,12 +44,26 @@ import YesNo.YesNo
 import Severity.Severity
 
 class CondorRunTable(val id: Long,
-                   @Column("time_started")
-                   val timeStarted: Timestamp)
+                     @Column("time_started")
+                     val timeStarted: Timestamp,
+                     @Column("total_jobs")
+                     val totalJobs: Int)
+
+class CondorSubmission(val id: Long,
+                       @Column("condor_run_id")
+                       val condorRunId: Long,
+                       @Column("time_started")
+                       val timeStarted: Timestamp,
+                       @Column("job_num")
+                       val jobNum: Int,
+                       @Column("prop_name")
+                       val propName: String)
 
 class RunTable(val id: Long,
                @Column("time_started")
-               val timeStarted: Timestamp)
+               val timeStarted: Timestamp,
+               @Column("condor_run_id")
+               val condorRunId: Option[Long])
 
 class PreCompileTable(val id: Long,
                       @Column("run_id")

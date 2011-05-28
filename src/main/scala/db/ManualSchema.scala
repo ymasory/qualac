@@ -27,7 +27,7 @@ ENGINE=InnoDB
 """
 CREATE TABLE IF NOT EXISTS condor_submission (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  condor_run_id BIGINT,
+  condor_run_id BIGINT NOT NULL,
   time_started TIMESTAMP NOT NULL,
   job_num INT NOT NULL,
   prop_name TEXT NOT NULL,
