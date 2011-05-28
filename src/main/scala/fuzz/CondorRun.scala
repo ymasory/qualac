@@ -139,8 +139,8 @@ class CondorRun(conf: File) {
       for (k <- Env.configMap.keys) {
         k match {
           case Env.PatternClassesKey => {
-            // val singlePat = "^(" + Pattern.quote(prop.getClass.getName) + ")$"
-            // writeKv(k, singlePat)
+            val singleProp = prop.getClass.getName
+            writeKv(k, singleProp)
           }
           case _ => writeKv(k, extract(Env.configMap(k)))
         }
