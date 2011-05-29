@@ -156,19 +156,19 @@ class Querier(condorId: Long) {
        INNER JOIN condor_submission cs ON r.condor_submission_id = cs.id
      WHERE cs.condor_run_id = condorId;
      */
-    // val timeEnded: Timestamp =
-    //   transaction {
-    //     Session.currentSession.setLogger( (s: String) => println(s) )
-    //     from(outcome, run, submission) ( (o, r, cs) =>
-    //       where (
-    //         (o.runId === r.id) and
-    //         (r.condorSubmissionId === cs.id)
-    //       )
-    //       compute(min(o.timeEnded))
-    //     )
-    //   }
-    // new DateTime(timeEnded.getTime)
-    new DateTime
+    val timeEnded: Timestamp =
+      transaction {
+        Session.currentSession.setLogger( (s: String) => println(s) )
+        from(outcome, run, submission) ( (o, r, cs) =>
+          where (
+            (o.runId === r.id) and
+            (r.condorSubmissionId === cs.id)
+          )
+          select(o.timeEnded)
+          orderBy(if(isMax) { o.timeEnded desc } else { o.timeEnded asc })
+        ).head
+      }
+    new DateTime(timeEnded.getTime)
   }
 
   def numHosts(): Long = {
