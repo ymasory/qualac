@@ -11,8 +11,6 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
   //java dependencies
   val mail = "javax.mail" % "mail" % "1.4.1"
   val mysqlConnectorJava = "mysql" % "mysql-connector-java" % "5.1.16"
-  val junit = "junit" % "junit" % "4.8.2"
-  val junitInterface = "com.novocode" % "junit-interface" % "0.6"
   val jodaTime = "joda-time" % "joda-time" % "1.6.2"
   val jsap = "com.martiansoftware" % "jsap" % "2.1"
 
@@ -20,11 +18,6 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
   val squeryl = "org.squeryl" %% "squeryl" % "0.9.4-RC7"
   val scalacheck = "org.scala-tools.testing" %% "scalacheck" % "1.8"
 
-  //junit
-  override def testOptions = 
-    super.testOptions ++ 
-    Seq(TestArgument(TestFrameworks.JUnit, "-q", "-v"))
-  
   //turn down logging a bit
   log.setLevel(Level.Warn)
   log.setTrace(2)
