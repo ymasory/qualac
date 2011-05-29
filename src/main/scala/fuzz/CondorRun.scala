@@ -65,6 +65,9 @@ class CondorRun(conf: File) {
           new File(condorRoot, "condor-" + stamp + "-" + num)
         val propRoot = makeRootFor(i)
         val zeroPropRoot = makeRootFor(0)
+        val submitId =
+          CondorDB.persistSubmission(runId, Env.nowStamp, i,
+                                     prop.getClass.getName)
         val submit =
           new CondorSubmission(prop, zeroPropRoot, propRoot, id, runId)
         val submitFilePath = submit.writeSubmitFile().getAbsolutePath
@@ -73,8 +76,6 @@ class CondorRun(conf: File) {
         if (r != 0)
           sys.error("non-zero return (" + r + ") to condor submit\n" + e)
         else {
-          CondorDB.persistSubmission(runId, Env.nowStamp, i,
-                                     prop.getClass.getName)
           println("submitted job " + (i.toInt + 1) + "/" + numProps)
         }
       }
@@ -82,7 +83,7 @@ class CondorRun(conf: File) {
   }
 
   class CondorSubmission(prop: Prop, zeroPropRoot: File, propRoot: File,
-                         id: String, runId: Long) {
+                         id: String, submitId: Long) {
     
     if (propRoot.exists == false) propRoot.mkdirs()
 
@@ -103,9 +104,12 @@ class CondorRun(conf: File) {
     writeCustomConfig(customConfigFile)
     val mainFile: String =
       "qualac.fuzz.Main --config " + customConfigFile.getAbsolutePath
-    val error: String = new File(logDir, Job + "-" + stamp + ".error").getAbsolutePath
-    val output: String = new File(logDir, Job + "-" + stamp + ".output").getAbsolutePath
-    val log: String = new File(logDir, Job + "-" + stamp + ".log").getAbsolutePath
+    val error: String =
+      new File(logDir, Job + "-" + stamp + ".error").getAbsolutePath
+    val output: String =
+      new File(logDir, Job + "-" + stamp + ".output").getAbsolutePath
+    val log: String =
+      new File(logDir, Job + "-" + stamp + ".log").getAbsolutePath
 
     val fileString = {
       val buf = new StringBuffer
@@ -151,7 +155,7 @@ class CondorRun(conf: File) {
           case _ => writeKv(k, extract(Env.configMap(k)))
         }
       }
-      writeKv("condor_id", runId.toString)
+      writeKv("condor_submission", submitId.toString)
       
       writer.flush()
       writer.close()

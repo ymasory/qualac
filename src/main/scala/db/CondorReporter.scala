@@ -85,14 +85,15 @@ class Report(condorId: Long) {
   }
 
   private def dateRepr(d: DateTime) = {
-    val dayFmt = DateTimeFormat.forPattern("MMMM dd, YYYY")
+    val dayFmt = DateTimeFormat.forPattern("EEE MMMM dd, YYYY")
     val timeFmt = DateTimeFormat.forPattern("hh:mma")
     dayFmt.print(d) + " at " + timeFmt.print(d)
   }
 
   private def makeTimeParagraph() = {
     <p>
-    This run began on {dateRepr(q.timeStarted)}.
+      This run began on {dateRepr(q.timeStarted())} and ended approximately
+      {dateRepr(q.timeEnded())}.
     </p>
   }
 
@@ -118,7 +119,7 @@ class Report(condorId: Long) {
 
   private def makeSubject() = {
     val dateTime = Env.now()
-    val fmt = DateTimeFormat.forPattern("YYYY-MMMM-dd, hh:mma")
+    val fmt = DateTimeFormat.forPattern("EEE YYYY-MMMM-dd, hh:mma")
     val datePart = fmt.print(dateTime)
     val tag = "[" + Main.ProgramName + "]"
     val passedString = "passed " + q.numPropsPassed()
@@ -135,10 +136,63 @@ class Report(condorId: Long) {
 class Querier(condorId: Long) {
   import SquerylSchema._
 
-  def numPropsPassed(): Long = 0L
-  def numPropsFalsified(): Long = 0L
+  def timeStarted(): DateTime = {
+    /*
+     SELECT MIN(time_ended)
+     FROM outcome o
+       INNER JOIN run r ON o.run_id = r.id
+       INNER JOIN condor_submission cs ON r.condor_submission_id = cs.id
+     WHERE cs.condor_run_id = condorId;
+     */
+    new DateTime()
+  }
 
-  def numCompilations(): Long = 0L
+  def timeEnded(): DateTime = {
+    /*
+     SELECT MAX(time_ended)
+     FROM outcome o
+       INNER JOIN run r ON o.run_id = r.id
+       INNER JOIN condor_submission cs ON r.condor_submission_id = cs.id
+     WHERE cs.condor_run_id = condorId;
+     */
+    // val timeEnded: Timestamp =
+    //   transaction {
+    //     from(outcome, run, submission) ( (o, r, cs) =>
+    //       where (
+    //         (o.runId === r.id) and
+    //         (r.condorSubmissionId === cs.id)
+    //       )
+    //       compute(max(o.timeEnded))
+    //     )
+    //   }
+    // new DateTime(timeEnded.getTime)
+    new DateTime
+  }
+
+  def numHosts(): Long = {
+    /*
+     SELECT COUNT(DISTINCT hostname)
+     FROM env e
+       INNER JOIN run r ON e.run_id = r.id
+       INNER JOIN condor_submission cs ON r.condor_submission_id = cs.id
+     WHERE cs.condor_run_id = condorId;
+     */
+    transaction {
+      from(env, run, submission) ( (e, r, cs) =>
+        where (
+          (e.runId === r.id) and
+          (r.condorSubmissionId === cs.id)
+        )
+        compute(countDistinct(e.hostname))
+      )
+    }
+  }
+
+
+  def numPropsPassed(): Long = -1L
+  def numPropsFalsified(): Long = -1L
+
+  def numCompilations(): Long = -1L
   def errorMap(): Map[Option[String], Int] = {
     // val lst: List[Long] =
     //   transaction {
@@ -150,28 +204,5 @@ class Querier(condorId: Long) {
     scala.collection.immutable.HashMap.empty
   }
 
-  def timeStarted(): DateTime = {
-    /* SELECT time_started FROM condor_run WHERE id = condorId; */
-    val stamp: Timestamp =
-      transaction {
-        from(condorRun)( r =>
-          where(r.id === condorId)
-          select(r.timeStarted)
-        ).single
-      }
-    new DateTime(stamp.getTime)
-  }
-
-  def numCrashes(): Long = 0L
-
-  def numHosts(): Long = {
-    10L
-    // transaction {
-    //   from(env)( r =>
-    //     where(true)
-    //     groupBy(r.hostname)
-    //     compute(count)
-    //   )
-    // }
-  }
+  def numCrashes(): Long = -1L
 } 

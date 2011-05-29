@@ -12,17 +12,17 @@ import org.squeryl.annotations.Column
 
 object SquerylSchema extends org.squeryl.Schema {
 
-  val condorRun = table[CondorRunTable]("condor_run")
-  // val run = table[RunTable]
-  val preCompile = table[PreCompileTable]("precompile")
-  val postCompile = table[PostCompileTable]("postcompile")
+  val condorRun      = table[CondorRunTable]("condor_run")
+  val run            = table[RunTable]("run")
+  val preCompile     = table[PreCompileTable]("precompile")
+  val postCompile    = table[PostCompileTable]("postcompile")
   val compileMessage = table[CompileMessageTable]("compile_message")
-  val env = table[EnvTable]
-  val outcome = table[OutcomeTable]
-  val javaProp = table[JavaPropTable]("java_prop")
-  val runtimeProp = table[RuntimePropTable]("runtime_prop")
-  val config = table[ConfigTable]
-  val submission = table[CondorSubmission]
+  val env            = table[EnvTable]("env")
+  val outcome        = table[OutcomeTable]("outcome")
+  val javaProp       = table[JavaPropTable]("java_prop")
+  val runtimeProp    = table[RuntimePropTable]("runtime_prop")
+  val config         = table[ConfigTable]("config")
+  val submission     = table[CondorSubmission]("condor_submission")
 }
 
 object YesNo extends Enumeration {
@@ -62,8 +62,11 @@ class CondorSubmission(val id: Long,
 class RunTable(val id: Long,
                @Column("time_started")
                val timeStarted: Timestamp,
-               @Column("condor_run_id")
-               val condorRunId: Option[Long])
+               @Column("condor_submission_id")
+               val condorSubmissionId: Option[Long]) {
+
+  def this() = this(0, null, Some(0L))
+}
 
 class PreCompileTable(val id: Long,
                       @Column("run_id")

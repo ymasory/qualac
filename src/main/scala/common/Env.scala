@@ -126,9 +126,9 @@ object Env {
 
 
   /** whether this run was generated Condor mode */
-  val condorRunId = {
+  val condorSubmitId = {
     try {
-      Some(ConfParser.getConfigInt("condor_id", configMap))
+      Some(ConfParser.getConfigInt("condor_submission", configMap))
     }
     catch {
       case _ => None

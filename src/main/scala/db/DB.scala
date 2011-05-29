@@ -61,19 +61,24 @@ object CondorDB {
   }
 
   def persistSubmission(runId: Long, time: Timestamp, jobNum: Int,
-                        propName: String) {
+                        propName: String) = {
     val sql =
 """
 INSERT INTO condor_submission(condor_run_id, time_started, job_num, prop_name)
 VALUES(?, ?, ?, ?)
 """
-    val stmt = con.prepareStatement(sql)
+    val stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
     stmt.setLong(1, runId)
     stmt.setTimestamp(2, time)
     stmt.setInt(3, jobNum)
     stmt.setString(4, propName)                          
     stmt.executeUpdate()
-    stmt.close()                          
+    val rs = stmt.getGeneratedKeys()
+    val submitId = if (rs.next()) rs.getLong(1)
+                   else sys.error("could not get generated key")
+    rs.close()
+    stmt.close()
+    submitId
   }
 }
 
@@ -242,10 +247,10 @@ VALUES(?, ?, ?, ?, ?, ?)
   private def persistRun() = {
     val stmt =
       con.prepareStatement(
-        "INSERT INTO run (time_started, condor_run_id) VALUES(?, ?)",
+        "INSERT INTO run (time_started, condor_submission_id) VALUES(?, ?)",
         Statement.RETURN_GENERATED_KEYS)
     stmt.setTimestamp(1, Env.nowStamp())
-    Env.condorRunId match {
+    Env.condorSubmitId match {
       case Some(id) => stmt.setLong(2, id)
       case None     => stmt.setNull(2, BIGINT)
     }

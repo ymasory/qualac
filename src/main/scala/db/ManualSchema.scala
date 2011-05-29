@@ -40,8 +40,8 @@ ENGINE=InnoDB
 CREATE TABLE IF NOT EXISTS run (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   time_started TIMESTAMP NOT NULL,
-  condor_run_id BIGINT,
-  FOREIGN KEY (condor_run_id) REFERENCES condor_run(id)
+  condor_submission_id BIGINT,
+  FOREIGN KEY (condor_submission_id) REFERENCES condor_submission(id)
 )
 ENGINE=InnoDB
 """,
