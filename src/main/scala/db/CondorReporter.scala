@@ -8,7 +8,6 @@ package qualac.db
 import java.sql.{ DriverManager, Timestamp }
 
 import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 
 import org.squeryl.{ Session, SessionFactory }
 import org.squeryl.adapters.MySQLAdapter
@@ -53,6 +52,9 @@ object CondorReporter {
 }
 
 class Report(condorId: Long) {
+  import org.joda.time.{ Duration, Period }
+  import org.joda.time.format.{ DateTimeFormat, PeriodFormatterBuilder }
+
 
   val q = new Querier(condorId)
 
@@ -93,10 +95,27 @@ class Report(condorId: Long) {
     dayFmt.print(d) + " at " + timeFmt.print(d)
   }
 
+  private def periodRepr(p: Period) = {
+    val fmt =
+      new PeriodFormatterBuilder()
+        .printZeroNever()
+        .appendHours()
+        .appendSuffix(" hours")
+        .appendSeparator(", ")
+        .appendMinutes()
+        .appendSuffix(" minutes")
+        .appendSeparator(", ")
+        .toFormatter()
+    fmt.print(p)
+  }
+
   private def makeTimeParagraph() = {
+    val started = q.timeStarted()
+    val ended = q.timeEnded()
+    val period = (new Duration(started.getMillis, ended.getMillis)).toPeriod()
     <p>
-      This Condor run began on {dateRepr(q.timeStarted())} and ended
-      approximately {dateRepr(q.timeEnded())}, making a total of ?.
+      This Condor run began on {dateRepr(started)} and ended
+      approximately {dateRepr(ended)}, making a total of {periodRepr(period)}.
     </p>
   }
 
@@ -158,7 +177,7 @@ class Querier(condorId: Long) {
      */
     val timeEnded: Timestamp =
       transaction {
-        Session.currentSession.setLogger( (s: String) => println(s) )
+        // Session.currentSession.setLogger( (s: String) => println(s) )
         from(outcome, run, submission) ( (o, r, cs) =>
           where (
             (o.runId === r.id) and
