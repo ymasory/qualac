@@ -99,9 +99,10 @@ class Report(condorId: Long) {
 
   private def makePerformanceParagraph() = {
     <p>
-      {q.numHosts()} hosts performed {q.numCompilations} compilations.
-      {q.jobsSubmitted} Condor jobs were submitted, of which {q.jobsStarted}
-      actually started.
+      {q.numHosts()} hosts performed {q.numCompilations()} compilations.
+      {q.jobsSubmitted()} Condor jobs were submitted, of which
+      {q.jobsStarted()} actually started.
+      A peak rate of {q.peakRate()} compilations was reached.
     </p>
   }
 
@@ -182,17 +183,13 @@ class Querier(condorId: Long) {
     }
   }
 
-
-  def numPropsPassed(): Long = -1L
-  def numPropsFalsified(): Long = -1L
-
   def jobsSubmitted(): Int = {
     /*
      SELECT total_jobs
      FROM condor_run
      WHERE condor_run.id = condorId
      */
-    0
+    -1
   }
 
   def jobsStarted(): Int = {
@@ -202,7 +199,7 @@ class Querier(condorId: Long) {
        INNER JOIN condor_submission cs on r.condor_submission_id = cs.id
      WHERE cs.condor_run_id = condorId;
      */
-    0
+    -1
   }
 
   def numCompilations(): Long = {
@@ -217,16 +214,22 @@ class Querier(condorId: Long) {
     -1L
   }
 
-  def errorMap(): Map[Option[String], Int] = {
-    // val lst: List[Long] =
-    //   transaction {
-    //     from(outcome)( r =>
-    //       select(r.id)
-    //     )
-    //   }.toList
-    // lst.groupBy(identity).mapValues(_.size)
-    scala.collection.immutable.HashMap.empty
+  def numCrashes(): Long = {
+    /*
+     -- this yields suspicious results --
+     SELECT COUNT(*)
+     FROM run r
+       INNER JOIN condor_submission cs on r.condor_submission_id = cs.id
+     WHERE
+       r.id NOT IN (SELECT o.run_id FROM outcome o) AND
+       cs.condor_run_id = condorId;
+     */
+    -1L
   }
 
-  def numCrashes(): Long = -1L
+  def peakRate(): Int = -1
+  def errorMap(): Map[Option[String], Int] =
+    scala.collection.immutable.HashMap.empty
+  def numPropsPassed(): Long = -1L
+  def numPropsFalsified(): Long = -1L
 } 
