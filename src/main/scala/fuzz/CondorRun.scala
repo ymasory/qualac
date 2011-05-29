@@ -69,7 +69,7 @@ class CondorRun(conf: File) {
           CondorDB.persistSubmission(runId, Env.nowStamp, i,
                                      prop.getClass.getName)
         val submit =
-          new CondorSubmission(prop, zeroPropRoot, propRoot, id, runId)
+          new CondorSubmission(prop, zeroPropRoot, propRoot, id, submitId)
         val submitFilePath = submit.writeSubmitFile().getAbsolutePath
         if (i == 0) copy(jarFile, new File(propRoot, "qualac.jar"))
         val (o, e, r) = call(condorSubmitPath, submitFilePath)
