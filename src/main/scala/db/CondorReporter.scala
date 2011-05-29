@@ -312,16 +312,19 @@ class Querier(condorId: Long) {
   def compilationRate(start: DateTime, end: DateTime): Long = {
     /*
      SELECT COUNT(*)
-     FROM precompile pre
-       INNER JOIN run r on pre.run_id = r.id
-       INNER JOIN condor_submission cs on r.condor_submission_id = cs.id
+     FROM
+       postcompile post
+       INNER JOIN precompile pre ON pre.id = post.precompile_id
+       INNER JOIN run r ON pre.run_id = r.id
+       INNER JOIN condor_submission cs ON r.condor_submission_id = cs.id
      WHERE
        cs.condor_run_id = condorId AND
        post.time_ended BETWEEN start AND end
      */
     transaction {
-      from(preCompile, run, submission) ( (pre, r, cs) =>
+      from(postCompile, preCompile, run, submission) ( (post, pre, r, cs) =>
         where (
+          (post.precompileId === pre.id) and
           (pre.runId === r.id) and
           (r.condorSubmissionId === cs.id) and
           (cs.condorRunId === condorId) and
