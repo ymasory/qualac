@@ -165,7 +165,7 @@ object DB {
          def persistSummary() {
            val sql =
 """
-INSERT INTO postcompile(precomp_id, warnings, errors, time_ended)
+INSERT INTO postcompile(precompile_id, warnings, errors, time_ended)
 VALUES(?, ?, ?, ?)
 """
            val pstmt = con.prepareStatement(sql)
@@ -179,7 +179,7 @@ VALUES(?, ?, ?, ?)
          def persistInfo(info: ScalacMessage) {
            val sql = (
 """
-INSERT INTO compile_message(precomp_id, severity, message, line, col, point)
+INSERT INTO compile_message(precompile_id, severity, message, line, col, point)
 VALUES(?, ?, ?, ?, ?, ?)
 """
            )
