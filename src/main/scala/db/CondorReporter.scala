@@ -198,7 +198,8 @@ class Querier(condorId: Long) {
         from(outcome, run, submission) ( (o, r, cs) =>
           where (
             (o.runId === r.id) and
-            (r.condorSubmissionId === cs.id)
+            (r.condorSubmissionId === cs.id) and
+            (cs.condorRunId === condorId)
           )
           select(o.timeEnded)
           orderBy(if(isMax) { o.timeEnded desc } else { o.timeEnded asc })
@@ -219,7 +220,8 @@ class Querier(condorId: Long) {
       from(env, run, submission) ( (e, r, cs) =>
         where (
           (e.runId === r.id) and
-          (r.condorSubmissionId === cs.id)
+          (r.condorSubmissionId === cs.id) and
+          (cs.condorRunId === condorId)
         )
         compute(countDistinct(e.hostname))
       )
@@ -272,7 +274,8 @@ class Querier(condorId: Long) {
         where (
           (pre.id === post.precompileId) and
           (pre.runId === r.id) and
-          (cs.id === r.condorSubmissionId)
+          (cs.id === r.condorSubmissionId) and
+          (cs.condorRunId === condorId)
         )
         compute(count())
       )
@@ -281,15 +284,24 @@ class Querier(condorId: Long) {
 
   def numRecordedExits(): Long = {
     /*
-     -- this yields suspicious results --
      SELECT COUNT(*)
-     FROM run r
+     FROM
+       outcome o
+       INNER JOIN run r ON r.id = o.run_id
        INNER JOIN condor_submission cs on r.condor_submission_id = cs.id
      WHERE
-       r.id NOT IN (SELECT o.run_id FROM outcome o) AND
        cs.condor_run_id = condorId;
      */
-    -1L
+    transaction {
+      from(outcome, run, submission) ( (o, r, cs) =>
+        where (
+          (o.runId === r.id) and
+          (cs.id === r.condorSubmissionId) and
+          (cs.condorRunId === condorId)
+        )
+        compute(count())
+      )
+    }
   }
 
   def peakRate(): (Long, DateTime) = {
