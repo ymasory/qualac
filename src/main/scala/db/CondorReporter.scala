@@ -151,15 +151,11 @@ class Report(condorId: Long) {
       for ((k, v) <- q.errorMap()) yield {
         Text("There were " + k + " graceful JVM exits due to " + v)
       }
-    val numCrashes = q.numCrashes()
-    val crashLine =
-      if (numCrashes <= 1) Text("There were no non-graceful JVM exits.")
-      else
-        Text("There were " + numCrashes + " non-graceful JVM exits (crashes).")
     <p>
       {q.jobsSubmitted()} Condor jobs were submitted, of which
       {q.jobsStarted()} actually started.
-      {errLines ++ crashLine}
+      Of those, {q.numRecordedExits()} recorded their exits.
+      {errLines}
     </p>
 
   }
@@ -236,17 +232,30 @@ class Querier(condorId: Long) {
      FROM condor_run
      WHERE condor_run.id = condorId
      */
-    -1
+    transaction {
+      from(condorRun) ( c =>
+        where(c.id === condorId)
+        select(c.totalJobs)
+      ).single
+    }
   }
 
-  def jobsStarted(): Int = {
+  def jobsStarted(): Long = {
     /*
      SELECT COUNT(*)
      FROM run r
        INNER JOIN condor_submission cs on r.condor_submission_id = cs.id
      WHERE cs.condor_run_id = condorId;
      */
-    -1
+    transaction {
+      from(run, submission) ( (r, cs) =>
+        where (
+          (cs.id === r.condorSubmissionId) and
+          (cs.condorRunId === condorId)
+        )
+        compute(count())
+      )
+    }
   }
 
   def numCompilations(): Long = {
@@ -261,7 +270,7 @@ class Querier(condorId: Long) {
     -1L
   }
 
-  def numCrashes(): Long = {
+  def numRecordedExits(): Long = {
     /*
      -- this yields suspicious results --
      SELECT COUNT(*)
