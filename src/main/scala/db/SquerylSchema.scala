@@ -81,8 +81,8 @@ class PreCompileTable(val id: Long,
                       val timeStarted: Timestamp)
 
 class PostCompileTable(val id: Long,
-                       @Column("precomp_id")
-                       val precompId: Long,
+                       @Column("precompile_id")
+                       val precompileId: Long,
                        val warnings: YesNo,
                        val errors: YesNo,
                        @Column("time_ended")

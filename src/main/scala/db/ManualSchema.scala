@@ -62,11 +62,11 @@ ENGINE=InnoDB
 """
 CREATE TABLE IF NOT EXISTS postcompile (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  precomp_id BIGINT NOT NULL,
+  precompile_id BIGINT NOT NULL,
   warnings ENUM('yes', 'no') NOT NULL,
   errors ENUM('yes', 'no') NOT NULL,
   time_ended TIMESTAMP NOT NULL,
-  FOREIGN KEY (precomp_id) REFERENCES precompile(id)
+  FOREIGN KEY (precompile_id) REFERENCES precompile(id)
 )
 ENGINE=InnoDB
 """,
@@ -75,13 +75,13 @@ ENGINE=InnoDB
 """
 CREATE TABLE IF NOT EXISTS compile_message (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  precomp_id BIGINT NOT NULL,
+  precompile_id BIGINT NOT NULL,
   severity ENUM('info', 'warning', 'error') NOT NULL,
   message TEXT NOT NULL,
   line INT NOT NULL,
   col INT NOT NULL,
   point INT NOT NULL,
-  FOREIGN KEY (precomp_id) REFERENCES precompile(id)
+  FOREIGN KEY (precompile_id) REFERENCES precompile(id)
 )
 ENGINE=InnoDB
 """,

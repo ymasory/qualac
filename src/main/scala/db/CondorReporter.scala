@@ -92,15 +92,16 @@ class Report(condorId: Long) {
 
   private def makeTimeParagraph() = {
     <p>
-      This run began on {dateRepr(q.timeStarted())} and ended approximately
-      {dateRepr(q.timeEnded())}.
+      This Condor run began on {dateRepr(q.timeStarted())} and ended
+      approximately {dateRepr(q.timeEnded())}.
     </p>
   }
 
   private def makePerformanceParagraph() = {
     <p>
-      This Condor run utilized {q.numHosts()} hosts to perform
-      {q.numCompilations} compilations.
+      {q.numHosts()} hosts performed {q.numCompilations} compilations.
+      {q.jobsSubmitted} Condor jobs were submitted, of which {q.jobsStarted}
+      actually started.
     </p>
   }
 
@@ -185,7 +186,37 @@ class Querier(condorId: Long) {
   def numPropsPassed(): Long = -1L
   def numPropsFalsified(): Long = -1L
 
-  def numCompilations(): Long = -1L
+  def jobsSubmitted(): Int = {
+    /*
+     SELECT total_jobs
+     FROM condor_run
+     WHERE condor_run.id = condorId
+     */
+    0
+  }
+
+  def jobsStarted(): Int = {
+    /*
+     SELECT COUNT(*)
+     FROM run r
+       INNER JOIN condor_submission cs on r.condor_submission_id = cs.id
+     WHERE cs.condor_run_id = condorId;
+     */
+    0
+  }
+
+  def numCompilations(): Long = {
+    /*
+     SELECT COUNT(*)
+     FROM postcompile post
+       INNER JOIN precompile pre ON post.precompile_id = pre.id
+       INNER JOIN run r ON pre.run_id = r.id
+       INNER JOIN condor_submission cs on r.condor_submission_id = cs.id
+     WHERE cs.condor_run_id = condorId;
+     */
+    -1L
+  }
+
   def errorMap(): Map[Option[String], Int] = {
     // val lst: List[Long] =
     //   transaction {
