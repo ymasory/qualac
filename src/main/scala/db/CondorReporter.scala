@@ -136,18 +136,10 @@ class Report(condorId: Long) {
 class Querier(condorId: Long) {
   import SquerylSchema._
 
-  def timeStarted(): DateTime = {
-    /*
-     SELECT MIN(time_ended)
-     FROM outcome o
-       INNER JOIN run r ON o.run_id = r.id
-       INNER JOIN condor_submission cs ON r.condor_submission_id = cs.id
-     WHERE cs.condor_run_id = condorId;
-     */
-    new DateTime()
-  }
+  def timeStarted(): DateTime = timeEndedStarted(false)
+  def timeEnded(): DateTime = timeEndedStarted(true)
 
-  def timeEnded(): DateTime = {
+  def timeEndedStarted(isMax: Boolean): DateTime = {
     /*
      SELECT MAX(time_ended)
      FROM outcome o
@@ -157,12 +149,13 @@ class Querier(condorId: Long) {
      */
     // val timeEnded: Timestamp =
     //   transaction {
+    //     Session.currentSession.setLogger( (s: String) => println(s) )
     //     from(outcome, run, submission) ( (o, r, cs) =>
     //       where (
     //         (o.runId === r.id) and
     //         (r.condorSubmissionId === cs.id)
     //       )
-    //       compute(max(o.timeEnded))
+    //       compute(min(o.timeEnded))
     //     )
     //   }
     // new DateTime(timeEnded.getTime)
