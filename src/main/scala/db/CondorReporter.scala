@@ -60,6 +60,9 @@ class Report(condorId: Long) {
     (makeSubject(), makeBody())
   }
 
+//scalatest green EE5566
+//scalatest red 55EE66
+
   private def makeBody() = {
     val header =
 """
