@@ -51,10 +51,46 @@ object CondorReporter {
   }
 }
 
-class Report(condorId: Long) {
-  import org.joda.time.{ Duration, Period }
+object DateFmt {
+
+  import org.joda.time.Period
   import org.joda.time.format.{ DateTimeFormat, PeriodFormatterBuilder }
 
+  def conciseRepr(d: DateTime) = {
+    val fmt = DateTimeFormat.forPattern("EEE YYYY-MMMM-dd, hh:mma")
+    fmt.print(d)
+  }
+
+  def fullRepr(d: DateTime) = dateRepr(d) + " at " + timeRepr(d)
+
+  def timeRepr(d: DateTime) = {
+    val timeFmt = DateTimeFormat.forPattern("hh:mma")
+    timeFmt.print(d)
+  }
+
+  def dateRepr(d: DateTime) = {
+    val dayFmt = DateTimeFormat.forPattern("EEE MMMM dd, YYYY")
+    dayFmt.print(d)
+  }
+
+  def periodRepr(p: Period) = {
+    val fmt =
+      new PeriodFormatterBuilder()
+        .printZeroNever()
+        .appendHours()
+        .appendSuffix(" hours")
+        .appendSeparator(", ")
+        .appendMinutes()
+        .appendSuffix(" minutes")
+        .appendSeparator(", ")
+        .toFormatter()
+    fmt.print(p)
+  }
+}
+
+class Report(condorId: Long) {
+
+  import org.joda.time.Duration
 
   val q = new Querier(condorId)
 
@@ -89,41 +125,24 @@ class Report(condorId: Long) {
     header + xml.toString
   }
 
-  private def dateRepr(d: DateTime) = {
-    val dayFmt = DateTimeFormat.forPattern("EEE MMMM dd, YYYY")
-    val timeFmt = DateTimeFormat.forPattern("hh:mma")
-    dayFmt.print(d) + " at " + timeFmt.print(d)
-  }
-
-  private def periodRepr(p: Period) = {
-    val fmt =
-      new PeriodFormatterBuilder()
-        .printZeroNever()
-        .appendHours()
-        .appendSuffix(" hours")
-        .appendSeparator(", ")
-        .appendMinutes()
-        .appendSuffix(" minutes")
-        .appendSeparator(", ")
-        .toFormatter()
-    fmt.print(p)
-  }
-
   private def makeTimeParagraph() = {
     val started = q.timeStarted()
     val ended = q.timeEnded()
     val period = (new Duration(started.getMillis, ended.getMillis)).toPeriod()
     <p>
-      This Condor run began on {dateRepr(started)} and ended
-      approximately {dateRepr(ended)}, making a total of {periodRepr(period)}.
+      This Condor run began on {DateFmt.fullRepr(started)} and ended
+      approximately {DateFmt.fullRepr(ended)}, making a total of
+      {DateFmt.periodRepr(period)}.
     </p>
   }
 
   private def makePerformanceParagraph() = {
+    val (comPerSec, when) = q.peakRate()
     <p>
       During that time {q.numHosts()} hosts performed {q.numCompilations()}
       compilations.
-      A peak rate of {q.peakRate()} compilations was reached.
+      A peak rate of {comPerSec} compilations per second was reached at
+      {DateFmt.timeRepr(when)}.
     </p>
   }
 
@@ -147,13 +166,12 @@ class Report(condorId: Long) {
 
   private def makeSubject() = {
     val dateTime = Env.now()
-    val fmt = DateTimeFormat.forPattern("EEE YYYY-MMMM-dd, hh:mma")
-    val datePart = fmt.print(dateTime)
+    val datePart = DateFmt.conciseRepr(dateTime)
     val tag = "[" + Main.ProgramName + "]"
     val passedString = "passed " + q.numPropsPassed()
     val falsifiedString = {
       val numFalsified = q.numPropsFalsified()
-      (if (numFalsified == 0) "falsified " else "FALSIFIED") + numFalsified
+      (if (numFalsified == 0) "falsified " else "FALSIFIED ") + numFalsified
     }
     val testPart = falsifiedString + ", " + passedString
     val condorPart = "Condor Run #" + condorId
@@ -163,6 +181,10 @@ class Report(condorId: Long) {
 
 class Querier(condorId: Long) {
   import SquerylSchema._
+
+  val printSql = {
+    () => Session.currentSession.setLogger( (s: String) => println(s) )
+  }
 
   def timeStarted(): DateTime = timeEndedStarted(false)
   def timeEnded(): DateTime = timeEndedStarted(true)
@@ -177,7 +199,6 @@ class Querier(condorId: Long) {
      */
     val timeEnded: Timestamp =
       transaction {
-        // Session.currentSession.setLogger( (s: String) => println(s) )
         from(outcome, run, submission) ( (o, r, cs) =>
           where (
             (o.runId === r.id) and
@@ -253,7 +274,47 @@ class Querier(condorId: Long) {
     -1L
   }
 
-  def peakRate(): Int = -1
+  def peakRate(): (Long, DateTime) = {
+    var cur = timeStarted()
+    val end = timeEnded()
+    var best = 0L
+    var bestTime = cur
+    while (cur isBefore end) {
+      val next = cur.plusMinutes(1)
+      val rate = compilationRate(cur, next)
+      if (best < rate) {
+        best = rate
+        bestTime = cur
+      }
+      cur = next
+    }
+    (best, cur)
+  }
+
+  def compilationRate(start: DateTime, end: DateTime): Long = {
+    /*
+     SELECT COUNT(*)
+     FROM precompile pre
+       INNER JOIN run r on pre.run_id = r.id
+       INNER JOIN condor_submission cs on r.condor_submission_id = cs.id
+     WHERE
+       cs.condor_run_id = condorId AND
+       post.time_ended BETWEEN start AND end
+     */
+    transaction {
+      from(preCompile, run, submission) ( (pre, r, cs) =>
+        where (
+          (pre.runId === r.id) and
+          (r.condorSubmissionId === cs.id) and
+          (cs.condorRunId === condorId) and
+          (pre.timeStarted lt new Timestamp(end.getMillis)) and
+          (pre.timeStarted gt new Timestamp(start.getMillis))
+        )
+        compute(count())
+      )
+    }
+  }
+
   def errorMap(): Map[Option[String], Int] =
     scala.collection.immutable.HashMap.empty
   def numPropsPassed(): Long = -1L
