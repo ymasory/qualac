@@ -288,7 +288,7 @@ class Querier(condorId: Long) {
       }
       cur = next
     }
-    (best, cur)
+    (best, bestTime)
   }
 
   def compilationRate(start: DateTime, end: DateTime): Long = {
