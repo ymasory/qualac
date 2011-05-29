@@ -76,7 +76,7 @@ object DateFmt {
   def periodRepr(p: Period) = {
     val fmt =
       new PeriodFormatterBuilder()
-        .printZeroNever()
+        .printZeroAlways()
         .appendHours()
         .appendSuffix(" hours")
         .appendSeparator(", ")
