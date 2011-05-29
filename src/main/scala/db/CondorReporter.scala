@@ -267,7 +267,16 @@ class Querier(condorId: Long) {
        INNER JOIN condor_submission cs on r.condor_submission_id = cs.id
      WHERE cs.condor_run_id = condorId;
      */
-    -1L
+    transaction {
+      from(postCompile, preCompile, run, submission) ( (post, pre, r, cs) =>
+        where (
+          (pre.id === post.precompileId) and
+          (pre.runId === r.id) and
+          (cs.id === r.condorSubmissionId)
+        )
+        compute(count())
+      )
+    }
   }
 
   def numRecordedExits(): Long = {
