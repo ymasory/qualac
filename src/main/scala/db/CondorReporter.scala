@@ -96,15 +96,14 @@ class Report(condorId: Long) {
   private def makeTimeParagraph() = {
     <p>
       This Condor run began on {dateRepr(q.timeStarted())} and ended
-      approximately {dateRepr(q.timeEnded())}.
+      approximately {dateRepr(q.timeEnded())}, making a total of ?.
     </p>
   }
 
   private def makePerformanceParagraph() = {
     <p>
-      {q.numHosts()} hosts performed {q.numCompilations()} compilations.
-      {q.jobsSubmitted()} Condor jobs were submitted, of which
-      {q.jobsStarted()} actually started.
+      During that time {q.numHosts()} hosts performed {q.numCompilations()}
+      compilations.
       A peak rate of {q.peakRate()} compilations was reached.
     </p>
   }
@@ -119,7 +118,12 @@ class Report(condorId: Long) {
       if (numCrashes <= 1) Text("There were no non-graceful JVM exits.")
       else
         Text("There were " + numCrashes + " non-graceful JVM exits (crashes).")
-    <p>{errLines ++ crashLine}</p>
+    <p>
+      {q.jobsSubmitted()} Condor jobs were submitted, of which
+      {q.jobsStarted()} actually started.
+      {errLines ++ crashLine}
+    </p>
+
   }
 
   private def makeSubject() = {
