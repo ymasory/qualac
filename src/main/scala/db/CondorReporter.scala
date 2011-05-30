@@ -396,6 +396,15 @@ class Querier(condorId: Long) {
        INNER JOIN run r ON c.run_id = r.id
        INNER JOIN condor_submission cs ON r.condor_submission_id = cs.id
      WHERE
+       EXISTS (
+         SELECT *
+         FROM
+           precompile pre
+           INNER JOIN postcompile post ON post.precompile_id = pre.id
+           INNER JOIN run r2 ON pre.run_id = r2.id
+           INNER JOIN condor_submission cs2 ON r2.condor_submission_id = cs2.id
+         WHERE post.errors = pre.errors_expected
+       ) AND
        ukey = 'pattern_classes' AND
        cs.condor_run_id = condorId;
      */
