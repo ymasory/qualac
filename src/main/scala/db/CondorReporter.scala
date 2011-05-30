@@ -148,14 +148,19 @@ class Report(condorId: Long) {
 
   private def makeExitsParagraph() = {
     val errLines =
-      for ((k, v) <- q.errorMap()) yield {
-        Text("There were " + k + " graceful JVM exits due to " + v)
+      for ((errOpt, count) <- q.errorMap()) yield {
+        errOpt match {
+          case Some(err) =>
+            Text("There were " + count  + " graceful exits due to " + err + ".")
+          case None => Text("There were " + count +
+                            " graceful exits from unkown causes.")
+        }
       }
     <p>
       {q.jobsSubmitted()} Condor jobs were submitted, of which
       {q.jobsStarted()} actually started.
       Of those, {q.numRecordedExits()} recorded their exits.
-      {errLines}
+      {errLines.mkString(" ")}
     </p>
 
   }
@@ -348,8 +353,11 @@ class Querier(condorId: Long) {
     }
   }
 
-  def errorMap(): Map[Option[String], Int] =
-    scala.collection.immutable.HashMap.empty
+  def errorMap(): Map[Option[String], Int] = {
+    import scala.collection.immutable.HashMap
+    HashMap.empty
+  }
+
   def numPropsPassed(): Long = -1L
   def numPropsFalsified(): Long = -1L
 } 
