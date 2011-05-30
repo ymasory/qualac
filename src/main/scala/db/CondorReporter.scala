@@ -168,7 +168,6 @@ class Report(condorId: Long) {
   private def makeSubject() = {
     val dateTime = Env.now()
     val datePart = DateFmt.conciseRepr(dateTime)
-    val tag = "[" + Main.ProgramName + "]"
     val passedString = "passed " + q.numPropsPassed()
     val falsifiedString = {
       val numFalsified = q.numPropsFalsified()
@@ -176,7 +175,7 @@ class Report(condorId: Long) {
     }
     val testPart = falsifiedString + ", " + passedString
     val condorPart = "Condor Run #" + condorId
-    tag + " " + List(condorPart, testPart, datePart).mkString(" | ")
+    List(condorPart, testPart, datePart).mkString(" | ")
   }
 }
 
