@@ -76,7 +76,8 @@ class CondorRun(conf: File) {
         if (r != 0)
           sys.error("non-zero return (" + r + ") to condor submit\n" + e)
         else {
-          println("submitted job " + (i.toInt + 1) + "/" + numProps + " of condor run " + runId)
+          println("submitted job " + (i.toInt + 1) + "/" + numProps +
+                  " of condor run " + runId)
         }
       }
     }
