@@ -141,7 +141,7 @@ class Report(condorId: Long) {
     <p>
       During that time {q.numHosts()} hosts performed {q.numCompilations()}
       compilations.
-      A peak rate of {comPerSec} compilations per second was reached at
+      A peak rate of {comPerSec} compilations per minute was reached at
       {DateFmt.timeRepr(when)}.
     </p>
   }
