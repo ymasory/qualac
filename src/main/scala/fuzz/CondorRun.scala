@@ -105,12 +105,13 @@ class CondorRun(conf: File) {
     writeCustomConfig(customConfigFile)
     val mainFile: String =
       "qualac.fuzz.Main --config " + customConfigFile.getAbsolutePath
+    val nStamp = Env.nowMillis()
     val error: String =
-      new File(logDir, Job + "-" + stamp + ".error").getAbsolutePath
+      new File(logDir, Job + "-" + nStamp + ".error").getAbsolutePath
     val output: String =
-      new File(logDir, Job + "-" + stamp + ".output").getAbsolutePath
+      new File(logDir, Job + "-" + nStamp + ".output").getAbsolutePath
     val log: String =
-      new File(logDir, Job + "-" + stamp + ".log").getAbsolutePath
+      new File(logDir, Job + "-" + nStamp + ".log").getAbsolutePath
 
     val fileString = {
       val buf = new StringBuffer
