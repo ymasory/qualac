@@ -388,6 +388,19 @@ class Querier(condorId: Long) {
     HashMap.empty
   }
 
-  def numPropsPassed(): Long = -1L
+  def numPropsPassed(): Long = {
+    /*
+     SELECT DISTINCT uvalue
+     FROM
+       config c
+       INNER JOIN run r ON c.run_id = r.id
+       INNER JOIN condor_submission cs ON r.condor_submission_id = cs.id
+     WHERE
+       ukey = 'pattern_classes' AND
+       cs.condor_run_id = condorId;
+     */
+    -1L
+  }
+
   def numPropsFalsified(): Long = -1L
 } 
