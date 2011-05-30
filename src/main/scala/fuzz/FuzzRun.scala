@@ -32,8 +32,7 @@ class FuzzRun() {
         val params = Test.Params(
           minSuccessfulTests = Env.minSuccessfulTests,
           maxDiscardedTests = Env.maxDiscardedTests,
-          // workers = Env.numThreads,
-          workers = 1
+          workers = Env.numThreads
           // testCallback = new QCallback
         )
         prop.check(params)
