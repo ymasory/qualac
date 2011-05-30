@@ -138,9 +138,14 @@ class Report(condorId: Long) {
 
   private def makePerformanceParagraph() = {
     val (comPerSec, when) = q.peakRate()
+    val threadsNode = {
+      val numThreads = q.numThreads()
+      if (numThreads == 0) { <tt>Runtime.availableProcessors</tt> }
+      else Text(numThreads.toString)
+    }
     <p>
       During that time {q.numHosts()} hosts performed {q.numCompilations()}
-      compilations.
+      compilations. Each JVM used {threadsNode} threads.
       A peak rate of {comPerSec} compilations per minute was reached at
       {DateFmt.timeRepr(when)}.
     </p>
@@ -316,6 +321,7 @@ class Querier(condorId: Long) {
     while (cur isBefore end) {
       val next = cur.plusMinutes(1)
       val rate = compilationRate(cur, next)
+      println(rate, cur)
       if (best < rate) {
         best = rate
         bestTime = cur
@@ -349,6 +355,31 @@ class Querier(condorId: Long) {
         )
         compute(count())
       )
+    }
+  }
+
+  def numThreads(): Int = {
+    /*
+     SELECT DISTINCT uvalue
+     FROM
+       config c
+       INNER JOIN run r ON c.run_id = r.id
+       INNER JOIN condor_submission cs ON r.condor_submission_id = cs.id
+     WHERE
+       ukey = 'threads' AND
+       cs.condor_run_id = condorId
+     */
+    transaction {
+      printSql()
+      from(config, run, submission) ( (c, r, cs) =>
+        where (
+          (c.runId === r.id) and
+          (r.condorSubmissionId === cs.id) and
+          (cs.condorRunId === condorId) and
+          (c.uKey === "threads")
+        )
+        select(c.uValue)
+      ).distinct.single.toInt
     }
   }
 
