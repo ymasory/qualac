@@ -306,7 +306,14 @@ VALUES(?, ?, ?, ?, ?)
       if (file.exists) Source.fromFile(file).mkString.trim
       else "*unkown*"
     }
-    val hostname = java.net.InetAddress.getLocalHost().getHostName()
+    val hostname =
+      try {
+        java.net.InetAddress.getLocalHost().getHostName()
+      }
+      catch {
+        case _: java.net.UnknownHostException => "UnkownHostException"
+      }
+
     val sql =
       """|INSERT INTO
          |  env(run_id, scala_version, scala_version_string,
