@@ -38,8 +38,8 @@ object CondorReporter {
     val (subject, report) = new Report(id).generateReport()
     println("subject: " + subject)
     println("body: " + report)
-    // GMail.sendMail(recipients, subject, report, account, name, password,
-    //                mimeType = "text/html")
+    GMail.sendMail(recipients, subject, report, account, name, password,
+                   mimeType = "text/html")
   }
 
   def lastCondorRunId(): Long = {
