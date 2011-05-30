@@ -12,7 +12,7 @@ import LexImplicits.toQString
  *
  * @specSec 1.1
  */
-object Identifiers {
+object NewlineCharacters {
 
   /**
    * List of all reserved words.

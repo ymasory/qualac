@@ -15,7 +15,7 @@ import LexImplicits.toQString
  *
  * @specSec 1.0
  */
-object Characters {
+object LexicalSyntax {
 
   /**
    * Generate a Unicode BMP character (not Cs or Cn), UAR.
