@@ -413,3 +413,4 @@ class Querier(condorId: Long) {
 
   def numPropsFalsified(): Long = -1L
 } 
+ 

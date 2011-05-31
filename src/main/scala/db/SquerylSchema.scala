@@ -7,6 +7,7 @@ package qualac.db
 
 import java.sql.Timestamp
 
+import org.squeryl.KeyedEntity
 import org.squeryl.PrimitiveTypeMode._
 import org.squeryl.annotations.Column
 
@@ -43,127 +44,173 @@ object Severity extends Enumeration {
 import YesNo.YesNo
 import Severity.Severity
 
-class CondorRunTable(val id: Long,
-                     @Column("time_started")
-                     val timeStarted: Timestamp,
-                     @Column("total_jobs")
-                     val totalJobs: Int)
+class CondorRunTable(
+  @Column("time_started")
+  val timeStarted: Timestamp,
+  @Column("total_jobs")
+  val totalJobs: Int) extends KeyedEntity[Long] {
 
-class CondorSubmission(val id: Long,
-                       @Column("condor_run_id")
-                       val condorRunId: Long,
-                       @Column("time_started")
-                       val timeStarted: Timestamp,
-                       @Column("job_num")
-                       val jobNum: Int,
-                       @Column("prop_name")
-                       val propName: String)
-
-class RunTable(val id: Long,
-               @Column("time_started")
-               val timeStarted: Timestamp,
-               @Column("condor_submission_id")
-               val condorSubmissionId: Option[Long]) {
-
-  def this() = this(0, null, Some(0L))
+  val id: Long = -1
+  def this() = this(null, 0)
 }
 
-class PreCompileTable(val id: Long,
-                      @Column("run_id")
-                      val runId: Long,
-                      @Column("program_text")
-                      val programText: String,
-                      @Column("errors_expected")
-                      val errorsExpected: YesNo,
-                      @Column("warningsExpected")
-                      val warningsExpected: YesNo,
-                      @Column("time_started")
-                      val timeStarted: Timestamp)
+class CondorSubmission(
+  @Column("condor_run_id")
+  val condorRunId: Long,
+  @Column("time_started")
+  val timeStarted: Timestamp,
+  @Column("job_num")
+  val jobNum: Int,
+  @Column("prop_name")
+  val propName: String) extends KeyedEntity[Long] {
 
-class PostCompileTable(val id: Long,
-                       @Column("precompile_id")
-                       val precompileId: Long,
-                       val warnings: YesNo,
-                       val errors: YesNo,
-                       @Column("time_ended")
-                       val timeEnded: Timestamp)
+  val id: Long = -1
+  def this() = this(0, null, 0, "")
+}
 
-class CompileMessageTable(val id: Long,
-                          @Column("precomp_id")
-                          val precompId: Long,
-                          val severity: Severity,
-                          val message: String,
-                          val line: Int,
-                          val col: Int,
-                          val point: Int)
+class RunTable(
+  @Column("time_started")
+  val timeStarted: Timestamp,
+  @Column("condor_submission_id")
+  val condorSubmissionId: Option[Long]) extends KeyedEntity[Long] {
 
-class EnvTable(val id: Long,
-               @Column("run_id")
-               val runId: Long,
-               @Column("scala_version")
-               val scalaVersion: String,
-               @Column("scala_version_string")
-               val scalaVersionString: String,
-               @Column("scala_version_message")
-               val scalaVersionMessage: String,
-               @Column("java_classpath")
-               val javaClasspath: String,
-               @Column("java_vendor")
-               val javaVendor: String,
-               @Column("java_vm_info")
-               val javaVmInfo: String,
-               @Column("java_vm_name")
-               val javaVmName: String,
-               @Column("java_vm_vendor")
-               val javaVmVendor: String,
-               @Column("java_vm_version")
-               val javaVmVersion: String,
-               @Column("os")
-               val os: String,
-               @Column("source_encoding")
-               val sourceEncoding: String,
-               @Column("etc_hostname")
-               val etcHostname: String,
-               @Column("hostname")
-               val hostname: String)
+  val id: Long = -1
+  def this() = this(null, Some(0L))
+}
 
-class OutcomeTable(val id: Long,
-                   @Column("run_id")
-                   val runId: Long,
-                   @Column("class")
-                   val clazz: Option[String],
-                   val cause: Option[String],
-                   val message: Option[String],
-                   @Column("stacktrace")
-                   val stackTrace: Option[String],
-                   @Column("time_ended")
-                   val timeEnded: Timestamp,
-                   val problem: YesNo)
+class PreCompileTable(
+  @Column("run_id")
+  val runId: Long,
+  @Column("program_text")
+  val programText: String,
+  @Column("errors_expected")
+  val errorsExpected: YesNo,
+  @Column("warningsExpected")
+  val warningsExpected: YesNo,
+  @Column("time_started")
+  val timeStarted: Timestamp) extends KeyedEntity[Long] {
 
-class JavaPropTable(val id: Long,
-                    @Column("run_id")
-                    val runId: Long,
-                    @Column("jkey")
-                    val jKey: String,
-                    @Column("jvalue")
-                    val jValue: String)
+  val id: Long = -1
+  def this() = this(0, "", YesNo.No, YesNo.No, null)
+}
 
-class RuntimePropTable(val id: Long,
-                       @Column("run_id")
-                       val runId: Long,
-                       @Column("total_memory")
-                       val totalMemory: Long,
-                       @Column("free_memory")
-                       val freeMemory: Long,
-                       @Column("max_memory")
-                       val maxMemory: Long,
-                       @Column("processors")
-                       val processors: Int)
+class PostCompileTable(
+  @Column("precompile_id")
+  val precompileId: Long,
+  val warnings: YesNo,
+  val errors: YesNo,
+  @Column("time_ended")
+  val timeEnded: Timestamp) extends KeyedEntity[Long] {
 
-class ConfigTable(val id: Long,
-                  @Column("run_id")
-                  val runId: Long,
-                  @Column("ukey")
-                  val uKey: String,
-                  @Column("uvalue")
-                  val uValue: String)
+  val id: Long = -1
+  def this() = this(0, YesNo.No, YesNo.No, null)
+
+}
+
+class CompileMessageTable(
+  @Column("precomp_id")
+  val precompId: Long,
+  val severity: Severity,
+  val message: String,
+  val line: Int,
+  val col: Int,
+  val point: Int) extends KeyedEntity[Long] {
+
+  val id: Long = -1
+  def this() = this(0, Severity.Error, "", 0, 0, 0)
+}
+
+class EnvTable(
+  @Column("run_id")
+  val runId: Long,
+  @Column("scala_version")
+  val scalaVersion: String,
+  @Column("scala_version_string")
+  val scalaVersionString: String,
+  @Column("scala_version_message")
+  val scalaVersionMessage: String,
+  @Column("java_classpath")
+  val javaClasspath: String,
+  @Column("java_vendor")
+  val javaVendor: String,
+  @Column("java_vm_info")
+  val javaVmInfo: String,
+  @Column("java_vm_name")
+  val javaVmName: String,
+  @Column("java_vm_vendor")
+  val javaVmVendor: String,
+  @Column("java_vm_version")
+  val javaVmVersion: String,
+  @Column("os")
+  val os: String,
+  @Column("source_encoding")
+  val sourceEncoding: String,
+  @Column("etc_hostname")
+  val etcHostname: String,
+  @Column("hostname")
+  val hostname: String) extends KeyedEntity[Long] {
+
+  val id: Long = -1
+  def this() = this(0, "", "", "", "", "", "", "", "", "", "", "", "", "")
+}
+
+
+class OutcomeTable(
+  @Column("run_id")
+  val runId: Long,
+  @Column("class")
+  val clazz: Option[String],
+  val cause: Option[String],
+  val message: Option[String],
+  @Column("stacktrace")
+  val stackTrace: Option[String],
+  @Column("time_ended")
+  val timeEnded: Timestamp,
+  val problem: YesNo) extends KeyedEntity[Long] {
+
+  def id: Long = -1
+  def this() = this(0, None, None, None, None, null, YesNo.No)
+}
+
+
+class JavaPropTable(
+  @Column("run_id")
+  val runId: Long,
+  @Column("jkey")
+  val jKey: String,
+  @Column("jvalue")
+  val jValue: String) extends KeyedEntity[Long] {
+
+  val id: Long = -1
+  def this() = this(0, "", "")
+}
+
+
+class RuntimePropTable(
+  @Column("run_id")
+  val runId: Long,
+  @Column("total_memory")
+  val totalMemory: Long,
+  @Column("free_memory")
+  val freeMemory: Long,
+  @Column("max_memory")
+  val maxMemory: Long,
+  @Column("processors")
+  val processors: Int) extends KeyedEntity[Long] {
+
+  val id: Long = -1
+  def this() = this(0, 0, 0, 0, 0)
+}
+
+
+class ConfigTable(
+  @Column("run_id")
+  val runId: Long,
+  @Column("ukey")
+  val uKey: String,
+  @Column("uvalue")
+  val uValue: String) extends KeyedEntity[Long] {
+
+  val id: Long = -1
+  def this() = this(0, "", "")
+}
