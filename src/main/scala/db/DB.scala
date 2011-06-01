@@ -18,8 +18,6 @@ import qualac.fuzz.{ FuzzRun, Main }
 
 object CondorDB {
 
-  val con: java.sql.Connection = null
-
   def persistCondorRun(totalJobs: Int) = {
     val cr = new CondorRun(Env.nowStamp(), totalJobs)
     SquerylSchema.condorRunTable.insert(cr)
@@ -37,8 +35,6 @@ object CondorDB {
 
 object DB {
 
-  val con: java.sql.Connection = null
-
   val id: Long = {
     try {
       val id = persistRun()
@@ -50,7 +46,6 @@ object DB {
       case t: Throwable => {
         Main.shout("database initialization failed. exiting ...",
                    error=true)
-        con.close()
         t.printStackTrace()
         sys.exit(1)
       }
