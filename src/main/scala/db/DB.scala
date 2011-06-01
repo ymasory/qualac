@@ -7,8 +7,7 @@ package qualac.db
 
 import java.io.File
 import java.io.File.{ separator => / }
-import java.sql.{ Statement, Timestamp }
-import java.sql.Types.{ BIGINT, CLOB }
+import java.sql.Timestamp
 
 import scala.io.Source
 import scala.tools.nsc.reporters.{ Reporter, StoreReporter }
@@ -17,15 +16,13 @@ import qualac.common.Env
 import qualac.compile.ScalacMessage
 import qualac.fuzz.{ FuzzRun, Main }
 
-import SquerylSchema._
-
 object CondorDB {
 
   val con: java.sql.Connection = null
 
   def persistCondorRun(totalJobs: Int) = {
     val cr = new CondorRun(Env.nowStamp(), totalJobs)
-    condorRunTable.insert(cr)
+    SquerylSchema.condorRunTable.insert(cr)
     cr.id
   }
 
@@ -33,7 +30,7 @@ object CondorDB {
                         propName: String) = {
 
     val sub = new CondorSubmission(runId, time, jobNum, propName)
-    condorSubmissionTable.insert(sub)
+    SquerylSchema.condorSubmissionTable.insert(sub)
     sub.id
   }
 }
@@ -68,22 +65,12 @@ object DB {
       }
       if ((key endsWith "_password") == false) {
         val config = new Config(id, key, value)
-        configTable.insert(config)
+        SquerylSchema.configTable.insert(config)
       }
     }
   }
 
-  private def bool2EnumString(b: Boolean) = if(b) "yes" else "no"
   private def bool2Enum(b: Boolean) = if(b) YesNo.Yes else YesNo.No
-  private def severity2EnumString(s: Reporter#Severity) = {
-    s.id match {
-      case 2 => "error"
-      case 1 => "warning"
-      case 0 => "info"
-      case i => sys.error("unkown severity: " + i)
-    }
-  }
-
   private def severity2Enum(s: Reporter#Severity) = {
     s.id match {
       case 2 => Severity.Error
@@ -164,7 +151,7 @@ object DB {
 
     // val run = new Run(Env.nowStamp(), Env.condorSubmitId)
     val run = new Run(Env.nowStamp(), null)
-    runTable.insert(run)
+    SquerylSchema.runTable.insert(run)
     run.id
   }
 
