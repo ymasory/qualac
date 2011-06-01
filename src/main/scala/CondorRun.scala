@@ -89,7 +89,7 @@ class CondorRun(conf: File, env: Env) {
     if (propRoot.exists == false) propRoot.mkdirs()
 
     private val Job = "job"
-    private val name = Main.ProgramName.toLowerCase
+    private val name = Main.ProgramNameLower
     val outDir = new File(env.outDir, name + "-" + stamp)
     if (outDir.exists == false) {
       if (outDir.mkdirs() == false)

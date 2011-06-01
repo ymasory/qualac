@@ -81,7 +81,7 @@ class Env {
   val outDir = {
     val dirName = ConfParser.getConfigString(OutDirKey, configMap)
     val dir = {
-      val name = Main.ProgramName.toLowerCase + "-" + nowMillis()
+      val name = Main.ProgramNameLower + "-" + nowMillis()
       new File(dirName, name).getCanonicalFile
     }
     if (dir.exists == false) {

@@ -16,6 +16,9 @@ import qualac.db.{ CondorReporter, DbMaker }
 object Main {
 
   val ProgramName = "Qualac"
+  val ProgramNameLower = ProgramName.toLowerCase()
+  val ProgramNameUpper = ProgramName.toUpperCase()
+
   val (conf, condor, report, createDb) =
     ("config", "condor", "report", "create-db")
 
@@ -86,19 +89,8 @@ object Main {
       builder append ("Error: " + iter.next() + LF)
     }
     builder append LF
-    builder append "run "
+    builder append ("java -jar " + ProgramNameLower + ".jar ")
     builder append (jsap.getUsage + LF)
-    builder append LF
-    builder append ("Options:" + LF)
-    builder append ("  --create-db" + LF)
-    builder append ("  --conf   /path/to/file.conf" + LF)
-    builder append ("  --condor /path/to/file.condor" + LF)
-    builder append ("  --report" + LF)
-    builder append LF
-    builder append ("Examples:" + LF)
-    builder append ("  run" + LF)
-    builder append ("  run --conf /home/yuvi/.qualac.conf" + LF)
-    builder append LF
     builder toString
   }
 
@@ -108,8 +100,8 @@ object Main {
     val out = if (error) Console.err else Console.out
     out.println(banner)
     val name =
-      if (error) (ProgramName.toUpperCase + " ERROR: ")
-      else (ProgramName.capitalize + ": ")
+      if (error) (ProgramNameUpper + " ERROR: ")
+      else (ProgramName + ": ")
     out.println(name + (if (error) str.toUpperCase else str))
     out.println(banner)
   }
