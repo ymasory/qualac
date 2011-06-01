@@ -9,12 +9,9 @@ import java.io.File
 
 import scala.io.Source
 
-object ConfigFile {
-  val Delimiter = "="
-}
-
 class ConfigFile(file: File) {
-  import ConfigFile.Delimiter
+
+  val Delimiter = "="
 
   val map = parse(Source.fromFile(file).mkString)
   
