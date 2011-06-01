@@ -27,7 +27,7 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
   override val mainResources = super.mainResources +++ extraResources
 
   //program entry point
-  override def mainClass: Option[String] = Some("qualac.fuzz.Main")
+  override def mainClass: Option[String] = Some("qualac.Main")
 
   //compiler options
   override def compileOptions = super.compileOptions ++

@@ -108,6 +108,8 @@ object Env {
   val dbUrl = ConfParser.getConfigString("db_url", configMap)
   /** config file property */
   val dbPassword = ConfParser.getConfigString("db_password", configMap)
+  /** config file property */
+  val dbName = ConfParser.getConfigString("db_name", configMap)
 
   /** config file property */
   val maxDiscardedTests =
