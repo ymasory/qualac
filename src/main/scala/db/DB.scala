@@ -74,6 +74,7 @@ object DB {
   }
 
   private def bool2EnumString(b: Boolean) = if(b) "yes" else "no"
+  private def bool2Enum(b: Boolean) = if(b) YesNo.Yes else YesNo.No
   private def severity2EnumString(s: Reporter#Severity) = {
     s.id match {
       case 2 => "error"
@@ -83,65 +84,41 @@ object DB {
     }
   }
 
+  private def severity2Enum(s: Reporter#Severity) = {
+    s.id match {
+      case 2 => Severity.Error
+      case 1 => Severity.Warning
+      case 0 => Severity.Info
+      case x => sys.error("unkown severity: " + x)
+    }
+  }
+
+
   def persistPrecompile(progText: String, shouldCompile: Boolean):
     (Boolean, Boolean, List[ScalacMessage]) => Unit = {
       
       def insertPrecompile(): Long = {
-        val sql =
-          """|INSERT INTO precompile(run_id, program_text, errors_expected,
-             |                       warnings_expected, time_started)
-             |VALUES(?, ?, ?, ?, ?)""".stripMargin
-
-        val pstmt = con.prepareStatement(sql,
-                                         Statement.RETURN_GENERATED_KEYS)
-        pstmt.setLong(1, id)
-        pstmt.setString(2, progText)
-        pstmt.setString(3, bool2EnumString(shouldCompile == false)) 
-        pstmt.setString(4, "no")
-        pstmt.setTimestamp(5, Env.nowStamp())
-        pstmt.executeUpdate()
-
-        val rs = pstmt.getGeneratedKeys()
-        val trialId = if (rs.next()) rs.getLong(1)
-                      else sys.error("could not get generated key")
-
-        pstmt.close()
-        trialId
+        val preComp = new PreCompile(id, progText,
+                                     bool2Enum(shouldCompile == false),
+                                     YesNo.No, Env.nowStamp())
+        SquerylSchema.preCompileTable.insert(preComp)
+        preComp.id
       }
       val trialId = insertPrecompile()
 
       (hasWarnings: Boolean, hasErrors: Boolean,
        infos: List[ScalacMessage]) => {
          def persistSummary() {
-           val sql =
-"""
-INSERT INTO postcompile(precompile_id, warnings, errors, time_ended)
-VALUES(?, ?, ?, ?)
-"""
-           val pstmt = con.prepareStatement(sql)
-           pstmt.setLong(1, trialId)
-           pstmt.setString(2, bool2EnumString(hasWarnings))
-           pstmt.setString(3, bool2EnumString(hasErrors))
-           pstmt.setTimestamp(4, Env.nowStamp)
-           pstmt.executeUpdate()
-           pstmt.close()
+           val postComp = new PostCompile(trialId, bool2Enum(hasWarnings),
+                                          bool2Enum(hasErrors), Env.nowStamp)
+           SquerylSchema.postCompileTable.insert(postComp)
          }
          def persistInfo(info: ScalacMessage) {
-           val sql = (
-"""
-INSERT INTO compile_message(precompile_id, severity, message, line, col, point)
-VALUES(?, ?, ?, ?, ?, ?)
-"""
-           )
-           val pstmt = con.prepareStatement(sql)
-           pstmt.setLong(1, trialId)
-           pstmt.setString(2, severity2EnumString(info.severity))
-           pstmt.setString(3, info.msg)
-           pstmt.setInt(4, info.pos.line)
-           pstmt.setInt(5, info.pos.column)
-           pstmt.setInt(6, info.pos.point)
-           pstmt.executeUpdate()
-           pstmt.close()
+           val cm = new CompileMessage(trialId,
+                                       severity2Enum(info.severity),
+                                       info.msg, info.pos.line,
+                                       info.pos.column, info.pos.point)
+           SquerylSchema.compileMessageTable.insert(cm)
          }
 
          persistSummary()
@@ -152,41 +129,30 @@ VALUES(?, ?, ?, ?, ?, ?)
   }
 
   def persistExit(error: Option[Throwable]) {
-    val sql = (
-      "INSERT INTO outcome(" +
-      "  run_id, class, cause, message, stacktrace, time_ended, problem) " +
-      "VALUES (?, ?, ?, ?, ?, ?, ?)"
-    )
-    val pstmt = con.prepareStatement(sql)
-    pstmt.setLong(1, id)
-    error match {
-      case None => {
-        pstmt.setNull(2, CLOB)
-        pstmt.setNull(3, CLOB)
-        pstmt.setNull(4, CLOB)
-        pstmt.setNull(5, CLOB)
-        pstmt.setString(7, "no")
-      }
-      case Some(t) => {
-        val clazz = t.getClass
-        if (clazz == null) pstmt.setNull(2, CLOB)
-        else pstmt.setString(2, clazz.getName)
-
-        val cause = t.getCause
-        if (cause == null) pstmt.setNull(3, CLOB)
-        else pstmt.setString(3, cause.toString)
-
-        pstmt.setString(4, t.getMessage)
-
-        val trace = t.getStackTrace
-        if (trace == null) pstmt.setNull(5, CLOB)
-        else pstmt.setString(5, trace.mkString("\n"))
-        pstmt.setString(7, "yes")
+    val stamp = Env.nowStamp()
+    val outcome = 
+      error match {
+        case None => new Outcome(id, None, None, None, None, stamp, YesNo.No)
+        case Some(t) => {
+          val clazzVal = {
+            val clazz = t.getClass
+            if (clazz == null) None else Some(clazz.getName)
+          }
+          val causeVal = {
+            val cause = t.getCause
+            if (cause == null) None else Some(cause.toString)
+          }
+          val traceVal = {
+            val trace = t.getStackTrace
+            if (trace == null) None else Some(trace.mkString("\n"))
+          }
+          val msg = Option(t.getMessage)
+          new Outcome(id, clazzVal, causeVal, msg, traceVal, stamp,
+                      YesNo.Yes)
       }
     }
-    pstmt.setTimestamp(6, Env.nowStamp())
-    pstmt.executeUpdate()
-    pstmt.close()
+
+    SquerylSchema.outcomeTable.insert(outcome)
   }
 
   /**
