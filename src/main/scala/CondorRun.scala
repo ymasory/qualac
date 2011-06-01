@@ -14,17 +14,18 @@ import qualac.db.DB
 
 class CondorRun(conf: File, env: Env) {
 
-  val map = ConfParser.parse(conf)
+  val condorConfig = new ConfigFile(conf)
+  val generalConfig = new ConfigFile(null)
 
   val condorSubmitPath: String = {
-    val binDir = new File(ConfParser.getConfigString("bin_loc", map))
+    val binDir = new File(condorConfig.getString("bin_loc"))
     assert(binDir.exists, "bin_loc " + binDir + " does not exist")
     val condorSubmit = new File(binDir, "condor_submit")
     // assert(condorSubmit.exists, condorSubmit + " does not exist")
     condorSubmit.getAbsolutePath
   }
   val jarFile: File = {
-    val jarPath = ConfParser.getConfigString("jar_loc", map)
+    val jarPath = condorConfig.getString("jar_loc")
     val jarFile = new File(jarPath)
     assert(
       jarFile.exists, jarFile + " does not exist. did you run " +
@@ -32,10 +33,10 @@ class CondorRun(conf: File, env: Env) {
     jarFile
   }
   val logDir: File = {
-    val logPath = ConfParser.getConfigString("log_dir", map)
+    val logPath = condorConfig.getString("log_dir")
     new File(logPath)
   }
-  val numCycles = ConfParser.getConfigInt("num_cycles", map)
+  val numCycles = condorConfig.getInt("num_cycles")
 
   val allProps = {
     val finder = new Finder(env)
@@ -126,8 +127,8 @@ class CondorRun(conf: File, env: Env) {
       addLine("error", error)
       addLine("output", output)
       addLine("log", log)
-      for (k <- map.keys if k.startsWith("_")) {
-        val v: String = map(k) match {
+      for (k <- condorConfig.map.keys if k.startsWith("_")) {
+        val v: String = condorConfig.map(k) match {
           case Left(s) => s
           case Right(i) => i.toString
         }
@@ -146,15 +147,15 @@ class CondorRun(conf: File, env: Env) {
         }
       }
       def writeKv(k: String, v: String) {
-        writer.println(k + " " + ConfParser.Delimiter + " " + v)
+        writer.println(k + " " + generalConfig.Delimiter + " " + v)
       }
-      for (k <- env.configMap.keys) {
+      for (k <- generalConfig.map.keys) {
         k match {
           case env.PatternClassesKey => {
             val singleProp = prop.getClass.getName
             writeKv(k, singleProp)
           }
-          case _ => writeKv(k, extract(env.configMap(k)))
+          case _ => writeKv(k, extract(generalConfig.map(k)))
         }
       }
       writeKv("condor_submission", submitId.toString)

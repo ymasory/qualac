@@ -6,19 +6,14 @@
 package qualac
 
 import java.io.File
-import java.io.InputStream
 
 import scala.io.Source
 
-object ConfParser {
+class ConfigFile(file: File) {
+
+  val map = parse(Source.fromFile(file).mkString)
   
   val Delimiter = "="
-
-  def parse(file: File): Map[String, Either[String, Int]] =
-    parse(Source.fromFile(file).mkString)
-
-  def parse(stream: InputStream): Map[String, Either[String, Int]] =
-    parse(Source.fromInputStream(stream).mkString)
 
   private def parse(str: String): Map[String, Either[String, Int]] = {
     val lines = str.lines.toList
@@ -53,7 +48,7 @@ object ConfParser {
   }
 
   /** Pull a value from the config file that's supposed to be an `Int`. */
-  def getConfigInt(key: String, map: Map[String, Either[String, Int]]) = {
+  def getInt(key: String) = {
     map(key) match {
       case Right(i) => i
       case Left(_) => throw QualacException(key + " value must be an int")
@@ -61,7 +56,7 @@ object ConfParser {
   }
 
   /** Pull a value from the config file that's supposed to be an `Int`. */
-  def getConfigString(key: String, map: Map[String, Either[String, Int]]) = {
+  def getString(key: String) = {
     map(key) match {
       case Right(_) => throw QualacException(key + " value must be an int")
       case Left(s) => s

@@ -16,7 +16,7 @@ class FuzzRun() {
   def fuzz() = {
     try {
       Main.shout("initializing environment")
-      val env = new Env()
+      val env = new Env(null)
       Main.shout("... done")
 
       Main.shout("begin initializing database")
@@ -26,7 +26,7 @@ class FuzzRun() {
       db.persistJavaProps(runId)
       Main.shout("... done")
 
-      db.persistConfigs(runId, env.configMap)
+      db.persistConfigs(runId, null)
       Main.shout("using " + env.numThreads + " threads")
       val finder = new Finder(env)
       val allProps = finder.loadProperties()

@@ -22,8 +22,6 @@ object Main {
   val (conf, condor, report, createDb) =
     ("config", "condor", "report", "create-db")
 
-  private var _confFile: File = _
-
   lazy val jsap = {
     val jsap = new JSAP()
     val confOption =
@@ -46,11 +44,10 @@ object Main {
   }
 
   def main(args: Array[String]) {
-    val env: Env = null
-
     val config = jsap.parse(args)
     if (config.success) {
-      _confFile = config.getFile(conf)
+      val confFile = config.getFile(conf)
+      val env = new Env(confFile)
       val condorId = config.getLong(report, -1)
       if (condorId >= 0) {
         val reporter = new CondorReporter(env)
@@ -63,7 +60,7 @@ object Main {
       }
       else {
         val condorFile = Option(config.getFile(condor))
-        shout("using configuration file: " + _confFile)
+        shout("using configuration file: " + confFile)
         condorFile match {
           case Some(file) => {
             val condRun = new CondorRun(file, env)
@@ -105,6 +102,4 @@ object Main {
     out.println(name + (if (error) str.toUpperCase else str))
     out.println(banner)
   }
-
-  def confFile = _confFile
 }

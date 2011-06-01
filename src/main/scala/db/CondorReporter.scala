@@ -15,16 +15,18 @@ import org.squeryl.PrimitiveTypeMode._
 
 import scala.xml.Text
 
-import qualac.{ ConfParser, Env, GMail }
+import qualac.{ ConfigFile, Env, GMail }
 import SquerylSchema._
 
 class CondorReporter(env: Env) {
 
-  val password = ConfParser.getConfigString("gmail_password", env.configMap)
+  val condorConfig = new ConfigFile(null)
+
+  val password = condorConfig.getString("gmail_password")
   val recipients =
-    ConfParser.getConfigString("recipients", env.configMap).split(",").toList
-  val account = ConfParser.getConfigString("gmail_account", env.configMap)
-  val name = ConfParser.getConfigString("gmail_name", env.configMap)
+    condorConfig.getString("recipients").split(",").toList
+  val account = condorConfig.getString("gmail_account")
+  val name = condorConfig.getString("gmail_name")
 
   def mailReport(id: Long) = {
     val (subject, report) = new Report(env, id).generateReport()

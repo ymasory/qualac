@@ -18,7 +18,9 @@ import scala.util.Properties
  * 
  * The most horrible mutable/side-effecty stuff goes here.
  */
-class Env {
+class Env(confFile: File) {
+
+  val generalConfig = new ConfigFile(confFile)
 
   /** Get the current time in an immutable joda `DateTime`. */
   def now() = new DateTime()
@@ -73,13 +75,10 @@ class Env {
     _ != null
   }
 
-  /** Map of the parsed config file. */
-  val configMap = ConfParser.parse(Main.confFile)
-
   val OutDirKey = "output_root"
   /** Config file property */
   val outDir = {
-    val dirName = ConfParser.getConfigString(OutDirKey, configMap)
+    val dirName = generalConfig.getString(OutDirKey)
     val dir = {
       val name = Main.ProgramNameLower + "-" + nowMillis()
       new File(dirName, name).getCanonicalFile
@@ -93,32 +92,32 @@ class Env {
 
   /** config file property */
   val numThreads = {
-    val num = ConfParser.getConfigInt("threads", configMap)
+    val num = generalConfig.getInt("threads")
     if (num <= 0) Runtime.getRuntime.availableProcessors
     else num
   }
   /** config file property */
-  val durationSeconds = ConfParser.getConfigInt("duration_seconds", configMap)
+  val durationSeconds = generalConfig.getInt("duration_seconds")
   /** config file property */
-  val timeoutSeconds = ConfParser.getConfigInt("timeout_seconds", configMap)
+  val timeoutSeconds = generalConfig.getInt("timeout_seconds")
   /** config file property */
-  val dbUsername = ConfParser.getConfigString("db_username", configMap)
+  val dbUsername = generalConfig.getString("db_username")
   /** config file property */
-  val dbUrl = ConfParser.getConfigString("db_url", configMap)
+  val dbUrl = generalConfig.getString("db_url")
   /** config file property */
-  val dbPassword = ConfParser.getConfigString("db_password", configMap)
+  val dbPassword = generalConfig.getString("db_password")
   /** config file property */
-  val dbName = ConfParser.getConfigString("db_name", configMap)
+  val dbName = generalConfig.getString("db_name")
 
   /** config file property */
   val maxDiscardedTests =
-    ConfParser.getConfigInt("max_discarded_tests", configMap)
+    generalConfig.getInt("max_discarded_tests")
   /** config file property */
   val minSuccessfulTests =
-    ConfParser.getConfigInt("min_successful_tests", configMap)
+    generalConfig.getInt("min_successful_tests")
   val PatternClassesKey = "pattern_classes"
   val patternClasses: List[String] = {
-    val classes = ConfParser.getConfigString(PatternClassesKey, configMap)
+    val classes = generalConfig.getString(PatternClassesKey)
     classes.split(",").toList.map(_.trim)
   }
 
@@ -126,7 +125,7 @@ class Env {
   /** whether this run was generated Condor mode */
   val condorSubmitId = {
     try {
-      Some(ConfParser.getConfigInt("condor_submission", configMap))
+      Some(generalConfig.getInt("condor_submission"))
     }
     catch {
       case _ => None
