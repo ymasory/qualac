@@ -3,11 +3,9 @@
  *
  * Available under the Qualac License, see /LICENSE.
  */ 
-package qualac.fuzz
+package qualac
 
 import org.scalacheck.Properties
-
-import qualac.common.Env
 
 object Finder {
 

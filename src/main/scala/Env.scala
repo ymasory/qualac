@@ -3,7 +3,7 @@
  *
  * Available under the Qualac License, see /LICENSE.
  */ 
-package qualac.common
+package qualac
 
 import java.io.File
 import java.util.Calendar
@@ -13,9 +13,6 @@ import org.joda.time.DateTime
 
 import scala.io.Source
 import scala.util.Properties
-
-import qualac.fuzz.Main
-import qualac.QualacException
 
 /**
  * Some values from the program's environment.
@@ -78,7 +75,7 @@ object Env {
   }
 
   /** Map of the parsed config file. */
-  val configMap = ConfParser.parse(qualac.fuzz.Main.confFile)
+  val configMap = ConfParser.parse(Main.confFile)
 
   val OutDirKey = "output_root"
   /** Config file property */

@@ -15,8 +15,7 @@ import org.squeryl.PrimitiveTypeMode._
 
 import scala.xml.Text
 
-import qualac.fuzz.Main
-import qualac.common.{ ConfParser, Env, GMail }
+import qualac.{ ConfParser, Env, GMail }
 import SquerylSchema._
 
 object CondorReporter {

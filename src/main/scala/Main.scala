@@ -3,7 +3,7 @@
  *
  * Available under the Qualac License, see /LICENSE.
  */ 
-package qualac.fuzz
+package qualac
 
 import java.io.File
 

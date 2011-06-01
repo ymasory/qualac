@@ -3,14 +3,12 @@
  *
  * Available under the Qualac License, see /LICENSE.
  */ 
-package qualac.common
+package qualac
 
 import java.io.File
 import java.io.InputStream
 
 import scala.io.Source
-
-import qualac.QualacException
 
 object ConfParser {
   

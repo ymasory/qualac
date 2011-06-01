@@ -3,13 +3,14 @@
  *
  * Available under the Qualac License, see /LICENSE.
  */ 
-package qualac.common
+package qualac.lex
 
 import scala.io.Source
 import scala.collection.{ mutable => m }
 import scala.collection.immutable.SortedMap
 
-import qualac.lex.CodePoint
+import qualac.Env
+import qualac.{ VFour, VFiveDotOne, VSix }
 
 object UCD {
 
@@ -32,7 +33,7 @@ object UCD {
   val BmpSm = verifier.verifiedBmpClass("Sm")
 }
 
-private[common] class UCDVerifier(uMap: Map[String, List[CodePoint]]) {
+private[lex] class UCDVerifier(uMap: Map[String, List[CodePoint]]) {
 
   private val MaxBmp = 65535
   private val NonCharClasses = Set("Cn", "Cs")
@@ -121,7 +122,7 @@ private[common] class UCDVerifier(uMap: Map[String, List[CodePoint]]) {
  * Parses the unicode database (UnicodeData.txt) into a map from unicode
  * classes to list of code points. Horrifically imperative.
  */
-private[common] object UCDParser {
+private[lex] object UCDParser {
 
   def parse(path: String): Map[String, List[CodePoint]] = {
     val uniMap = new m.HashMap[String, m.ListBuffer[CodePoint]]()

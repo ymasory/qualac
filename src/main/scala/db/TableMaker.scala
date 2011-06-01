@@ -7,7 +7,7 @@ package qualac.db
 
 import java.sql.{ Connection, DriverManager }
 
-import qualac.common.Env
+import qualac.Env
 
 object TableMaker {
 

@@ -3,7 +3,7 @@
  *
  * Available under the Qualac License, see /LICENSE.
  */ 
-package qualac.fuzz
+package qualac
 
 import org.scalacheck._
 import org.scalacheck.Test._

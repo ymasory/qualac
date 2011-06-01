@@ -14,9 +14,8 @@ import scala.tools.nsc.reporters.{ Reporter, StoreReporter }
 
 import org.squeryl.PrimitiveTypeMode._
 
-import qualac.common.Env
+import qualac.{ Env, FuzzRun, Main }
 import qualac.compile.ScalacMessage
-import qualac.fuzz.{ FuzzRun, Main }
 
 object CondorDB {
 

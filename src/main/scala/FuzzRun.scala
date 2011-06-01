@@ -3,14 +3,12 @@
  *
  * Available under the Qualac License, see /LICENSE.
  */ 
-package qualac.fuzz
+package qualac
 
 import java.io.File
 
 import org.scalacheck._
 
-import qualac.QCompiles
-import qualac.common.Env
 import qualac.db.DB
 
 class FuzzRun() {

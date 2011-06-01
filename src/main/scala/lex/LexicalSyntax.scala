@@ -7,7 +7,6 @@ package qualac.lex
 
 import org.scalacheck._
 
-import qualac.common.UCD
 import LexImplicits.toQString
 
 /**

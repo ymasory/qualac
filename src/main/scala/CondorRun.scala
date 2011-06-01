@@ -3,14 +3,13 @@
  *
  * Available under the Qualac License, see /LICENSE.
  */ 
-package qualac.fuzz
+package qualac
 
 import java.io.{ File, PrintWriter }
 import java.util.regex.Pattern
 
 import org.scalacheck.Prop
 
-import qualac.common.{ Env, ConfParser }
 import qualac.db.CondorDB
 
 class CondorRun(conf: File) {

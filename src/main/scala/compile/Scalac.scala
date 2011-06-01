@@ -14,7 +14,7 @@ import scala.util.Properties
 
 import org.scalacheck._
 
-import qualac.common.Env
+import qualac.Env
 
 /**
  * ScalaCheck generators for compiler instances.

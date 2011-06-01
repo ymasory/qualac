@@ -3,7 +3,7 @@
  *
  * Available under the Qualac License, see /LICENSE.
  */ 
-package qualac.common
+package qualac
 
 import javax.mail.{Message, Session}
 import javax.mail.internet.{ MimeMessage, InternetAddress }
