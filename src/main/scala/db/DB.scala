@@ -7,7 +7,7 @@ package qualac.db
 
 import java.io.File
 import java.io.File.{ separator => / }
-import java.sql.{ Connection, DriverManager, Statement, Timestamp }
+import java.sql.{ Statement, Timestamp }
 import java.sql.Types.{ BIGINT, CLOB }
 
 import scala.io.Source
@@ -17,75 +17,30 @@ import qualac.common.Env
 import qualac.compile.ScalacMessage
 import qualac.fuzz.{ FuzzRun, Main }
 
-private[db] object Connector {
-
-  /** Establish connection with the database, returning the `Connection`. */
-  def makeConnection() = {
-    val url = Env.dbUrl
-    Class.forName("com.mysql.jdbc.Driver")
-    DriverManager.getConnection(Env.dbUrl, Env.dbUsername, Env.dbPassword)
-  }
-
-  /** Create the db tables, if they don't exist yet. */
-  def createTables(con: Connection) {
-    for (table <- ManualSchema.tables) {
-      val stmt = con.createStatement()
-      stmt.executeUpdate(table)
-      stmt.close()
-    }
-    for (update <- ManualSchema.postUpdates) {
-      val stmt = con.createStatement()
-      stmt.executeUpdate(update)
-      stmt.close()
-    }
-  }
-}
+import SquerylSchema._
 
 object CondorDB {
 
-  val con = Connector.makeConnection()
-  Connector.createTables(con)
+  val con: java.sql.Connection = null
 
   def persistCondorRun(totalJobs: Int) = {
-    val sql = "INSERT INTO condor_run (time_started, total_jobs) VALUES(?, ?)"
-    val stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
-    stmt.setTimestamp(1, Env.nowStamp())
-    stmt.setInt(2, totalJobs)
-    stmt.executeUpdate()
-    val rs = stmt.getGeneratedKeys()
-    val condorId = if (rs.next()) rs.getLong(1)
-                   else sys.error("could not get generated key")
-    rs.close()
-    stmt.close()
-    condorId
+    val cr = new CondorRun(Env.nowStamp(), totalJobs)
+    condorRunTable.insert(cr)
+    cr.id
   }
 
   def persistSubmission(runId: Long, time: Timestamp, jobNum: Int,
                         propName: String) = {
-    val sql =
-"""
-INSERT INTO condor_submission(condor_run_id, time_started, job_num, prop_name)
-VALUES(?, ?, ?, ?)
-"""
-    val stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
-    stmt.setLong(1, runId)
-    stmt.setTimestamp(2, time)
-    stmt.setInt(3, jobNum)
-    stmt.setString(4, propName)                          
-    stmt.executeUpdate()
-    val rs = stmt.getGeneratedKeys()
-    val submitId = if (rs.next()) rs.getLong(1)
-                   else sys.error("could not get generated key")
-    rs.close()
-    stmt.close()
-    submitId
+
+    val sub = new CondorSubmission(runId, time, jobNum, propName)
+    condorSubmissionTable.insert(sub)
+    sub.id
   }
 }
 
 object DB {
 
-  val con = Connector.makeConnection()
-  Connector.createTables(con)
+  val con: java.sql.Connection = null
 
   val id: Long = {
     try {
@@ -112,13 +67,8 @@ object DB {
         case Right(i) => i.toString
       }
       if ((key endsWith "_password") == false) {
-        val sql = "INSERT INTO config(run_id, ukey, uvalue) VALUES(?, ?, ?)"
-        val pstmt = con.prepareStatement(sql)
-        pstmt.setLong(1, id)
-        pstmt.setString(2, key)
-        pstmt.setString(3, value)
-        pstmt.executeUpdate()
-        pstmt.close()
+        val config = new Config(id, key, value)
+        configTable.insert(config)
       }
     }
   }
@@ -245,22 +195,11 @@ VALUES(?, ?, ?, ?, ?, ?)
    * anything else in the db.
    */
   private def persistRun() = {
-    val stmt =
-      con.prepareStatement(
-        "INSERT INTO run (time_started, condor_submission_id) VALUES(?, ?)",
-        Statement.RETURN_GENERATED_KEYS)
-    stmt.setTimestamp(1, Env.nowStamp())
-    Env.condorSubmitId match {
-      case Some(id) => stmt.setLong(2, id)
-      case None     => stmt.setNull(2, BIGINT)
-    }
-    stmt.executeUpdate()
-    val rs = stmt.getGeneratedKeys()
-    val id = if (rs.next()) rs.getLong(1)
-             else sys.error("could not get generated key")
-    rs.close()
-    stmt.close()
-    id
+
+    // val run = new Run(Env.nowStamp(), Env.condorSubmitId)
+    val run = new Run(Env.nowStamp(), null)
+    runTable.insert(run)
+    run.id
   }
 
   private def persistJavaProps(id: Long) {
@@ -340,7 +279,5 @@ VALUES(?, ?, ?, ?, ?)
     pstmt.executeUpdate()
     pstmt.close()
   }
-
-  def close() = con.close()
 }
 

@@ -66,9 +66,6 @@ class FuzzRun() {
         sys.exit(1)
       }
     }
-    finally {
-      if (db != null) db.close()
-    }
     Main.shout("No errors encountered. Done fuzzing.")
   }
 }

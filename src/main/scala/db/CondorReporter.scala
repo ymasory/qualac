@@ -17,6 +17,7 @@ import scala.xml.Text
 
 import qualac.fuzz.Main
 import qualac.common.{ ConfParser, Env, GMail }
+import SquerylSchema._
 
 object CondorReporter {
 
@@ -44,7 +45,7 @@ object CondorReporter {
 
   def lastCondorRunId(): Long = {
     transaction {
-      from(SquerylSchema.condorRun) ( r =>
+      from(condorRunTable) ( r =>
         compute(nvl(max(r.id), -1))
       )
     }
@@ -156,7 +157,8 @@ class Report(condorId: Long) {
       for ((errOpt, count) <- q.errorMap()) yield {
         errOpt match {
           case Some(err) =>
-            Text("There were " + count  + " graceful exits due to " + err + ".")
+            Text("There were " + count  + " graceful exits due to " +
+                 err + ".")
           case None => Text("There were " + count +
                             " graceful exits from unkown causes.")
         }
@@ -204,7 +206,7 @@ class Querier(condorId: Long) {
      */
     val timeEnded: Timestamp =
       transaction {
-        from(outcome, run, submission) ( (o, r, cs) =>
+        from(outcomeTable, runTable, condorSubmissionTable) ( (o, r, cs) =>
           where (
             (o.runId === r.id) and
             (r.condorSubmissionId === cs.id) and
@@ -226,7 +228,7 @@ class Querier(condorId: Long) {
      WHERE cs.condor_run_id = condorId;
      */
     transaction {
-      from(env, run, submission) ( (e, r, cs) =>
+      from(envTable, runTable, condorSubmissionTable) ( (e, r, cs) =>
         where (
           (e.runId === r.id) and
           (r.condorSubmissionId === cs.id) and
@@ -244,7 +246,7 @@ class Querier(condorId: Long) {
      WHERE condor_run.id = condorId
      */
     transaction {
-      from(condorRun) ( c =>
+      from(condorRunTable) ( c =>
         where(c.id === condorId)
         select(c.totalJobs)
       ).single
@@ -259,7 +261,7 @@ class Querier(condorId: Long) {
      WHERE cs.condor_run_id = condorId;
      */
     transaction {
-      from(run, submission) ( (r, cs) =>
+      from(runTable, condorSubmissionTable) ( (r, cs) =>
         where (
           (cs.id === r.condorSubmissionId) and
           (cs.condorRunId === condorId)
@@ -279,7 +281,9 @@ class Querier(condorId: Long) {
      WHERE cs.condor_run_id = condorId;
      */
     transaction {
-      from(postCompile, preCompile, run, submission) ( (post, pre, r, cs) =>
+      from(postCompileTable, preCompileTable,
+           runTable, condorSubmissionTable)( (post, pre, r, cs) =>
+
         where (
           (pre.id === post.precompileId) and
           (pre.runId === r.id) and
@@ -302,7 +306,7 @@ class Querier(condorId: Long) {
        cs.condor_run_id = condorId;
      */
     transaction {
-      from(outcome, run, submission) ( (o, r, cs) =>
+      from(outcomeTable, runTable, condorSubmissionTable) ( (o, r, cs) =>
         where (
           (o.runId === r.id) and
           (cs.id === r.condorSubmissionId) and
@@ -344,7 +348,9 @@ class Querier(condorId: Long) {
        post.time_ended BETWEEN start AND end
      */
     transaction {
-      from(postCompile, preCompile, run, submission) ( (post, pre, r, cs) =>
+      from(postCompileTable, preCompileTable,
+           runTable, condorSubmissionTable) ( (post, pre, r, cs) =>
+
         where (
           (post.precompileId === pre.id) and
           (pre.runId === r.id) and
@@ -371,7 +377,7 @@ class Querier(condorId: Long) {
      */
     transaction {
       printSql()
-      from(config, run, submission) ( (c, r, cs) =>
+      from(configTable, runTable, condorSubmissionTable) ( (c, r, cs) =>
         where (
           (c.runId === r.id) and
           (r.condorSubmissionId === cs.id) and

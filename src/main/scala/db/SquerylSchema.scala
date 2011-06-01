@@ -13,17 +13,17 @@ import org.squeryl.annotations.Column
 
 object SquerylSchema extends org.squeryl.Schema {
 
-  val condorRun      = table[CondorRunTable]("condor_run")
-  val run            = table[RunTable]("run")
-  val preCompile     = table[PreCompileTable]("precompile")
-  val postCompile    = table[PostCompileTable]("postcompile")
-  val compileMessage = table[CompileMessageTable]("compile_message")
-  val env            = table[EnvTable]("env")
-  val outcome        = table[OutcomeTable]("outcome")
-  val javaProp       = table[JavaPropTable]("java_prop")
-  val runtimeProp    = table[RuntimePropTable]("runtime_prop")
-  val config         = table[ConfigTable]("config")
-  val submission     = table[CondorSubmission]("condor_submission")
+  val condorRunTable        = table[CondorRun]("condor_run")
+  val runTable              = table[Run]("run")
+  val preCompileTable       = table[PreCompile]("precompile")
+  val postCompileTable      = table[PostCompile]("postcompile")
+  val compileMessageTable   = table[CompileMessage]("compile_message")
+  val envTable              = table[Env]("env")
+  val outcomeTable          = table[Outcome]("outcome")
+  val javaPropTable         = table[JavaProp]("java_prop")
+  val runtimePropTable      = table[RuntimeProp]("runtime_prop")
+  val configTable           = table[Config]("config")
+  val condorSubmissionTable = table[CondorSubmission]("condor_submission")
 }
 
 object YesNo extends Enumeration {
@@ -52,7 +52,7 @@ import YesNo.YesNo
 import Severity.Severity
 import Stamp.stamp
 
-class CondorRunTable(
+class CondorRun(
   @Column("time_started")
   val timeStarted: Timestamp,
   @Column("total_jobs")
@@ -76,7 +76,7 @@ class CondorSubmission(
   def this() = this(0L, stamp, 0, "")
 }
 
-class RunTable(
+class Run(
   @Column("time_started")
   val timeStarted: Timestamp,
   @Column("condor_submission_id")
@@ -86,7 +86,7 @@ class RunTable(
   def this() = this(stamp, Some(0L))
 }
 
-class PreCompileTable(
+class PreCompile(
   @Column("run_id")
   val runId: Long,
   @Column("program_text")
@@ -102,7 +102,7 @@ class PreCompileTable(
   def this() = this(0L, "", YesNo.No, YesNo.No, stamp)
 }
 
-class PostCompileTable(
+class PostCompile(
   @Column("precompile_id")
   val precompileId: Long,
   val warnings: YesNo,
@@ -115,7 +115,7 @@ class PostCompileTable(
 
 }
 
-class CompileMessageTable(
+class CompileMessage(
   @Column("precomp_id")
   val precompId: Long,
   val severity: Severity,
@@ -128,7 +128,7 @@ class CompileMessageTable(
   def this() = this(0L, Severity.Error, "", 0, 0, 0)
 }
 
-class EnvTable(
+class Env(
   @Column("run_id")
   val runId: Long,
   @Column("scala_version")
@@ -163,7 +163,7 @@ class EnvTable(
 }
 
 
-class OutcomeTable(
+class Outcome(
   @Column("run_id")
   val runId: Long,
   @Column("class")
@@ -181,7 +181,7 @@ class OutcomeTable(
 }
 
 
-class JavaPropTable(
+class JavaProp(
   @Column("run_id")
   val runId: Long,
   @Column("jkey")
@@ -194,7 +194,7 @@ class JavaPropTable(
 }
 
 
-class RuntimePropTable(
+class RuntimeProp(
   @Column("run_id")
   val runId: Long,
   @Column("total_memory")
@@ -211,7 +211,7 @@ class RuntimePropTable(
 }
 
 
-class ConfigTable(
+class Config(
   @Column("run_id")
   val runId: Long,
   @Column("ukey")

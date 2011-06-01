@@ -5,6 +5,37 @@
  */ 
 package qualac.db
 
+import java.sql.{ Connection, DriverManager }
+
+import qualac.common.Env
+
+object TableMaker {
+
+  
+  def makeTables() {
+    val url = Env.dbUrl
+    Class.forName("com.mysql.jdbc.Driver")
+    val con =
+      DriverManager.getConnection(Env.dbUrl, Env.dbUsername, Env.dbPassword)
+    createTables(con)
+    con.close()
+  }
+
+  /** Create the db tables, if they don't exist yet. */
+  def createTables(con: Connection) {
+    for (table <- ManualSchema.tables) {
+      val stmt = con.createStatement()
+      stmt.executeUpdate(table)
+      stmt.close()
+    }
+    for (update <- ManualSchema.postUpdates) {
+      val stmt = con.createStatement()
+      stmt.executeUpdate(update)
+      stmt.close()
+    }
+  }
+}
+
 /** Stores sql create statements for the db tables. */
 private[db] object ManualSchema {
 
