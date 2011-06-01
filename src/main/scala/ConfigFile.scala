@@ -9,12 +9,15 @@ import java.io.File
 
 import scala.io.Source
 
+object ConfigFile {
+  val Delimiter = "="
+}
+
 class ConfigFile(file: File) {
+  import ConfigFile.Delimiter
 
   val map = parse(Source.fromFile(file).mkString)
   
-  val Delimiter = "="
-
   private def parse(str: String): Map[String, Either[String, Int]] = {
     val lines = str.lines.toList
     val commentlessLines = lines.map { _.split("#").head }

@@ -147,7 +147,7 @@ class CondorRun(conf: File, env: Env) {
         }
       }
       def writeKv(k: String, v: String) {
-        writer.println(k + " " + generalConfig.Delimiter + " " + v)
+        writer.println(k + " " + ConfigFile.Delimiter + " " + v)
       }
       for (k <- generalConfig.map.keys) {
         k match {

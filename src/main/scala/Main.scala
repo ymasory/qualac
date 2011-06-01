@@ -44,44 +44,44 @@ object Main {
   }
 
   def main(args: Array[String]) {
-    val config = jsap.parse(args)
-    if (config.success) {
-      val confFile = config.getFile(conf)
-      val env = new Env(confFile)
-      val condorId = config.getLong(report, -1)
+    val jsapResult = jsap.parse(args)
+    if (jsapResult.success) {
+      val generalConfig = new ConfigFile(jsapResult.getFile(conf))
+      // val env = new Env(confFile)
+      val condorId = jsapResult.getLong(report, -1)
       if (condorId >= 0) {
-        val reporter = new CondorReporter(env)
-        shout("generating and mailing report")
-        reporter.mailReport(condorId)
+      //   val reporter = new CondorReporter(env)
+      //   shout("generating and mailing report")
+      //   reporter.mailReport(condorId)
       }
-      else if (config.getBoolean(createDb)) {
-        shout("creating MySQL tables")
-        new DbMaker(env).createDb()
+      else if (jsapResult.getBoolean(createDb)) {
+        shout("creating MySQL database and tables")
+        // new DbCreator(env).createDb()
       }
       else {
-        val condorFile = Option(config.getFile(condor))
-        shout("using configuration file: " + confFile)
-        condorFile match {
-          case Some(file) => {
-            val condRun = new CondorRun(file, env)
-            condRun fuzz()
-          }
-          case None => {
-            val fuzzRun = new FuzzRun()
-            fuzzRun fuzz()
-          }
-        }
+      //   val condorFile = Option(jsapResult.getFile(condor))
+      //   shout("using configuration file: " + confFile)
+      //   condorFile match {
+      //     case Some(file) => {
+      //       val condRun = new CondorRun(file, env)
+      //       condRun fuzz()
+      //     }
+      //     case None => {
+      //       val fuzzRun = new FuzzRun()
+      //       fuzzRun fuzz()
+      //     }
+      //   }
       }
     }
-    else Console.err println(usage(config))
+    else Console.err println(usage(jsapResult))
   }
 
-  def usage(config: JSAPResult) = {
+  def usage(jsapResult: JSAPResult) = {
     val LF = "\n"
     val builder = new java.lang.StringBuilder
 
     builder append LF
-    val iter = config.getErrorMessageIterator()
+    val iter = jsapResult.getErrorMessageIterator()
     while (iter.hasNext()) {
       builder append ("Error: " + iter.next() + LF)
     }
