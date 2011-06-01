@@ -41,8 +41,16 @@ object Severity extends Enumeration {
   val Error = Value(3, "error")
 }
 
+object Stamp {
+  import java.sql.Timestamp
+  import java.util.Calendar
+
+  val stamp: Timestamp = new Timestamp(Calendar.getInstance.getTimeInMillis)
+}
+
 import YesNo.YesNo
 import Severity.Severity
+import Stamp.stamp
 
 class CondorRunTable(
   @Column("time_started")
@@ -50,8 +58,8 @@ class CondorRunTable(
   @Column("total_jobs")
   val totalJobs: Int) extends KeyedEntity[Long] {
 
-  val id: Long = -1
-  def this() = this(null, 0)
+  val id: Long = -1L
+  def this() = this(stamp, 0)
 }
 
 class CondorSubmission(
@@ -64,8 +72,8 @@ class CondorSubmission(
   @Column("prop_name")
   val propName: String) extends KeyedEntity[Long] {
 
-  val id: Long = -1
-  def this() = this(0, null, 0, "")
+  val id: Long = -1L
+  def this() = this(0L, stamp, 0, "")
 }
 
 class RunTable(
@@ -74,8 +82,8 @@ class RunTable(
   @Column("condor_submission_id")
   val condorSubmissionId: Option[Long]) extends KeyedEntity[Long] {
 
-  val id: Long = -1
-  def this() = this(null, Some(0L))
+  val id: Long = -1L
+  def this() = this(stamp, Some(0L))
 }
 
 class PreCompileTable(
@@ -90,8 +98,8 @@ class PreCompileTable(
   @Column("time_started")
   val timeStarted: Timestamp) extends KeyedEntity[Long] {
 
-  val id: Long = -1
-  def this() = this(0, "", YesNo.No, YesNo.No, null)
+  val id: Long = -1L
+  def this() = this(0L, "", YesNo.No, YesNo.No, stamp)
 }
 
 class PostCompileTable(
@@ -102,8 +110,8 @@ class PostCompileTable(
   @Column("time_ended")
   val timeEnded: Timestamp) extends KeyedEntity[Long] {
 
-  val id: Long = -1
-  def this() = this(0, YesNo.No, YesNo.No, null)
+  val id: Long = -1L
+  def this() = this(0L, YesNo.No, YesNo.No, stamp)
 
 }
 
@@ -116,8 +124,8 @@ class CompileMessageTable(
   val col: Int,
   val point: Int) extends KeyedEntity[Long] {
 
-  val id: Long = -1
-  def this() = this(0, Severity.Error, "", 0, 0, 0)
+  val id: Long = -1L
+  def this() = this(0L, Severity.Error, "", 0, 0, 0)
 }
 
 class EnvTable(
@@ -150,7 +158,7 @@ class EnvTable(
   @Column("hostname")
   val hostname: String) extends KeyedEntity[Long] {
 
-  val id: Long = -1
+  val id: Long = -1L
   def this() = this(0, "", "", "", "", "", "", "", "", "", "", "", "", "")
 }
 
@@ -168,8 +176,8 @@ class OutcomeTable(
   val timeEnded: Timestamp,
   val problem: YesNo) extends KeyedEntity[Long] {
 
-  def id: Long = -1
-  def this() = this(0, None, None, None, None, null, YesNo.No)
+  def id: Long = -1L
+  def this() = this(0L, None, None, None, None, stamp, YesNo.No)
 }
 
 
@@ -181,8 +189,8 @@ class JavaPropTable(
   @Column("jvalue")
   val jValue: String) extends KeyedEntity[Long] {
 
-  val id: Long = -1
-  def this() = this(0, "", "")
+  val id: Long = -1L
+  def this() = this(0L, "", "")
 }
 
 
@@ -198,8 +206,8 @@ class RuntimePropTable(
   @Column("processors")
   val processors: Int) extends KeyedEntity[Long] {
 
-  val id: Long = -1
-  def this() = this(0, 0, 0, 0, 0)
+  val id: Long = -1L
+  def this() = this(0L, 0L, 0L, 0L, 0)
 }
 
 
@@ -211,6 +219,6 @@ class ConfigTable(
   @Column("uvalue")
   val uValue: String) extends KeyedEntity[Long] {
 
-  val id: Long = -1
-  def this() = this(0, "", "")
+  val id: Long = -1L
+  def this() = this(0L, "", "")
 }
