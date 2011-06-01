@@ -12,6 +12,8 @@ import java.sql.Timestamp
 import scala.io.Source
 import scala.tools.nsc.reporters.{ Reporter, StoreReporter }
 
+import org.squeryl.PrimitiveTypeMode._
+
 import qualac.common.Env
 import qualac.compile.ScalacMessage
 import qualac.fuzz.{ FuzzRun, Main }
@@ -20,7 +22,9 @@ object CondorDB {
 
   def persistCondorRun(totalJobs: Int) = {
     val cr = new CondorRun(Env.nowStamp(), totalJobs)
-    SquerylSchema.condorRunTable.insert(cr)
+    transaction {
+      SquerylSchema.condorRunTable.insert(cr)
+    }
     cr.id
   }
 
@@ -28,7 +32,9 @@ object CondorDB {
                         propName: String) = {
 
     val sub = new CondorSubmission(runId, time, jobNum, propName)
-    SquerylSchema.condorSubmissionTable.insert(sub)
+    transaction {
+      SquerylSchema.condorSubmissionTable.insert(sub)
+    }
     sub.id
   }
 }
@@ -60,7 +66,9 @@ object DB {
       }
       if ((key endsWith "_password") == false) {
         val config = new Config(id, key, value)
-        SquerylSchema.configTable.insert(config)
+        transaction {
+          SquerylSchema.configTable.insert(config)
+        }
       }
     }
   }
@@ -83,7 +91,9 @@ object DB {
         val preComp = new PreCompile(id, progText,
                                      bool2Enum(shouldCompile == false),
                                      YesNo.No, Env.nowStamp())
-        SquerylSchema.preCompileTable.insert(preComp)
+        transaction {
+          SquerylSchema.preCompileTable.insert(preComp)
+        }
         preComp.id
       }
       val trialId = insertPrecompile()
@@ -93,14 +103,18 @@ object DB {
          def persistSummary() {
            val postComp = new PostCompile(trialId, bool2Enum(hasWarnings),
                                           bool2Enum(hasErrors), Env.nowStamp)
-           SquerylSchema.postCompileTable.insert(postComp)
+           transaction {
+             SquerylSchema.postCompileTable.insert(postComp)
+           }
          }
          def persistInfo(info: ScalacMessage) {
            val cm = new CompileMessage(trialId,
                                        severity2Enum(info.severity),
                                        info.msg, info.pos.line,
                                        info.pos.column, info.pos.point)
-           SquerylSchema.compileMessageTable.insert(cm)
+           transaction {
+             SquerylSchema.compileMessageTable.insert(cm)
+           }
          }
 
          persistSummary()
@@ -134,7 +148,9 @@ object DB {
       }
     }
 
-    SquerylSchema.outcomeTable.insert(outcome)
+    transaction {
+      SquerylSchema.outcomeTable.insert(outcome)
+    }
   }
 
   /**
@@ -146,7 +162,9 @@ object DB {
 
     // val run = new Run(Env.nowStamp(), Env.condorSubmitId)
     val run = new Run(Env.nowStamp(), null)
-    SquerylSchema.runTable.insert(run)
+    transaction {
+      SquerylSchema.runTable.insert(run)
+    }
     run.id
   }
 
@@ -156,7 +174,9 @@ object DB {
     for (key <- set) {
       val value = System.getProperty(key)
       val prop = new JavaProp(id, key, value)
-      SquerylSchema.javaPropTable.insert(prop)
+      transaction {
+        SquerylSchema.javaPropTable.insert(prop)
+      }
     }
 
     val run = Runtime.getRuntime
@@ -166,7 +186,9 @@ object DB {
     val processors = run.availableProcessors
     val prop = new RuntimeProp(id, totalMemory, freeMemory, maxMemory,
                                processors)
-    SquerylSchema.runtimePropTable.insert(prop)
+    transaction {
+      SquerylSchema.runtimePropTable.insert(prop)
+    }
   }
 
   /** Store row in env table for this fuzz run. */
@@ -190,7 +212,9 @@ object DB {
                        Env.javaVmVersion, Env.os, Env.sourceEncoding,
                        etcHostname, hostname)
 
-    SquerylSchema.envTable.insert(env)
+    transaction {
+      SquerylSchema.envTable.insert(env)
+    }
   }
 }
 
