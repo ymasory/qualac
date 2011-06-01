@@ -11,12 +11,13 @@ import com.martiansoftware.jsap.{ JSAP, JSAPResult, FlaggedOption, Switch }
 import com.martiansoftware.jsap.stringparsers.{ FileStringParser,
                                                 LongStringParser }
 
-import qualac.db.CondorReporter
+import qualac.db.{ CondorReporter, TableMaker }
 
 object Main {
 
   val ProgramName = "Qualac"
-  val (conf, condor, report) = ("config", "condor", "report")
+  val (conf, condor, report, tables) =
+    ("config", "condor", "report", "tables")
 
   private var _confFile: File = _
 
@@ -36,6 +37,8 @@ object Main {
       new FlaggedOption(report).setLongFlag(report)
         .setStringParser(LongStringParser.getParser())
     jsap registerParameter reportOption
+    val tableOption = new Switch(tables).setLongFlag(tables)
+    jsap registerParameter tableOption
     jsap
   }
 
@@ -47,6 +50,10 @@ object Main {
       if (condorId >= 0) {
         shout("generating and mailing report")
         CondorReporter.mailReport(condorId)
+      }
+      else if (config.getBoolean(tables)) {
+        shout("creating MySQL tables")
+        TableMaker.makeTables()
       }
       else {
         val condorFile = Option(config.getFile(condor))
@@ -80,6 +87,7 @@ object Main {
     builder append (jsap.getUsage + LF)
     builder append LF
     builder append ("Options:" + LF)
+    builder append ("  --tables" + LF)
     builder append ("  --conf   /path/to/file.conf" + LF)
     builder append ("  --condor /path/to/file.condor" + LF)
     builder append ("  --report" + LF)
