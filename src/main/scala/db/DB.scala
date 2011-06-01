@@ -17,27 +17,10 @@ import org.squeryl.PrimitiveTypeMode._
 import qualac.{ Env, FuzzRun, Main }
 import qualac.compile.ScalacMessage
 
-object DB {
-
-  val id: Long = {
-    try {
-      val id = persistRun()
-      persistRunEnvironment(id)
-      persistJavaProps(id)
-      id
-    }
-    catch {
-      case t: Throwable => {
-        Main.shout("database initialization failed. exiting ...",
-                   error=true)
-        t.printStackTrace()
-        sys.exit(1)
-      }
-    }
-  }
+class DB(env: Env) {
   
   def persistCondorRun(totalJobs: Int) = {
-    val cr = new CondorRun(Env.nowStamp(), totalJobs)
+    val cr = new CondorRun(env.nowStamp(), totalJobs)
     transaction {
       SquerylSchema.condorRunTable.insert(cr)
     }
@@ -54,14 +37,14 @@ object DB {
     sub.id
   }
 
-  def persistConfigs(map: Map[String, Either[String, Int]]) {
+  def persistConfigs(runId: Long, map: Map[String, Either[String, Int]]) {
     for (key <- map.keys) {
       val value: String = map(key) match {
         case Left(s) => s
         case Right(i) => i.toString
       }
       if ((key endsWith "_password") == false) {
-        val config = new Config(id, key, value)
+        val config = new Config(runId, key, value)
         transaction {
           SquerylSchema.configTable.insert(config)
         }
@@ -80,13 +63,13 @@ object DB {
   }
 
 
-  def persistPrecompile(progText: String, shouldCompile: Boolean):
+  def persistPrecompile(runId: Long, progText: String, shouldCompile: Boolean):
     (Boolean, Boolean, List[ScalacMessage]) => Unit = {
       
       def insertPrecompile(): Long = {
-        val preComp = new PreCompile(id, progText,
+        val preComp = new PreCompile(runId, progText,
                                      bool2Enum(shouldCompile == false),
-                                     YesNo.No, Env.nowStamp())
+                                     YesNo.No, env.nowStamp())
         transaction {
           SquerylSchema.preCompileTable.insert(preComp)
         }
@@ -98,7 +81,7 @@ object DB {
        infos: List[ScalacMessage]) => {
          def persistSummary() {
            val postComp = new PostCompile(trialId, bool2Enum(hasWarnings),
-                                          bool2Enum(hasErrors), Env.nowStamp)
+                                          bool2Enum(hasErrors), env.nowStamp)
            transaction {
              SquerylSchema.postCompileTable.insert(postComp)
            }
@@ -120,11 +103,12 @@ object DB {
       }
   }
 
-  def persistExit(error: Option[Throwable]) {
-    val stamp = Env.nowStamp()
+  def persistExit(runId: Long, error: Option[Throwable]) {
+    val stamp = env.nowStamp()
     val outcome = 
       error match {
-        case None => new Outcome(id, None, None, None, None, stamp, YesNo.No)
+        case None => new Outcome(runId, None, None, None, None, stamp,
+                                 YesNo.No)
         case Some(t) => {
           val clazzVal = {
             val clazz = t.getClass
@@ -139,7 +123,7 @@ object DB {
             if (trace == null) None else Some(trace.mkString("\n"))
           }
           val msg = Option(t.getMessage)
-          new Outcome(id, clazzVal, causeVal, msg, traceVal, stamp,
+          new Outcome(runId, clazzVal, causeVal, msg, traceVal, stamp,
                       YesNo.Yes)
       }
     }
@@ -154,17 +138,17 @@ object DB {
    * generates. Must be called AFTER `createTables()` and BEFORE storing
    * anything else in the db.
    */
-  private def persistRun() = {
+  def persistRun() = {
 
-    // val run = new Run(Env.nowStamp(), Env.condorSubmitId)
-    val run = new Run(Env.nowStamp(), null)
+    // val run = new Run(env.nowStamp(), env.condorSubmitId)
+    val run = new Run(env.nowStamp(), null)
     transaction {
       SquerylSchema.runTable.insert(run)
     }
     run.id
   }
 
-  private def persistJavaProps(id: Long) {
+  def persistJavaProps(id: Long) {
     import scala.collection.JavaConversions._
     val set = System.getProperties.stringPropertyNames.toSet
     for (key <- set) {
@@ -188,7 +172,7 @@ object DB {
   }
 
   /** Store row in env table for this fuzz run. */
-  private def persistRunEnvironment(id: Long) {
+  def persistRunEnvironment(id: Long) {
     val etcHostname = {
       val file = new File("/etc/hostname")
       if (file.exists) Source.fromFile(file).mkString.trim
@@ -202,14 +186,14 @@ object DB {
         case _: java.net.UnknownHostException => "UnkownHostException"
       }
 
-    val env = new SEnv(id, Env.scalaVersion, Env.scalaVersionString,
-                       Env.scalaVersionMsg, Env.javaClasspath, Env.javaVendor,
-                       Env.javaVmInfo, Env.javaVmName, Env.javaVmVendor,
-                       Env.javaVmVersion, Env.os, Env.sourceEncoding,
-                       etcHostname, hostname)
+    val senv = new SEnv(id, env.scalaVersion, env.scalaVersionString,
+                        env.scalaVersionMsg, env.javaClasspath, env.javaVendor,
+                        env.javaVmInfo, env.javaVmName, env.javaVmVendor,
+                        env.javaVmVersion, env.os, env.sourceEncoding,
+                        etcHostname, hostname)
 
     transaction {
-      SquerylSchema.envTable.insert(env)
+      SquerylSchema.envTable.insert(senv)
     }
   }
 }

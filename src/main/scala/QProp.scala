@@ -10,7 +10,7 @@ import org.scalacheck.{ Gen, Prop, Properties }
 import qualac.db.DB
 import qualac.compile.Scalac
 
-private [qualac] abstract class QMaybeCompiles extends Properties("") {
+private [qualac] abstract class QMaybeCompiles(db: DB, runId: Long, env: Env) extends Properties("") {
 
   val textGen: Gen[String] 
   val shouldCompile: Boolean
@@ -23,9 +23,10 @@ private [qualac] abstract class QMaybeCompiles extends Properties("") {
 
   property(desc) = Prop.forAll(textGen) { progText =>
     //pre-compile db access
-    val postcompileFun = DB.persistPrecompile(progText, shouldCompile)
+    val postcompileFun = db.persistPrecompile(runId, progText, shouldCompile)
     //compilation
-    val (hasWarnings, hasErrors, infos) = Scalac.compile(progText)
+    val scalac = new Scalac(env)
+    val (hasWarnings, hasErrors, infos) = scalac.compile(progText)
     //post-compile db access
     postcompileFun(hasWarnings, hasErrors, infos)
 
@@ -34,10 +35,10 @@ private [qualac] abstract class QMaybeCompiles extends Properties("") {
   }
 }
 
-abstract class QCompiles extends {
+abstract class QCompiles(db: DB, runId: Long, env: Env) extends {
   override val shouldCompile = true
-} with QMaybeCompiles
+} with QMaybeCompiles(db, runId, env)
 
-abstract class QNotCompiles extends {
+abstract class QNotCompiles(db: DB, runId: Long, env: Env) extends {
   override val shouldCompile = false
-} with QMaybeCompiles
+} with QMaybeCompiles(db, runId, env)

@@ -10,11 +10,13 @@ import Prop.forAll
 
 import qualac.{ QCompiles, QNotCompiles }
 import qualac.compile.Scalac
+import qualac.db.DB
+import qualac.Env
 
 /**
  * @specSec(2)
  */
-object MathChars extends {
+class MathChars(db: DB, runId: Long, env: Env) extends {
   override val textGen = Gen.oneOf(List("class X"))
-} with QCompiles
+} with QCompiles(db, runId, env)
 

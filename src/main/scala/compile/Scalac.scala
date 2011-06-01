@@ -19,7 +19,7 @@ import qualac.Env
 /**
  * ScalaCheck generators for compiler instances.
  */
-object Scalac {
+class Scalac(env: Env) {
 
   lazy val tmpDir = null
 
@@ -47,11 +47,11 @@ object Scalac {
    */
   lazy val minimalClassPathList: Gen[String] = {
     val comp =
-      "project/boot/scala-" + Env.scalaVersion + "/lib/scala-compiler.jar"
+      "project/boot/scala-" + env.scalaVersion + "/lib/scala-compiler.jar"
     val lib =
-      "project/boot/scala-" + Env.scalaVersion + "/lib/scala-library.jar"
-    Gen oneOf List(comp + Env.classPathSep + lib,
-                   lib + Env.classPathSep + comp)
+      "project/boot/scala-" + env.scalaVersion + "/lib/scala-library.jar"
+    Gen oneOf List(comp + env.classPathSep + lib,
+                   lib + env.classPathSep + comp)
   }
 
   /** Generate a `StoreReporter` */
@@ -76,15 +76,15 @@ object Scalac {
       case None => 
     }
     val threadDir =
-      new File(Env.outDir, "thread-" + Thread.currentThread.getId)
+      new File(env.outDir, "thread-" + Thread.currentThread.getId)
     if (threadDir.exists == false) threadDir.mkdirs()
     val file = new File(threadDir, "temp.scala")
     val writer = new BufferedWriter(new FileWriter(file))
     writer.write(text)
     writer.close()
     val classPathList = List(
-      "project/boot/scala-" + Env.scalaVersion + "/lib/scala-compiler.jar" +
-      ":project/boot/scala-" + Env.scalaVersion + "/lib/scala-library.jar")
+      "project/boot/scala-" + env.scalaVersion + "/lib/scala-compiler.jar" +
+      ":project/boot/scala-" + env.scalaVersion + "/lib/scala-library.jar")
     settings.outputDirs setSingleOutput (threadDir.getPath)
     settings.classpath.tryToSet(classPathList)
     val reporter = new StoreReporter

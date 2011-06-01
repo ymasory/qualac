@@ -12,7 +12,7 @@ import org.scalacheck.Prop
 
 import qualac.db.DB
 
-class CondorRun(conf: File) {
+class CondorRun(conf: File, env: Env) {
 
   val map = ConfParser.parse(conf)
 
@@ -38,11 +38,12 @@ class CondorRun(conf: File) {
   val numCycles = ConfParser.getConfigInt("num_cycles", map)
 
   val allProps = {
-    val props = Finder.loadProperties()
+    val finder = new Finder(env)
+    val props = finder.loadProperties()
     Stream.continually(props).take(numCycles).flatten.toList
   }
   val numProps = allProps.length
-  val stamp = Env.nowMillis() 
+  val stamp = env.nowMillis() 
 
   def fuzz() = {
     Main.shout("really submit " + allProps.length + " jobs? (y/N)")
@@ -54,7 +55,8 @@ class CondorRun(conf: File) {
 
   def condorRun() {
     try {
-      val runId = DB.persistCondorRun(numProps)
+      val db = new DB(env)
+      val runId = db.persistCondorRun(numProps)
       Main.shout("this is condor run " + runId)
       val condorRoot = new File("condor")
       if (condorRoot.exists == false) condorRoot.mkdirs()
@@ -65,7 +67,7 @@ class CondorRun(conf: File) {
         val propRoot = makeRootFor(i)
         val zeroPropRoot = makeRootFor(0)
         val submitId =
-          DB.persistSubmission(runId, Env.nowStamp, i, prop.getClass.getName)
+          db.persistSubmission(runId, env.nowStamp, i, prop.getClass.getName)
         val submit =
           new CondorSubmission(prop, zeroPropRoot, propRoot, id, submitId)
         val submitFilePath = submit.writeSubmitFile().getAbsolutePath
@@ -88,7 +90,7 @@ class CondorRun(conf: File) {
 
     private val Job = "job"
     private val name = Main.ProgramName.toLowerCase
-    val outDir = new File(Env.outDir, name + "-" + stamp)
+    val outDir = new File(env.outDir, name + "-" + stamp)
     if (outDir.exists == false) {
       if (outDir.mkdirs() == false)
         sys.error("could not create " + outDir)
@@ -103,7 +105,7 @@ class CondorRun(conf: File) {
     writeCustomConfig(customConfigFile)
     val mainFile: String =
       "qualac.Main --config " + customConfigFile.getAbsolutePath
-    val nStamp = Env.nowMillis()
+    val nStamp = env.nowMillis()
     val error: String =
       new File(logDir, Job + "-" + nStamp + ".error").getAbsolutePath
     val output: String =
@@ -146,13 +148,13 @@ class CondorRun(conf: File) {
       def writeKv(k: String, v: String) {
         writer.println(k + " " + ConfParser.Delimiter + " " + v)
       }
-      for (k <- Env.configMap.keys) {
+      for (k <- env.configMap.keys) {
         k match {
-          case Env.PatternClassesKey => {
+          case env.PatternClassesKey => {
             val singleProp = prop.getClass.getName
             writeKv(k, singleProp)
           }
-          case _ => writeKv(k, extract(Env.configMap(k)))
+          case _ => writeKv(k, extract(env.configMap(k)))
         }
       }
       writeKv("condor_submission", submitId.toString)

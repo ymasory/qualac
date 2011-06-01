@@ -9,15 +9,15 @@ import java.sql.{ Connection, DriverManager }
 
 import qualac.Env
 
-class DbMaker {
+class DbMaker(env: Env) {
 
   def createDb() {
-    val url = Env.dbUrl
+    val url = env.dbUrl
     Class.forName("com.mysql.jdbc.Driver")
     val con =
-      DriverManager.getConnection(Env.dbUrl, Env.dbUsername, Env.dbPassword)
+      DriverManager.getConnection(env.dbUrl, env.dbUsername, env.dbPassword)
     val stmt = con.createStatement()
-    stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + Env.dbName)
+    stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + env.dbName)
     stmt.close()
     createTables(con)
     con.close()

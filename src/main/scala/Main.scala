@@ -43,24 +43,27 @@ object Main {
   }
 
   def main(args: Array[String]) {
+    val env: Env = null
+
     val config = jsap.parse(args)
     if (config.success) {
       _confFile = config.getFile(conf)
       val condorId = config.getLong(report, -1)
       if (condorId >= 0) {
+        val reporter = new CondorReporter(env)
         shout("generating and mailing report")
-        CondorReporter.mailReport(condorId)
+        reporter.mailReport(condorId)
       }
       else if (config.getBoolean(createDb)) {
         shout("creating MySQL tables")
-        new DbMaker().createDb()
+        new DbMaker(env).createDb()
       }
       else {
         val condorFile = Option(config.getFile(condor))
         shout("using configuration file: " + _confFile)
         condorFile match {
           case Some(file) => {
-            val condRun = new CondorRun(file)
+            val condRun = new CondorRun(file, env)
             condRun fuzz()
           }
           case None => {

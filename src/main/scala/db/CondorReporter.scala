@@ -18,24 +18,16 @@ import scala.xml.Text
 import qualac.{ ConfParser, Env, GMail }
 import SquerylSchema._
 
-object CondorReporter {
+class CondorReporter(env: Env) {
 
-  Class.forName("com.mysql.jdbc.Driver")
-  SessionFactory.concreteFactory = Some(
-    () => Session.create(
-    DriverManager.getConnection(Env.dbUrl,
-                                Env.dbUsername,
-                                Env.dbPassword),
-    new MySQLAdapter))
-
-  val password = ConfParser.getConfigString("gmail_password", Env.configMap)
+  val password = ConfParser.getConfigString("gmail_password", env.configMap)
   val recipients =
-    ConfParser.getConfigString("recipients", Env.configMap).split(",").toList
-  val account = ConfParser.getConfigString("gmail_account", Env.configMap)
-  val name = ConfParser.getConfigString("gmail_name", Env.configMap)
+    ConfParser.getConfigString("recipients", env.configMap).split(",").toList
+  val account = ConfParser.getConfigString("gmail_account", env.configMap)
+  val name = ConfParser.getConfigString("gmail_name", env.configMap)
 
   def mailReport(id: Long) = {
-    val (subject, report) = new Report(id).generateReport()
+    val (subject, report) = new Report(env, id).generateReport()
     println("subject: " + subject)
     println("body: " + report)
     GMail.sendMail(recipients, subject, report, account, name, password,
@@ -88,7 +80,7 @@ object DateFmt {
   }
 }
 
-class Report(condorId: Long) {
+class Report(env: Env, condorId: Long) {
 
   import org.joda.time.Duration
 
@@ -172,7 +164,7 @@ class Report(condorId: Long) {
   }
 
   private def makeSubject() = {
-    val dateTime = Env.now()
+    val dateTime = env.now()
     val datePart = DateFmt.conciseRepr(dateTime)
     val passedString = "passed " + q.numPropsPassed()
     val falsifiedString = {

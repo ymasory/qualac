@@ -14,7 +14,7 @@ import LexImplicits.toQString
  *
  * @specSec 1.0
  */
-object LexicalSyntax {
+class LexicalSyntax(ucd: UCD) {
 
   /**
    * Generate a Unicode BMP character (not Cs or Cn), UAR.
@@ -22,19 +22,19 @@ object LexicalSyntax {
    * @spec Scala programs are written using the Unicode Basic Multilingual
    * Plane (BMP) character set;
    */
-  lazy val bmpChar: Gen[CodePoint] = Gen oneOf UCD.BmpChars
+  lazy val bmpChar: Gen[CodePoint] = Gen oneOf ucd.BmpChars
 
   /**
    * Generate a Unicode non-character (class Cs or Cn) from BMP, UAR.
    */
-  lazy val bmpNonChar: Gen[CodePoint] = Gen oneOf UCD.BmpNonChar
+  lazy val bmpNonChar: Gen[CodePoint] = Gen oneOf ucd.BmpNonChar
 
   /**
    * Generate a Unicode character (not Cs or Cn) outside BMP, UAR.
    * 
    * @spec Unicode supplementary characters are not presently supported.
    */
-  lazy val supplementaryChar: Gen[CodePoint] = Gen oneOf UCD.SuppChar
+  lazy val supplementaryChar: Gen[CodePoint] = Gen oneOf ucd.SuppChar
 
   /**
    * Generate a literal character, UAR.
@@ -99,7 +99,7 @@ object LexicalSyntax {
    *
    * @spec lower case letter (Ll)
    */
-  lazy val lowercaseLetterChar: Gen[CodePoint] = Gen oneOf UCD.BmpLl
+  lazy val lowercaseLetterChar: Gen[CodePoint] = Gen oneOf ucd.BmpLl
 
   /**
    * Generate a uppercase letter character from BMP or $ or _, UAR.
@@ -109,7 +109,7 @@ object LexicalSyntax {
    */
   lazy val uppercaseLetterChar: Gen[CodePoint] = {
     val extras: List[CodePoint] = List("U+005F".deUni, "U+0024".deUni)
-    val all = UCD.BmpLl ++ extras
+    val all = ucd.BmpLl ++ extras
     Gen oneOf all
   }
 
@@ -118,21 +118,21 @@ object LexicalSyntax {
    *
    * @spec title-case letters (Lt)
    */
-  lazy val titlecaseLetterChar: Gen[CodePoint] = Gen oneOf UCD.BmpLt
+  lazy val titlecaseLetterChar: Gen[CodePoint] = Gen oneOf ucd.BmpLt
 
   /**
    * Generate a "other letter" character from BMP, UAR.
    *
    * @spec other letters (Lo)
    */
-  lazy val otherLetterChar: Gen[CodePoint] = Gen oneOf UCD.BmpLo
+  lazy val otherLetterChar: Gen[CodePoint] = Gen oneOf ucd.BmpLo
 
   /**
    * Generate a numeral letter character from BMP, UAR.
    *
    * @spec letter numerals(Nl)
    */
-  lazy val letterNumeralChar: Gen[CodePoint] = Gen oneOf UCD.BmpNl
+  lazy val letterNumeralChar: Gen[CodePoint] = Gen oneOf ucd.BmpNl
 
   /**
    * Generate a digit character, UAR.
@@ -195,12 +195,12 @@ object LexicalSyntax {
    * 
    * @spec mathematical symbols(Sm)
    */
-  lazy val mathematicalSymbolChar: Gen[CodePoint] = Gen oneOf UCD.BmpSm
+  lazy val mathematicalSymbolChar: Gen[CodePoint] = Gen oneOf ucd.BmpSm
 
   /**
    * Generate a "other" symbol character, UAR.
    * 
    * @spec other symbols(So)
    */
-  lazy val otherSymbolChar: Gen[CodePoint] = Gen oneOf UCD.BmpSo
+  lazy val otherSymbolChar: Gen[CodePoint] = Gen oneOf ucd.BmpSo
 }

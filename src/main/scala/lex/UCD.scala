@@ -12,10 +12,10 @@ import scala.collection.immutable.SortedMap
 import qualac.Env
 import qualac.{ VFour, VFiveDotOne, VSix }
 
-object UCD {
+class UCD(env: Env) {
 
-  private val path = Env.unicodePath
-  private val verifier = new UCDVerifier(UCDParser.parse(path))
+  private val path = env.unicodePath
+  private val verifier = new UCDVerifier(env, UCDParser.parse(path))
 
   val BmpPoints = verifier.allBmpPoints()
   val BmpChars = verifier.allBmpChars()
@@ -33,7 +33,7 @@ object UCD {
   val BmpSm = verifier.verifiedBmpClass("Sm")
 }
 
-private[lex] class UCDVerifier(uMap: Map[String, List[CodePoint]]) {
+private[lex] class UCDVerifier(env: Env, uMap: Map[String, List[CodePoint]]) {
 
   private val MaxBmp = 65535
   private val NonCharClasses = Set("Cn", "Cs")
@@ -48,7 +48,7 @@ private[lex] class UCDVerifier(uMap: Map[String, List[CodePoint]]) {
   private case class Count(fourCount: Int, fiveDotOneCount: Int, sixCount: Int)
   private def verifyClass(clazz: String) = {
     val points = uMap(clazz)
-    val expectedTotal = Env.unicodeVersion match {
+    val expectedTotal = env.unicodeVersion match {
       case VFour       => vMap(clazz).fourCount
       case VFiveDotOne => vMap(clazz).fiveDotOneCount
       case VSix        => vMap(clazz).sixCount

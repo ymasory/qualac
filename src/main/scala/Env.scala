@@ -6,7 +6,6 @@
 package qualac
 
 import java.io.File
-import java.util.Calendar
 import java.sql.Timestamp
 
 import org.joda.time.DateTime
@@ -19,13 +18,13 @@ import scala.util.Properties
  * 
  * The most horrible mutable/side-effecty stuff goes here.
  */
-object Env {
+class Env {
 
   /** Get the current time in an immutable joda `DateTime`. */
   def now() = new DateTime()
 
   /** Get the current time as a sql `Timestamp`. */
-  def nowStamp() = new Timestamp(Env.now().toDate.getTime)
+  def nowStamp() = new Timestamp(0L)
 
   def nowMillis() = System.currentTimeMillis
 
@@ -141,7 +140,7 @@ object Env {
     else if (javaVersion startsWith "1.7") VFiveDotOne
     else throw QualacException("unkown java version " + javaVersion)
 
-  val unicodePath = "/UnicodeData-" + Env.unicodeVersion.value + ".txt"
+  val unicodePath = "/UnicodeData-" + unicodeVersion.value + ".txt"
   getClass.getResourceAsStream(unicodePath).ensuring(_ != null)
 }
 
