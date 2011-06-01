@@ -207,13 +207,8 @@ VALUES(?, ?, ?, ?, ?, ?)
     val set = System.getProperties.stringPropertyNames.toSet
     for (key <- set) {
       val value = System.getProperty(key)
-      val sql = "INSERT INTO java_prop(run_id, jkey, jvalue) VALUES(?, ?, ?)"
-      val pstmt = con.prepareStatement(sql)
-      pstmt.setLong(1, id)
-      pstmt.setString(2, key)
-      pstmt.setString(3, value)
-      pstmt.executeUpdate()
-      pstmt.close()
+      val prop = new JavaProp(id, key, value)
+      SquerylSchema.javaPropTable.insert(prop)
     }
 
     val run = Runtime.getRuntime
@@ -221,21 +216,9 @@ VALUES(?, ?, ?, ?, ?, ?)
     val freeMemory = run.freeMemory
     val maxMemory = run.maxMemory
     val processors = run.availableProcessors
-    val sql =
-"""
-INSERT INTO runtime_prop(run_id, total_memory, free_memory, max_memory,
-                        processors)
-VALUES(?, ?, ?, ?, ?)
-"""
-    val pstmt = con.prepareStatement(sql)
-    pstmt.setLong(1, id)
-    pstmt.setLong(2, totalMemory)
-    pstmt.setLong(3, freeMemory)
-    pstmt.setLong(4, maxMemory)
-    pstmt.setInt(5, processors)
-    pstmt.executeUpdate()
-    pstmt.close()
-
+    val prop = new RuntimeProp(id, totalMemory, freeMemory, maxMemory,
+                               processors)
+    SquerylSchema.runtimePropTable.insert(prop)
   }
 
   /** Store row in env table for this fuzz run. */
@@ -253,31 +236,13 @@ VALUES(?, ?, ?, ?, ?)
         case _: java.net.UnknownHostException => "UnkownHostException"
       }
 
-    val sql =
-      """|INSERT INTO
-         |  env(run_id, scala_version, scala_version_string,
-         |  scala_version_message, java_classpath, java_vendor,
-         |  java_version, java_vm_info, java_vm_name, java_vm_vendor,
-         |  java_vm_version, os, source_encoding, etc_hostname, hostname)
-         |VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""".stripMargin
-    val pstmt = con.prepareStatement(sql)
-    pstmt.setLong(1, id)
-    pstmt.setString(2, Env.scalaVersion)
-    pstmt.setString(3, Env.scalaVersionString)
-    pstmt.setString(4, Env.scalaVersionMsg)
-    pstmt.setString(5, Env.javaClasspath)
-    pstmt.setString(6, Env.javaVendor)
-    pstmt.setString(7, Env.javaVersion)
-    pstmt.setString(8, Env.javaVmInfo)
-    pstmt.setString(9, Env.javaVmName)
-    pstmt.setString(10, Env.javaVmVendor)
-    pstmt.setString(11, Env.javaVmVersion)
-    pstmt.setString(12, Env.os)
-    pstmt.setString(13, Env.sourceEncoding)
-    pstmt.setString(14, etcHostname)
-    pstmt.setString(15, hostname)
-    pstmt.executeUpdate()
-    pstmt.close()
+    val env = new SEnv(id, Env.scalaVersion, Env.scalaVersionString,
+                       Env.scalaVersionMsg, Env.javaClasspath, Env.javaVendor,
+                       Env.javaVmInfo, Env.javaVmName, Env.javaVmVendor,
+                       Env.javaVmVersion, Env.os, Env.sourceEncoding,
+                       etcHostname, hostname)
+
+    SquerylSchema.envTable.insert(env)
   }
 }
 

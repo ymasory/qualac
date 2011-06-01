@@ -18,7 +18,7 @@ object SquerylSchema extends org.squeryl.Schema {
   val preCompileTable       = table[PreCompile]("precompile")
   val postCompileTable      = table[PostCompile]("postcompile")
   val compileMessageTable   = table[CompileMessage]("compile_message")
-  val envTable              = table[Env]("env")
+  val envTable              = table[SEnv]("env")
   val outcomeTable          = table[Outcome]("outcome")
   val javaPropTable         = table[JavaProp]("java_prop")
   val runtimePropTable      = table[RuntimeProp]("runtime_prop")
@@ -128,7 +128,7 @@ class CompileMessage(
   def this() = this(0L, Severity.Error, "", 0, 0, 0)
 }
 
-class Env(
+class SEnv(
   @Column("run_id")
   val runId: Long,
   @Column("scala_version")
