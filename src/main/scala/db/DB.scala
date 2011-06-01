@@ -17,27 +17,6 @@ import org.squeryl.PrimitiveTypeMode._
 import qualac.{ Env, FuzzRun, Main }
 import qualac.compile.ScalacMessage
 
-object CondorDB {
-
-  def persistCondorRun(totalJobs: Int) = {
-    val cr = new CondorRun(Env.nowStamp(), totalJobs)
-    transaction {
-      SquerylSchema.condorRunTable.insert(cr)
-    }
-    cr.id
-  }
-
-  def persistSubmission(runId: Long, time: Timestamp, jobNum: Int,
-                        propName: String) = {
-
-    val sub = new CondorSubmission(runId, time, jobNum, propName)
-    transaction {
-      SquerylSchema.condorSubmissionTable.insert(sub)
-    }
-    sub.id
-  }
-}
-
 object DB {
 
   val id: Long = {
@@ -57,6 +36,24 @@ object DB {
     }
   }
   
+  def persistCondorRun(totalJobs: Int) = {
+    val cr = new CondorRun(Env.nowStamp(), totalJobs)
+    transaction {
+      SquerylSchema.condorRunTable.insert(cr)
+    }
+    cr.id
+  }
+
+  def persistSubmission(runId: Long, time: Timestamp, jobNum: Int,
+                        propName: String) = {
+
+    val sub = new CondorSubmission(runId, time, jobNum, propName)
+    transaction {
+      SquerylSchema.condorSubmissionTable.insert(sub)
+    }
+    sub.id
+  }
+
   def persistConfigs(map: Map[String, Either[String, Int]]) {
     for (key <- map.keys) {
       val value: String = map(key) match {

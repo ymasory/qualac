@@ -10,7 +10,7 @@ import java.util.regex.Pattern
 
 import org.scalacheck.Prop
 
-import qualac.db.CondorDB
+import qualac.db.DB
 
 class CondorRun(conf: File) {
 
@@ -54,7 +54,7 @@ class CondorRun(conf: File) {
 
   def condorRun() {
     try {
-      val runId = CondorDB.persistCondorRun(numProps)
+      val runId = DB.persistCondorRun(numProps)
       Main.shout("this is condor run " + runId)
       val condorRoot = new File("condor")
       if (condorRoot.exists == false) condorRoot.mkdirs()
@@ -65,8 +65,7 @@ class CondorRun(conf: File) {
         val propRoot = makeRootFor(i)
         val zeroPropRoot = makeRootFor(0)
         val submitId =
-          CondorDB.persistSubmission(runId, Env.nowStamp, i,
-                                     prop.getClass.getName)
+          DB.persistSubmission(runId, Env.nowStamp, i, prop.getClass.getName)
         val submit =
           new CondorSubmission(prop, zeroPropRoot, propRoot, id, submitId)
         val submitFilePath = submit.writeSubmitFile().getAbsolutePath
