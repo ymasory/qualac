@@ -14,16 +14,37 @@ import org.squeryl.annotations.Column
 object SquerylSchema extends org.squeryl.Schema {
 
   val condorRunTable        = table[CondorRun]("condor_run")
+  on(condorRunTable)        { c => declare(c.id is autoIncremented) }
+
   val runTable              = table[Run]("run")
+  on(runTable)              { c => declare(c.id is autoIncremented) }
+
   val preCompileTable       = table[PreCompile]("precompile")
+  on(preCompileTable)       { c => declare(c.id is autoIncremented) }
+
   val postCompileTable      = table[PostCompile]("postcompile")
+  on(postCompileTable)      { c => declare(c.id is autoIncremented) }
+
   val compileMessageTable   = table[CompileMessage]("compile_message")
+  on(compileMessageTable)   { c => declare(c.id is autoIncremented) }
+
   val envTable              = table[SEnv]("env")
+  on(envTable)              { c => declare(c.id is autoIncremented) }
+
   val outcomeTable          = table[Outcome]("outcome")
+  on(outcomeTable)          { c => declare(c.id is autoIncremented) }
+
   val javaPropTable         = table[JavaProp]("java_prop")
+  on(javaPropTable)         { c => declare(c.id is autoIncremented) }
+
   val runtimePropTable      = table[RuntimeProp]("runtime_prop")
+  on(runtimePropTable)      { c => declare(c.id is autoIncremented) }
+
   val configTable           = table[Config]("config")
+  on(configTable)           { c => declare(c.id is autoIncremented) }
+
   val condorSubmissionTable = table[CondorSubmission]("condor_submission")
+  on(condorSubmissionTable) { c => declare(c.id is autoIncremented) }
 }
 
 object YesNo extends Enumeration {
@@ -105,7 +126,9 @@ class PreCompile(
 class PostCompile(
   @Column("precompile_id")
   val precompileId: Long,
+  @Column("warnings")
   val warnings: YesNo,
+  @Column("errors")
   val errors: YesNo,
   @Column("time_ended")
   val timeEnded: Timestamp) extends KeyedEntity[Long] {
@@ -118,10 +141,15 @@ class PostCompile(
 class CompileMessage(
   @Column("precomp_id")
   val precompId: Long,
+  @Column("severity")
   val severity: Severity,
+  @Column("message")
   val message: String,
+  @Column("line")
   val line: Int,
+  @Column("col")
   val col: Int,
+  @Column("point")
   val point: Int) extends KeyedEntity[Long] {
 
   val id: Long = -1L
@@ -168,15 +196,18 @@ class Outcome(
   val runId: Long,
   @Column("class")
   val clazz: Option[String],
+  @Column("cause")
   val cause: Option[String],
+  @Column("message")
   val message: Option[String],
   @Column("stacktrace")
   val stackTrace: Option[String],
   @Column("time_ended")
   val timeEnded: Timestamp,
+  @Column("problem")
   val problem: YesNo) extends KeyedEntity[Long] {
 
-  def id: Long = -1L
+  val id: Long = -1L
   def this() = this(0L, None, None, None, None, stamp, YesNo.No)
 }
 
