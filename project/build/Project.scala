@@ -15,7 +15,7 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
   val jsap = "com.martiansoftware" % "jsap" % "2.1"
 
   //scala dependencies
-  val squeryl = "org.squeryl" %% "squeryl" % "0.9.4-RC7"
+  val squeryl = "org.squeryl" %% "squeryl" % "0.9.4"
   val scalacheck = "org.scala-tools.testing" %% "scalacheck" % "1.8"
 
   //turn down logging a bit
