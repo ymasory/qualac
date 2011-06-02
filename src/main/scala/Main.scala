@@ -15,7 +15,7 @@ import com.martiansoftware.jsap.stringparsers.{ FileStringParser,
 import org.squeryl.adapters.MySQLInnoDBAdapter
 import org.squeryl.{ Session, SessionFactory }
 
-import qualac.db.{ CondorReporter, DbMaker }
+import qualac.db.{ CondorReporter, DbCreationRun, DbDropRun }
 
 object Main {
 

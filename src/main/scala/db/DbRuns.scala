@@ -3,11 +3,9 @@
  *
  * Available under the Qualac License, see /LICENSE.
  */ 
-package qualac
+package qualac.db
 
 import org.squeryl.PrimitiveTypeMode._
-
-import qualac.db.SquerylSchema
 
 class DbCreationRun() {
 
