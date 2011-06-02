@@ -20,19 +20,34 @@ object SquerylSchema extends org.squeryl.Schema {
   on(runTable)              { c => declare(c.id is autoIncremented) }
 
   val preCompileTable       = table[PreCompile]("precompile")
-  on(preCompileTable)       { c => declare(c.id is autoIncremented) }
+  on(preCompileTable) { c =>
+    declare (
+      c.programText is dbType("TEXT"),
+      c.id is autoIncremented
+    )
+  }
 
   val postCompileTable      = table[PostCompile]("postcompile")
   on(postCompileTable)      { c => declare(c.id is autoIncremented) }
 
   val compileMessageTable   = table[CompileMessage]("compile_message")
-  on(compileMessageTable)   { c => declare(c.id is autoIncremented) }
+  on(compileMessageTable) { c =>
+    declare (
+      c.message is dbType("TEXT"),
+      c.id is autoIncremented
+    )
+  }
 
   val envTable              = table[SEnv]("env")
   on(envTable)              { c => declare(c.id is autoIncremented) }
 
   val outcomeTable          = table[Outcome]("outcome")
-  on(outcomeTable)          { c => declare(c.id is autoIncremented) }
+  on(outcomeTable) { c =>
+    declare (
+      c.stackTrace is dbType("TEXT"),
+      c.id is autoIncremented
+    )
+  }
 
   val javaPropTable         = table[JavaProp]("java_prop")
   on(javaPropTable)         { c => declare(c.id is autoIncremented) }
