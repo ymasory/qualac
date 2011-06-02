@@ -3,7 +3,7 @@
  *
  * Available under the Qualac License, see /LICENSE.
  */ 
-package qualac.db
+package qualac.condor
 
 import java.sql.{ DriverManager, Timestamp }
 
@@ -15,7 +15,8 @@ import org.squeryl.PrimitiveTypeMode._
 
 import scala.xml.Text
 
-import qualac.{ GMail, Util }
+import qualac.{ Main, TimeUtil }
+import qualac.TimeUtil.{ toRichDateTime, toRichPeriod }
 
 class CondorReporterRun(recipients: List[String], account: String,
                         name: String, password: String, condorId: Long) {
@@ -23,10 +24,13 @@ class CondorReporterRun(recipients: List[String], account: String,
   val q = new Querier(condorId)
 
   def run() {
-    val subject = makeSubject()
-    val report = makeBody()
-    GMail.sendMail(recipients, subject, report, account, name, password,
-                   mimeType = "text/html")
+    val (subject, report) = Main.withShout("generating report") {
+      (makeSubject(), makeBody())
+    }
+    Main.withShout("sending email") {
+      GMail.sendMail(recipients, subject, report, account, name, password,
+                     mimeType = "text/html")
+    }
   }
 
 //scalatest green EE5566
@@ -61,9 +65,8 @@ class CondorReporterRun(recipients: List[String], account: String,
     val ended = q.timeEnded()
     val period = (new Duration(started.getMillis, ended.getMillis)).toPeriod()
     <p>
-      This Condor run began on {DateFmt.fullRepr(started)} and ended
-      approximately {DateFmt.fullRepr(ended)}, making a total of
-      {DateFmt.periodRepr(period)}.
+      This Condor run began on {started.fullRepr} and ended
+      approximately {ended.fullRepr}, making a total of {period.periodRepr}.
     </p>
   }
 
@@ -78,7 +81,7 @@ class CondorReporterRun(recipients: List[String], account: String,
       During that time {q.numHosts()} hosts performed {q.numCompilations()}
       compilations. Each JVM used {threadsNode} threads.
       A peak rate of {comPerSec} compilations per minute was reached at
-      {DateFmt.timeRepr(when)}.
+      {when.timeRepr}.
     </p>
   }
 
@@ -103,8 +106,8 @@ class CondorReporterRun(recipients: List[String], account: String,
   }
 
   private def makeSubject() = {
-    val dateTime = Util.now()
-    val datePart = DateFmt.conciseRepr(dateTime)
+    val dateTime = TimeUtil.now()
+    val datePart = dateTime.conciseRepr
     val passedString = "passed " + q.numPropsPassed()
     val falsifiedString = {
       val numFalsified = q.numPropsFalsified()
@@ -117,7 +120,7 @@ class CondorReporterRun(recipients: List[String], account: String,
 }
 
 class Querier(condorId: Long) {
-  import SquerylSchema._
+  import qualac.db.SquerylSchema._
 
   val printSql = {
     () => Session.currentSession.setLogger( (s: String) => println(s) )
@@ -349,41 +352,3 @@ class Querier(condorId: Long) {
 
   def numPropsFalsified(): Long = -1L
 } 
- 
-object DateFmt {
-
-  import org.joda.time.Period
-  import org.joda.time.format.{ DateTimeFormat, PeriodFormatterBuilder }
-
-  def conciseRepr(d: DateTime) = {
-    val fmt = DateTimeFormat.forPattern("EEE YYYY-MMMM-dd, hh:mma")
-    fmt.print(d)
-  }
-
-  def fullRepr(d: DateTime) = dateRepr(d) + " at " + timeRepr(d)
-
-  def timeRepr(d: DateTime) = {
-    val timeFmt = DateTimeFormat.forPattern("hh:mma")
-    timeFmt.print(d)
-  }
-
-  def dateRepr(d: DateTime) = {
-    val dayFmt = DateTimeFormat.forPattern("EEE MMMM dd, YYYY")
-    dayFmt.print(d)
-  }
-
-  def periodRepr(p: Period) = {
-    val fmt =
-      new PeriodFormatterBuilder()
-        .printZeroAlways()
-        .appendHours()
-        .appendSuffix(" hours")
-        .appendSeparator(", ")
-        .appendMinutes()
-        .appendSuffix(" minutes")
-        .appendSeparator(", ")
-        .toFormatter()
-    fmt.print(p)
-  }
-}
-

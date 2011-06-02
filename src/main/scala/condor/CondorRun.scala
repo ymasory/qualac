@@ -3,13 +3,14 @@
  *
  * Available under the Qualac License, see /LICENSE.
  */ 
-package qualac
+package qualac.condor
 
 import java.io.{ File, PrintWriter }
 import java.util.regex.Pattern
 
 import org.scalacheck.Prop
 
+import qualac.{ ConfigFile, Env, Finder, Main, TimeUtil }
 import qualac.db.DB
 
 class CondorRun(conf: File, env: Env) {
@@ -44,7 +45,7 @@ class CondorRun(conf: File, env: Env) {
     Stream.continually(props).take(numCycles).flatten.toList
   }
   val numProps = allProps.length
-  val stamp = Util.nowMillis() 
+  val stamp = TimeUtil.nowMillis() 
 
   def fuzz() = {
     Main.shout("really submit " + allProps.length + " jobs? (y/N)")
@@ -68,7 +69,8 @@ class CondorRun(conf: File, env: Env) {
         val propRoot = makeRootFor(i)
         val zeroPropRoot = makeRootFor(0)
         val submitId =
-          db.persistSubmission(runId, Util.nowStamp, i, prop.getClass.getName)
+          db.persistSubmission(runId, TimeUtil.nowStamp, i,
+                               prop.getClass.getName)
         val submit =
           new CondorSubmission(prop, zeroPropRoot, propRoot, id, submitId)
         val submitFilePath = submit.writeSubmitFile().getAbsolutePath
@@ -106,7 +108,7 @@ class CondorRun(conf: File, env: Env) {
     writeCustomConfig(customConfigFile)
     val mainFile: String =
       "qualac.Main --config " + customConfigFile.getAbsolutePath
-    val nStamp = Util.nowMillis()
+    val nStamp = TimeUtil.nowMillis()
     val error: String =
       new File(logDir, Job + "-" + nStamp + ".error").getAbsolutePath
     val output: String =

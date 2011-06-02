@@ -13,24 +13,25 @@ import qualac.db.DB
 
 class FuzzRun() {
 
+  val runId = -1L
+  val db: DB = null
+
   def fuzz() = {
     try {
-      Main.shout("initializing environment")
-      val env = new Env(null)
-      Main.shout("... done")
-
-      Main.shout("begin initializing database")
-      val db = new DB(env)
-      val runId = db.persistRun()
-      db.persistRunEnvironment(runId)
-      db.persistJavaProps(runId)
-      Main.shout("... done")
+      val env = Main.withShout("initializing environment") { new Env(null) }
+      val (_, _) = Main.withShout("begin initializing database") {
+        val db = new DB(env)
+        val runId = db.persistRun()
+        db.persistRunEnvironment(runId)
+        db.persistJavaProps(runId)
+        (db, runId)
+      }
 
       db.persistConfigs(runId, null)
-      Main.shout("using " + env.numThreads + " threads")
+      Main.withShout("using " + env.numThreads + " threads") {}
       val finder = new Finder(env)
       val allProps = finder.loadProperties()
-      Main.shout("found " + allProps.length + " properties to test")
+      Main.withShout("found " + allProps.length + " properties to test") {}
       Main.shout("Fuzzing started. Going for " + env.durationSeconds +
                  " seconds. Down with scalac!")
 
@@ -49,29 +50,28 @@ class FuzzRun() {
     catch {
       case t1: Throwable => {
         try {
-          // db.persistExit(Some(t1))
-          t1.printStackTrace()
-          Main.shout("successfully persisted exit-causing error", error=true)
+          Main.withShout("persisting exit-causing error", error = true) {
+            db.persistExit(runId, Some(t1))
+            t1.printStackTrace()
+          }
         }
         catch {
           case t2 => {
-            Main.shout(
+            Main.withShout(
               "could not persist exit-causing error, printing instead",
-              error=true)
-            t1.printStackTrace()
-            Main.shout(
+              error=true) {
+                t1.printStackTrace()
+            }
+            Main.withShout(
               "printing error encountered in persisting exit-causing error",
-              error=true)
-            t2.printStackTrace
-            Main.shout(
-              "done printing exit-causing errors",
-              error=true)
+              error=true) {
+                t2.printStackTrace
+            }
           }
         }
         Main.shout("exiting from error", error=true)
         sys.exit(1)
       }
     }
-    Main.shout("No errors encountered. Done fuzzing.")
   }
 }

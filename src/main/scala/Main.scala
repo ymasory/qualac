@@ -15,7 +15,8 @@ import com.martiansoftware.jsap.stringparsers.{ FileStringParser,
 import org.squeryl.adapters.MySQLInnoDBAdapter
 import org.squeryl.{ Session, SessionFactory }
 
-import qualac.db.{ CondorReporterRun, DbCreationRun, DbDropRun }
+import qualac.condor.CondorReporterRun
+import qualac.db.{ DbCreationRun, DbDropRun }
 
 object Main {
 
@@ -55,21 +56,21 @@ object Main {
 
       val generalConfigFile = jsapResult.getFile(conf)
       val generalConfig = new ConfigFile(generalConfigFile)
-      shout("using general configuration file: " + generalConfigFile)
+      shout("using general configuration file " + generalConfigFile)
 
       val dbUser = generalConfig.getString("db_username")
       val dbPassword = generalConfig.getString("db_password")
       val dbUrl = generalConfig.getString("db_url")
       val dbCreds = db.DbCreds(dbUrl, dbUser, dbPassword)
 
-      shout("connecting to database")
-      Class.forName("com.mysql.jdbc.Driver");
-      SessionFactory.concreteFactory = Some( () =>
-        Session.create(
-        DriverManager.getConnection(dbCreds.dbUrl, dbCreds.dbUser,
-                                    dbCreds.dbPassword),
-        new MySQLInnoDBAdapter))
-      shout("... done")
+      withShout("connecting to database") {
+        Class.forName("com.mysql.jdbc.Driver");
+        SessionFactory.concreteFactory = Some( () =>
+          Session.create(
+          DriverManager.getConnection(dbCreds.dbUrl, dbCreds.dbUser,
+                                      dbCreds.dbPassword),
+          new MySQLInnoDBAdapter))
+      }
 
       val condorId = jsapResult.getLong(report, -1)
       if (condorId >= 0) {
@@ -83,21 +84,22 @@ object Main {
         condorReporterRun.run()
       }
       else if (jsapResult getBoolean createDb) {
-        shout("creating tables")
-        new DbCreationRun().run()
-        shout("... done")
+        withShout("creating tables") {
+          new DbCreationRun().run()
+        }
       }
       else if (jsapResult getBoolean dropDb) {
-        shout("dropping tables")
-        new DbDropRun().run()
-        shout("... done")
+        withShout("dropping tables") {
+          new DbDropRun().run()
+        }
       }
       else {
         val condorConfigFileOpt = Option(jsapResult.getFile(condor))
         condorConfigFileOpt match {
           case Some(condorConfigFile) => {
-            shout("using condor configuration file: " + condorConfigFile)
-            val condorConfig = new ConfigFile(condorConfigFile)
+            withShout("using condor configuration file: " + condorConfigFile) {
+              val condorConfig = new ConfigFile(condorConfigFile)
+            }
           }
           case None => {
             // val fuzzRun = new FuzzRun()
@@ -124,15 +126,36 @@ object Main {
     builder toString
   }
 
-
-  def shout(str: String, error: Boolean = false) {
-    val banner = (1 to 80).map(_ => "#").mkString
+  def withShout[A](str: String, error: Boolean = false,
+                   suppressOutcome: Boolean = false) (thunk: => A): A = {
+    val banner = (1 to 80).map(_ => "-").mkString
     val out = if (error) Console.err else Console.out
     out.println(banner)
     val name =
       if (error) (ProgramNameUpper + " ERROR: ")
       else (ProgramName + ": ")
-    out.println(name + (if (error) str.toUpperCase else str))
-    out.println(banner)
+    val msg = if (error) str.toUpperCase else str
+    out.print(name + msg)
+    if (suppressOutcome == false) out.print(" ... ")
+    val a: A = try {
+      val a = thunk
+      if (suppressOutcome == false) out.print("done!")
+      out.println()
+      a
+    }
+    catch {
+      case t: Throwable => {
+        if (suppressOutcome == false) out.print("ERROR!")
+        out.println()
+        throw t
+      }
+    }
+    finally {
+      out.println(banner)
+    }
+    a
   }
+
+  def shout(str: String, error: Boolean = false) =
+    withShout(str, error, true) {}
 }

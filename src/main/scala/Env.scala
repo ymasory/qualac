@@ -72,7 +72,7 @@ class Env(confFile: File) {
   val outDir = {
     val dirName = generalConfig.getString(OutDirKey)
     val dir = {
-      val name = Main.ProgramNameLower + "-" + Util.nowMillis()
+      val name = Main.ProgramNameLower + "-" + TimeUtil.nowMillis()
       new File(dirName, name).getCanonicalFile
     }
     if (dir.exists == false) {
