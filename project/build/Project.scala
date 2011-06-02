@@ -46,18 +46,18 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
 
 
   //some custom run tasks, for my sanity
+  val home = Path.userHome + Path.sep.toString
+  val qualacConf = home + ".qualac.conf"
+  val qualacCondorConf = home + ".qualac-condor.conf"
+  val qualacLocalConf = home + ".qualac-local.conf"
+  val configFlag = "--config"
+  val condorFlag = "--condor"
   lazy val condor = task { args =>
-    val nArgs =
-      Array("--config",
-            Path.userHome + Path.sep.toString + ".qualac.conf",
-            "--condor",
-            Path.userHome + Path.sep.toString + ".qualac-condor.conf")
+    val nArgs = Array(configFlag, qualacConf, condorFlag, qualacCondorConf)
     super.runAction(nArgs).dependsOn(proguard)
   }
   lazy val mrun = task { args =>
-    val nArgs =
-      Array("--config",
-            Path.userHome + Path.sep.toString + ".qualac-local.conf")
+    val nArgs = Array(configFlag, qualacLocalConf)
     super.runAction(nArgs)
   }
   lazy val report = task { args =>
@@ -65,17 +65,16 @@ class Project(info: ProjectInfo) extends DefaultProject(info)
       Console.err.println("need report number")
       System.exit(1)
     }
-    val nArgs =
-      Array("--report", args(0),
-            "--config",
-            Path.userHome + Path.sep.toString + ".qualac.conf")
+    val nArgs = Array("--report", args(0), configFlag, qualacConf)
     super.runAction(nArgs)
   }
   lazy val createdb = task { args =>
     val nArgs =
-      Array("--create-db",
-            "--config",
-            Path.userHome + Path.sep.toString + ".qualac.conf")
+      Array("--create-db", configFlag, qualacConf)
+    super.runAction(nArgs)
+  }
+  lazy val dropdb = task { args =>
+    val nArgs = Array("--drop-db", configFlag, qualacConf)
     super.runAction(nArgs)
   }
 
