@@ -22,14 +22,6 @@ class Env(confFile: File) {
 
   val generalConfig = new ConfigFile(confFile)
 
-  /** Get the current time in an immutable joda `DateTime`. */
-  def now() = new DateTime()
-
-  /** Get the current time as a sql `Timestamp`. */
-  def nowStamp() = new Timestamp(0L)
-
-  def nowMillis() = System.currentTimeMillis
-
   /** Current directory the program is executing in. */
   val curDir = (new File(".")).getCanonicalFile
 
@@ -80,7 +72,7 @@ class Env(confFile: File) {
   val outDir = {
     val dirName = generalConfig.getString(OutDirKey)
     val dir = {
-      val name = Main.ProgramNameLower + "-" + nowMillis()
+      val name = Main.ProgramNameLower + "-" + Util.nowMillis()
       new File(dirName, name).getCanonicalFile
     }
     if (dir.exists == false) {

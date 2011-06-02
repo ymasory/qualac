@@ -14,13 +14,13 @@ import scala.tools.nsc.reporters.{ Reporter, StoreReporter }
 
 import org.squeryl.PrimitiveTypeMode._
 
-import qualac.{ Env, FuzzRun, Main }
+import qualac.{ Env, FuzzRun, Main, Util }
 import qualac.compile.ScalacMessage
 
 class DB(env: Env) {
   
   def persistCondorRun(totalJobs: Int) = {
-    val cr = new CondorRun(env.nowStamp(), totalJobs)
+    val cr = new CondorRun(Util.nowStamp(), totalJobs)
     transaction {
       SquerylSchema.condorRunTable.insert(cr)
     }
@@ -69,7 +69,7 @@ class DB(env: Env) {
       def insertPrecompile(): Long = {
         val preComp = new PreCompile(runId, progText,
                                      bool2Enum(shouldCompile == false),
-                                     YesNo.No, env.nowStamp())
+                                     YesNo.No, Util.nowStamp())
         transaction {
           SquerylSchema.preCompileTable.insert(preComp)
         }
@@ -81,7 +81,7 @@ class DB(env: Env) {
        infos: List[ScalacMessage]) => {
          def persistSummary() {
            val postComp = new PostCompile(trialId, bool2Enum(hasWarnings),
-                                          bool2Enum(hasErrors), env.nowStamp)
+                                          bool2Enum(hasErrors), Util.nowStamp)
            transaction {
              SquerylSchema.postCompileTable.insert(postComp)
            }
@@ -104,7 +104,7 @@ class DB(env: Env) {
   }
 
   def persistExit(runId: Long, error: Option[Throwable]) {
-    val stamp = env.nowStamp()
+    val stamp = Util.nowStamp()
     val outcome = 
       error match {
         case None => new Outcome(runId, None, None, None, None, stamp,
@@ -141,7 +141,7 @@ class DB(env: Env) {
   def persistRun() = {
 
     // val run = new Run(env.nowStamp(), env.condorSubmitId)
-    val run = new Run(env.nowStamp(), null)
+    val run = new Run(Util.nowStamp(), null)
     transaction {
       SquerylSchema.runTable.insert(run)
     }

@@ -7,7 +7,7 @@ package qualac.db
 
 import java.sql.{ DriverManager, Timestamp }
 
-import org.joda.time.DateTime
+import org.joda.time.{ DateTime, Duration }
 
 import org.squeryl.{ Session, SessionFactory }
 import org.squeryl.adapters.MySQLAdapter
@@ -15,81 +15,18 @@ import org.squeryl.PrimitiveTypeMode._
 
 import scala.xml.Text
 
-import qualac.{ ConfigFile, Env, GMail }
-import SquerylSchema._
+import qualac.{ GMail, Util }
 
-class CondorReporter(env: Env) {
-
-  val condorConfig = new ConfigFile(null)
-
-  val password = condorConfig.getString("gmail_password")
-  val recipients =
-    condorConfig.getString("recipients").split(",").toList
-  val account = condorConfig.getString("gmail_account")
-  val name = condorConfig.getString("gmail_name")
-
-  def mailReport(id: Long) = {
-    val (subject, report) = new Report(env, id).generateReport()
-    println("subject: " + subject)
-    println("body: " + report)
-    GMail.sendMail(recipients, subject, report, account, name, password,
-                   mimeType = "text/html")
-  }
-
-  def lastCondorRunId(): Long = {
-    transaction {
-      from(condorRunTable) ( r =>
-        compute(nvl(max(r.id), -1))
-      )
-    }
-  }
-}
-
-object DateFmt {
-
-  import org.joda.time.Period
-  import org.joda.time.format.{ DateTimeFormat, PeriodFormatterBuilder }
-
-  def conciseRepr(d: DateTime) = {
-    val fmt = DateTimeFormat.forPattern("EEE YYYY-MMMM-dd, hh:mma")
-    fmt.print(d)
-  }
-
-  def fullRepr(d: DateTime) = dateRepr(d) + " at " + timeRepr(d)
-
-  def timeRepr(d: DateTime) = {
-    val timeFmt = DateTimeFormat.forPattern("hh:mma")
-    timeFmt.print(d)
-  }
-
-  def dateRepr(d: DateTime) = {
-    val dayFmt = DateTimeFormat.forPattern("EEE MMMM dd, YYYY")
-    dayFmt.print(d)
-  }
-
-  def periodRepr(p: Period) = {
-    val fmt =
-      new PeriodFormatterBuilder()
-        .printZeroAlways()
-        .appendHours()
-        .appendSuffix(" hours")
-        .appendSeparator(", ")
-        .appendMinutes()
-        .appendSuffix(" minutes")
-        .appendSeparator(", ")
-        .toFormatter()
-    fmt.print(p)
-  }
-}
-
-class Report(env: Env, condorId: Long) {
-
-  import org.joda.time.Duration
+class CondorReporterRun(recipients: List[String], account: String,
+                        name: String, password: String, condorId: Long) {
 
   val q = new Querier(condorId)
 
-  def generateReport() = {
-    (makeSubject(), makeBody())
+  def run() {
+    val subject = makeSubject()
+    val report = makeBody()
+    GMail.sendMail(recipients, subject, report, account, name, password,
+                   mimeType = "text/html")
   }
 
 //scalatest green EE5566
@@ -166,7 +103,7 @@ class Report(env: Env, condorId: Long) {
   }
 
   private def makeSubject() = {
-    val dateTime = env.now()
+    val dateTime = Util.now()
     val datePart = DateFmt.conciseRepr(dateTime)
     val passedString = "passed " + q.numPropsPassed()
     val falsifiedString = {
@@ -413,3 +350,40 @@ class Querier(condorId: Long) {
   def numPropsFalsified(): Long = -1L
 } 
  
+object DateFmt {
+
+  import org.joda.time.Period
+  import org.joda.time.format.{ DateTimeFormat, PeriodFormatterBuilder }
+
+  def conciseRepr(d: DateTime) = {
+    val fmt = DateTimeFormat.forPattern("EEE YYYY-MMMM-dd, hh:mma")
+    fmt.print(d)
+  }
+
+  def fullRepr(d: DateTime) = dateRepr(d) + " at " + timeRepr(d)
+
+  def timeRepr(d: DateTime) = {
+    val timeFmt = DateTimeFormat.forPattern("hh:mma")
+    timeFmt.print(d)
+  }
+
+  def dateRepr(d: DateTime) = {
+    val dayFmt = DateTimeFormat.forPattern("EEE MMMM dd, YYYY")
+    dayFmt.print(d)
+  }
+
+  def periodRepr(p: Period) = {
+    val fmt =
+      new PeriodFormatterBuilder()
+        .printZeroAlways()
+        .appendHours()
+        .appendSuffix(" hours")
+        .appendSeparator(", ")
+        .appendMinutes()
+        .appendSuffix(" minutes")
+        .appendSeparator(", ")
+        .toFormatter()
+    fmt.print(p)
+  }
+}
+

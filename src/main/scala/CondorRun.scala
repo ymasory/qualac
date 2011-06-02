@@ -44,7 +44,7 @@ class CondorRun(conf: File, env: Env) {
     Stream.continually(props).take(numCycles).flatten.toList
   }
   val numProps = allProps.length
-  val stamp = env.nowMillis() 
+  val stamp = Util.nowMillis() 
 
   def fuzz() = {
     Main.shout("really submit " + allProps.length + " jobs? (y/N)")
@@ -68,7 +68,7 @@ class CondorRun(conf: File, env: Env) {
         val propRoot = makeRootFor(i)
         val zeroPropRoot = makeRootFor(0)
         val submitId =
-          db.persistSubmission(runId, env.nowStamp, i, prop.getClass.getName)
+          db.persistSubmission(runId, Util.nowStamp, i, prop.getClass.getName)
         val submit =
           new CondorSubmission(prop, zeroPropRoot, propRoot, id, submitId)
         val submitFilePath = submit.writeSubmitFile().getAbsolutePath
@@ -106,7 +106,7 @@ class CondorRun(conf: File, env: Env) {
     writeCustomConfig(customConfigFile)
     val mainFile: String =
       "qualac.Main --config " + customConfigFile.getAbsolutePath
-    val nStamp = env.nowMillis()
+    val nStamp = Util.nowMillis()
     val error: String =
       new File(logDir, Job + "-" + nStamp + ".error").getAbsolutePath
     val output: String =

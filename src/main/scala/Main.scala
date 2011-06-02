@@ -15,7 +15,7 @@ import com.martiansoftware.jsap.stringparsers.{ FileStringParser,
 import org.squeryl.adapters.MySQLInnoDBAdapter
 import org.squeryl.{ Session, SessionFactory }
 
-import qualac.db.{ CondorReporter, DbCreationRun, DbDropRun }
+import qualac.db.{ CondorReporterRun, DbCreationRun, DbDropRun }
 
 object Main {
 
@@ -53,7 +53,10 @@ object Main {
     val jsapResult = jsap.parse(args)
     if (jsapResult.success) {
 
-      val generalConfig = new ConfigFile(jsapResult.getFile(conf))
+      val generalConfigFile = jsapResult.getFile(conf)
+      val generalConfig = new ConfigFile(generalConfigFile)
+      shout("using general configuration file: " + generalConfigFile)
+
       val dbUser = generalConfig.getString("db_username")
       val dbPassword = generalConfig.getString("db_password")
       val dbUrl = generalConfig.getString("db_url")
@@ -70,9 +73,14 @@ object Main {
 
       val condorId = jsapResult.getLong(report, -1)
       if (condorId >= 0) {
-      //   val reporter = new CondorReporter(env)
-      //   shout("generating and mailing report")
-      //   reporter.mailReport(condorId)
+        val recipients =
+          generalConfig.getString("recipients").split(",").toList
+        val account = generalConfig.getString("gmail_account")
+        val name = generalConfig.getString("gmail_name")
+        val password = generalConfig.getString("gmail_password")
+        val condorReporterRun =
+          new CondorReporterRun(recipients, account, name, password, condorId)
+        condorReporterRun.run()
       }
       else if (jsapResult getBoolean createDb) {
         shout("creating tables")
@@ -85,18 +93,17 @@ object Main {
         shout("... done")
       }
       else {
-      //   val condorFile = Option(jsapResult.getFile(condor))
-      //   shout("using configuration file: " + confFile)
-      //   condorFile match {
-      //     case Some(file) => {
-      //       val condRun = new CondorRun(file, env)
-      //       condRun fuzz()
-      //     }
-      //     case None => {
-      //       val fuzzRun = new FuzzRun()
-      //       fuzzRun fuzz()
-      //     }
-      //   }
+        val condorConfigFileOpt = Option(jsapResult.getFile(condor))
+        condorConfigFileOpt match {
+          case Some(condorConfigFile) => {
+            shout("using condor configuration file: " + condorConfigFile)
+            val condorConfig = new ConfigFile(condorConfigFile)
+          }
+          case None => {
+            // val fuzzRun = new FuzzRun()
+            // fuzzRun fuzz()
+          }
+        }
       }
     }
     else Console.err println(usage(jsapResult))
