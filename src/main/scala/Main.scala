@@ -55,8 +55,10 @@ object Main {
     if (jsapResult.success) {
 
       val generalConfigFile = jsapResult.getFile(conf)
-      val generalConfig = new ConfigFile(generalConfigFile)
-      shout("using general configuration file " + generalConfigFile)
+      val generalConfig =
+        withShout("parsing general config file " + generalConfigFile) {
+          new ConfigFile(generalConfigFile)
+        }
 
       val dbUser = generalConfig.getString("db_username")
       val dbPassword = generalConfig.getString("db_password")
@@ -97,8 +99,10 @@ object Main {
         val condorConfigFileOpt = Option(jsapResult.getFile(condor))
         condorConfigFileOpt match {
           case Some(condorConfigFile) => {
-            withShout("using condor configuration file: " + condorConfigFile) {
-              val condorConfig = new ConfigFile(condorConfigFile)
+            val condorConfig = 
+              withShout("parsing condor config file: " +
+                        condorConfigFile) {
+                new ConfigFile(condorConfigFile)
             }
           }
           case None => {
@@ -128,7 +132,7 @@ object Main {
 
   def withShout[A](str: String, error: Boolean = false,
                    suppressOutcome: Boolean = false) (thunk: => A): A = {
-    val banner = (1 to 80).map(_ => "-").mkString
+    val banner = (1 to 80).map(_ => "+").mkString
     val out = if (error) Console.err else Console.out
     out.println(banner)
     val name =
